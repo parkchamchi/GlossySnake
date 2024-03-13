@@ -1,0 +1,30 @@
+@startuml
+
+skinparam dpi 200
+skinparam style strictuml
+
+hide footbox
+
+autoactivate on
+
+actor User
+participant 1.Frontend as Frontend
+participant 2.Backend as Backend
+participant 3.Parser as Parser
+participant 4.Annotator as Annotator
+
+User -> Frontend: Insert a **corpus**
+Frontend -> Backend: Pass the **corpus**
+
+Backend -> Parser: Pass the **corpus**
+Parser --> Backend: Parse the **corpus** to the //tokens//, \nand return.
+
+|||
+
+Backend -> Annotator: Pass the //tokens//
+Annotator --> Backend: __Gloss__ the //tokens//, \nand return.
+
+Backend --> Frontend: Pass the __glossed__ //tokens//
+Frontend -> Frontend: Display the __glossed__ //tokens//
+
+@enduml

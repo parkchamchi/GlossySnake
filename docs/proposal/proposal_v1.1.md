@@ -15,11 +15,11 @@ Hamiltonian System을 이용한 텍스트 번역 서비스
 - 텍스트를 읽으며 단어와 문법을 배울 수 있음.
 - *예: 상용 앱 Legentibus에서 일부 라틴어-영어 말뭉치 제공*
 
-![example_aesop](images/example_aesop.png)<br>
+<img src="images/example_aesop.png" alt="example_aesop" width="512"><br>
 라틴어 “이솝의 우화” 를 영어화자를 위해 Hamilton System을 이용해 주석을 단 책. (1832)<br>
 *Æsop’s Fables, as Romanized By Phædrus: with a Literal Interlinear Translation*
 
-### 기계번역과 다름점
+### 기계번역과 다른점
 - 기계번역 특성상 출력물이 어색하다.
 - 학습자가 번역문과 원문과의 상관관계를 파악하기 힘들어 언어학습에 부적합하다.
 - 원문을 제대로 이해하는데 도움이 크게 되지 않는다.

@@ -42,6 +42,7 @@
 					"is_delimiter": false,
 					"gloss": "fields"
 				}
+			]
 		},
 		{
 			"is_delimiter": true,

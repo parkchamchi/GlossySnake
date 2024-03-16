@@ -1,0 +1,7 @@
+__pycache__/
+.env
+tmp/
+test*.bat
+tools/
+
+server/secret_key.txt

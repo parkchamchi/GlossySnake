@@ -4,7 +4,7 @@
 - 프론트엔드: Vue.js 3.0
 - 백엔드: Django
 
-## Token+Gloss JSON 데이터 형태
+## Token+Gloss JSON 데이터 형태 제안
 - `paragraph_delimiters`: *list of strings*: 문단을 나누는 문자열
 - `paragraphs`: *list of objects*
   - `is_delimiter`: *boolean*: 문단을 나누는 문자열인지 여부 (예: newline)

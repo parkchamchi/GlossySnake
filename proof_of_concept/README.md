@@ -31,3 +31,28 @@ import openai
 import tiktoken
 import dotenv
 ```
+
+## 실행방법
+### venv 생성
+```
+python -m venv .venv 
+```
+### Activate the venv
+```
+cd .venv
+cd Scripts
+activate
+cd ../..
+```
+### 라이브러리 다운로드
+```
+pip install -r requirements.txt
+```
+### 프론트엔드 실행
+```
+cd frontend
+python vserver.py
+```
+브라우저에서 `http://127.0.0.1:56122`으로 진입. 포트 변경은 `-h 123456` 사용
+### 예시 업로드
+`Browse...` 버튼을 클릭 후 [`example_data/les_champs.json`](example_data/les_champs.json) 업로드

@@ -2,7 +2,7 @@
 초안.
 
 ## Use case diagram
-<img src="images/usecase.png" alt="usecase.png" width="256"><br>
+<img src="images/usecase.png" alt="usecase.png" width="512"><br>
 
 # Use cases
 ## UC001. Insert the corpus

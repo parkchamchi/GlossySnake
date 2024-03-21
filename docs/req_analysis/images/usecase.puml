@@ -1,6 +1,6 @@
 @startuml
 
-skinparam dpi 200
+skinparam dpi 150
 skinparam style strictuml
 
 left to right direction

@@ -1,0 +1,40 @@
+@startuml
+
+skinparam dpi 150
+skinparam style strictuml
+
+left to right direction
+actor User
+
+rectangle System {
+	(Insert the corpus) as UC001
+	(Set the options) as UC002
+
+	(Request the positions\nof the paragraph delimiters) as UC003
+	(Divide the paragraph) as UC004
+
+	(Select the tokens) as UC005
+	(Resend request) as UC006
+
+	(Save the output as a file) as UC007
+	(Upload the saved file) as UC008
+
+	(Return to the previous state) as UC009
+
+	(Log in) as UC010
+	(Log out) as UC011
+}
+
+User -- UC001
+UC001 .> UC002 : <<extends>>
+User -- UC003
+User -- UC004
+User -- UC005
+User -- UC006
+User -- UC007
+User -- UC008
+User -- UC009
+User -- UC010
+User -- UC011
+
+@enduml

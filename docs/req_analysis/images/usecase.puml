@@ -23,6 +23,12 @@ rectangle System {
 
 	(Log in) as UC010
 	(Log out) as UC011
+
+	(Perform an action to a token) as UC012
+	(Edit the token manually) as UC013
+	(Hide the token) as UC014
+
+	(Set the visibility of the hidden tokens) as UC015
 }
 
 User -- UC001
@@ -36,5 +42,9 @@ User -- UC008
 User -- UC009
 User -- UC010
 User -- UC011
+User -- UC012
+UC012 <|-- UC013
+UC012 <|-- UC014
+User -- UC015
 
 @enduml

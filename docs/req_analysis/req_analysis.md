@@ -1,5 +1,4 @@
 # 요구사항 분석
-초안.
 
 ## Use case diagram
 <img src="images/usecase.png" alt="usecase.png" width="768"><br>

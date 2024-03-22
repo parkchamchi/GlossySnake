@@ -1,8 +1,7 @@
 # 요구사항 분석
-초안.
 
 ## Use case diagram
-<img src="images/usecase.png" alt="usecase.png" width="512"><br>
+<img src="images/usecase.png" alt="usecase.png" width="768"><br>
 
 ## Use cases
 ### UC001. Insert the corpus
@@ -39,6 +38,18 @@
 ### UC011. Log out
 로그아웃.
 
+### UC012. Perform an action to a token
+특정 토큰에 어떠한 action을 취한다.
+
+### UC013. Edit the token manually
+사용자가 임의로 토큰의 내용을 수정한다.
+
+### UC014. Hide the token
+특정 토큰이 보이지 않게 할 지 정한다. (예: `is_hidden` boolean)
+
+### UC015. Set the visibility of the hidden tokens
+숨김처리된 토큰이 어떻게 보일지 정한다.
+
 ## UI req.
 - 말뭉치 입력창 (*cf. `UC001. Insert the corpus`*)
   - 문단 표시 기능
@@ -48,9 +59,21 @@
 - 상태창: 서버에서 오는 메세지 혹은 프론트엔드 내 메세지
 - 결과물 표현창
   - 단어들은 개별적으로 선택 가능 (*cf. `UC005. Select the tokens`*)
+  - 각 단어에 액션을 취할 드롭다운이 있어야 함. (*cf. `UC012. Perform an action to a token`*)
+  - 숨김 처리된 토큰이 보일지 정할 토글 버튼이 있어야 함. (*cf. `UC015. Set the visibility of the hidden tokens`*)
   - 읽기 편해야 함.
 - 재전송 버튼 (*cf. `UC006. Resend request`*)
 - 저장 버튼 (*cf. `UC007. Save the output as a file`*)
 - 업로드 버튼 (*cf. `UC008. Upload the saved file`*)
 - 돌아가기 메뉴 (*cf. `UC009. Return to the previous state`*)
 - 로그인/로그아웃 버튼 (*cf. `UC010. Log in` & `UC011. Log out`*)
+
+## 비기능적 요구사항 및 기타 사항
+- 성능: 백엔드 응답시간은 충분히 빨라야 한다.
+  - 진행상태를 표시 가능한가?
+    - 백엔드 등에서 현재 상태(진행상황, 경고/오류 등)를 알릴 수 있다.
+- 결과물 만족도
+  - 토큰 당 올바른 결과의 비율을 계산하여 참고한다.
+  - 원하지 않은 결과가 나오는 경우:
+    - 화면에 의도하지 않은 결과가 나올 수 있다는 Disclaimer을 표시한다.
+	- 문제 발생시 전달 가능하도록 한다.

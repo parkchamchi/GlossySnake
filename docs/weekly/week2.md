@@ -91,7 +91,7 @@
 			]
 		},
 		{
-			"is_delimiter": true,
+			"is_delimiter": false,
 			"token_delimiters": " \t\n\r\u000b\f",
 			"tokens": [
 				{

@@ -1,0 +1,11 @@
+@startjson
+
+{
+	"lang_from": "French",
+	"lang_to": "English",
+	"p_delim": "//(a newline)//",
+
+	"corpus": "moi dont l'âme est troublée"
+}
+
+@endjson

@@ -1,0 +1,57 @@
+@startjson
+
+#highlight "txt"
+#highlight "gloss"
+
+{
+	"paragraph_delimiters": [
+		"//(newline)//",
+		"//(other delim)//"
+	],
+	"paragraphs": [
+		{
+			"is_delimiter": false,
+			"token_delimiters": "//(whitespaces)//",
+			"tokens": [
+				{
+					"txt": "Les",
+					"is_delimiter": false,
+					"gloss": "The"
+				},
+				{
+					"txt": "//(space)//",
+					"is_delimiter": true,
+					"gloss": null
+				},
+				{
+					"txt": "champs",
+					"is_delimiter": false,
+					"gloss": "fields"
+				}
+			]
+		},
+		{
+			"is_delimiter": true,
+			"token_delimiters": "//(whitespaces)//",
+			"tokens": [
+				{
+					"txt": "//(two newlines)//",
+					"is_delimiter": true,
+					"gloss": null
+				}
+			]
+		},
+		{
+			"is_delimiter": false,
+			"token_delimiters": "//(whitespaces)//",
+			"tokens": [
+				{
+					"txt": "n'\u00e9taient",
+					"is_delimiter": false,
+					"gloss": "!UNKNOWN"
+				}
+			]
+		}
+	]
+}
+@endjson

@@ -1,0 +1,62 @@
+@startsalt
+
+scale 1
+
+{
+	<size:30>GlossySnake</size>
+	__Login__
+	
+	.
+
+	{+
+		<size:18>Request to the server</size>
+		---
+		Endpoint | "http://..."
+		---
+		<b>Languages</b>
+		Original | ^Latin^
+		Gloss | ^English^
+		---
+		<b>Other options</b>
+		P. delimiter | (X) \n () \\n
+		---
+
+		Corpus | {SI
+			<i>The corpus insert textarea</i>
+			.
+			"                          "
+		}
+		[Preview]
+		[Request]
+	}
+
+	.
+
+	{+
+		<size:18>Upload a processed JSON</size>
+		[Upload]
+	}
+
+	.
+
+	{+ <back:pink>Warning: the backend returned an error. //Only shown when an event occurs.//  <&x></back> }
+	{+ <back:white>- A message. These can be shown at most 3 at the same time <&x></back> }
+	{+ <back:white>and more messages should be accessed via the scroll.  <&x></back> }
+
+
+	.
+
+	{+
+		<size:18>Output</size>
+	
+		[Resend request] | [Save] | [Undo...]
+		[] Show hidden tokens
+
+		---
+		.
+
+		"Token0" | "~~Selected-Token1~~" | "~~Selected-Token2~~"
+		//Tokens are elaborated elsewhere//
+	}
+}
+@endsalt

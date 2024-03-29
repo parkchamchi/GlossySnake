@@ -6,6 +6,9 @@ UP -> Prototyping Model
 ## 설계
 [/docs/design/design.md](/docs/design/design.md)
 
+## 목업 백엔드
+[/src/tools/mockup_backend/](/src/tools/mockup_backend/)
+
 ## 다음주 목표
 설계를 따라 기초적인 구현.
 - 프론트엔드는 HTML으로 뼈대 구현 (메세지창/토큰 내용 후순위)

@@ -15,4 +15,7 @@ Use `venv.bat` and `venv_d.bat` in this directory.
 pip install -r requirements.txt
 ```
 
-Installed: `django`, `djangorestframework`
+Installed: `django`, `djangorestframework`, `django-cors-headers`
+
+### Run
+Use `runserver.bat`.

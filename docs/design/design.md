@@ -26,7 +26,7 @@ e.g. `http://localhost/v1/glosses/annotate`
 - `GET /login` (redirection)
 - `GET /logout` (redirection)
 
-- `POST /glosses/preprocess/` (cf. `UC003`)
+- `POST /glosses/preprocess` (cf. `UC003`)
 
 ## JSON
 

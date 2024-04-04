@@ -1,0 +1,14 @@
+@startuml
+
+class Parser {
+	void divide_into_paragraphs(Corpus c)
+	void parse_paragraph(Paragraph p)
+}
+
+class Annotator {
+	void annotate(Paragraph p)
+
+	int get_max_tokens()
+}
+
+@enduml

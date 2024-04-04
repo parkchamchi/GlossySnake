@@ -1,0 +1,27 @@
+@startuml
+
+class UploadedCorpus {
+	string corpus_id
+
+	Corpus[] corpuses_history
+
+	string current_task
+	string[] processed_tasks
+	
+	void add_corpus(string task_id)
+	Corpus get_corpus(string task_id)
+}
+
+class Task {
+	string task_id
+	Datetime timestamp
+
+	string target_corpus_id
+
+	void abort()
+
+	string get_status()
+	string[] get_logs()
+}
+
+@enduml

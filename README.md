@@ -12,4 +12,7 @@
 - [Week 1: Proposal](docs/proposal/proposal.md)
 - [Week 2: Requirements inception etc.](docs/weekly/week2.md)
 - [Week 3: Requirements analysis](docs/req_analysis/req_analysis.md)
-- [Week 4: Design](docs/design/design.md) *[etc.](docs/weekly/week4.md)*
+### Iter-1
+- [Week 4: Design](docs/weekly/week4.md) *[The design of the iter-1.](https://github.com/parkchamchi/GlossySnake/blob/week4/docs/design/design.md)*
+### Iter-2
+- [Week 5: Impl. of iter-1 backend and the design of iter-2](docs/weekly/week5.md) *[The design of the iter-2.](https://github.com/parkchamchi/GlossySnake/blob/week5/docs/design/design.md)*

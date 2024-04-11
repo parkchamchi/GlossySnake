@@ -1,0 +1,37 @@
+@startuml
+
+hide footbox
+
+boundary frontend
+control backend
+
+== Upload ==
+
+frontend -> backend : POST /upload
+backend --> frontend : ret. "corpus_id"
+
+== Divide ==
+
+frontend -> backend : POST /parser/divide
+backend --> frontend: ret. "task_id"
+
+loop until "finished"
+	frontend -> backend : GET /tasks/<task_id>/status
+	backend -> frontend : ret. "status" in ["processing", "finished"]
+end
+
+note over frontend, backend
+	This polling behavior can be replaced by SSE.
+end note
+
+frontend -> backend : GET /corpuses/<corpus_id>
+backend --> frontend : ret. "corpuses_history"
+frontend --> frontend: Update the view
+
+== Parse, etc. ==
+
+note over frontend, backend
+	...
+end note
+
+@enduml

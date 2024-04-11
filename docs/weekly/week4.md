@@ -4,7 +4,7 @@
 UP -> Prototyping Model
 
 ## 설계
-[/docs/design/design.md](/docs/design/design.md)
+[/docs/design/design.md@339e5c7](https://github.com/parkchamchi/GlossySnake/blob/339e5c7/docs/design/design.md)
 
 ## 목업 백엔드
 [/src/tools/mockup_backend/](/src/tools/mockup_backend/)

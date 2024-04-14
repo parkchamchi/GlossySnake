@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-	path('admin/', admin.site.urls),
-	path("v1/glosses/", include("glosses.urls"))
+	path("admin/", admin.site.urls),
+	path("v1/glosses/", include("glosses.urls")),
+
+	path("api/v2/upload",include('upload.urls')), #cf. design doc
 ]

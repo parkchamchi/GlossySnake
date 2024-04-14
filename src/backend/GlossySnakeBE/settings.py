@@ -14,9 +14,10 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-#업로드 파일 위치
-MEDIA_URL ='/media/'
-MEDIA_ROOT = BASE_DIR/'media'
+
+#Upload file location
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Quick-start development settings - unsuitable for production
@@ -41,14 +42,13 @@ INSTALLED_APPS = [
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
     
-	
 	#3rd party
 	"rest_framework",
 	"corsheaders", #cf. CORS
 
 	#Local
 	"glosses.apps.GlossesConfig",
-    'upload.apps.UploadConfig',
+	'upload.apps.UploadConfig',
 ]
 
 #TODO: CHANGE THE PERMISSIONS

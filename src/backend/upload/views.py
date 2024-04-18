@@ -13,18 +13,22 @@ from .models import UploadedCorpus
 
 class FileUploadAPIView(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (AllowAny,)
+	permission_classes = (AllowAny, )
 
 	def post(self, request, *args, **kwargs):
 		try:
-			corpus_data = request.data
+			corpus_data = request.data.get("corpus")
 			
 			uc = UploadedCorpus.objects.create()
-			uc.corpus_init(corpus_data)
+			uc.corpus_init(corpus_data) #see model.py
 			uc.save()
+			corpus_id = uc.corpus_id
 
 			return Response(
-				{"message": "Upload success"},
+				{
+					"message": "Upload success",
+					"corpus_id": str(corpus_id), #TODO: change the doc to `int`
+				},
 				status=status.HTTP_201_CREATED
 			)
 	

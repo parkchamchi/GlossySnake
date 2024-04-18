@@ -2,6 +2,8 @@ from django.db import models
 
 from .serializables import Corpus
 
+import warnings
+
 # Create your models here.
 	
 class UploadedCorpus(models.Model):
@@ -43,3 +45,18 @@ class UploadedCorpus(models.Model):
 				return Corpus.fomrdict(c)
 			
 		return None
+	
+class Task(models.Model):
+	task_id = models.BigAutoField(primary_key=True)
+	timestamp = models.DateTimeField(auto_now_add=True)
+	target_corpus_id = models.BigIntegerField()
+
+	def abort(self):
+		#raise NotImplementedError()
+		warnings.warn("Not implemented.")
+
+	def get_status(self):
+		warnings.warn("Not implemented.")
+
+	def get_logs(self):
+		warnings.warn("Not implemented.")

@@ -21,5 +21,5 @@ urlpatterns = [
 	path("admin/", admin.site.urls),
 	path("v1/glosses/", include("glosses.urls")),
 
-	path("api/v2/upload",include('upload.urls')), #cf. design doc
+	path("api/v2/", include('upload.urls')), #cf. design doc
 ]

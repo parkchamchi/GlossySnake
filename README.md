@@ -16,3 +16,4 @@
 - [Week 4: Design](docs/weekly/week4.md) *[The design of the iter-1.](https://github.com/parkchamchi/GlossySnake/blob/week4/docs/design/design.md)*
 ### Iter-2
 - [Week 5: Impl. of iter-1 backend and the design of iter-2](docs/weekly/week5.md) *[The design of the iter-2.](https://github.com/parkchamchi/GlossySnake/blob/week5/docs/design/design.md)*
+- [Week 7: Impl. of iter-2 #1](docs/weekly/week7.md)

@@ -100,6 +100,7 @@ class Corpus:
 		self.paragraph_delimiters = paragraph_delimiters
 		self.original_txt = original_txt
 		self.p_div_locs = p_div_locs
+		self.task_ids = task_ids
 		
 	def __str__(self):
 		return ', '.join([str(p) for p in self.paragraphs])
@@ -117,3 +118,13 @@ class Corpus:
 		
 		c = Corpus(None, paragraph_delimiters, paragraphs)
 		return c
+	
+	@staticmethod
+	def init_with_txt(original_txt):
+		return Corpus(
+			paragraphs=[],
+			paragraph_delimiters=None,
+			original_txt=original_txt,
+			p_div_locs=[],
+			task_ids=[],
+		)

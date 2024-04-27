@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import UploadedCorpus
+from .models import UploadedCorpus, Task
 
 #TODO: generalize?
 
@@ -49,7 +49,17 @@ class ParserDivideAPIView(APIView):
 			corpus_id = request.data.get("corpus_id")
 			divide_options = request.data.get("divide_options")
 
-			task_id = "NOT_IMPLEMENTED"
+			#Get the corpus
+			uc = UploadedCorpus.objects.get(corpus_id=corpus_id) #TODO: on fail
+			if uc.current_task is not None:
+				raise ValueError(f"The corpus is already being processed by another task: {uc.current_task}")
+			
+			#Set the task
+			task = Task.objects.create(target_corpus_id=corpus_id)
+			task_id = task.task_id
+
+			uc.current_task = task_id
+			uc.save()
 			
 			return Response(
 				{

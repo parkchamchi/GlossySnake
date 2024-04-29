@@ -14,6 +14,7 @@ class Paragraph <<serializable>> {
 	char[] token_delimiters
 
 	string annotator_info
+	string original_text
 }
 Paragraph o-left- Token
 

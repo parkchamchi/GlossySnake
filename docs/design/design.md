@@ -60,6 +60,22 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 ### Manipulators
 ![images/class_manipulators.png](images/class_manipulators.png)
 
+```python
+class Parser: 
+  def divide_into_paragraphs(c: Corpus, paragraph_delimiters=?: list[str], **kwargs) {
+      c.p_div_locs = [p0, p1, p2, ...]
+      c.paragraphs = [
+          Paragraph(original_text=c.original_text[p:q], pstate="DIVIDED")
+          for p, q
+          in the sequence of the c.p_div_locs
+      ]
+  }
+
+  def parse_paragraph(p: Paragraph, token_delimieters=?: list[char], **kwargs):
+      p.tokens = [Token() ...]
+      p.pstate = "PARSED"
+```
+
 ### Backend
 ![images/class_backend.png](images/class_backend.png)
 

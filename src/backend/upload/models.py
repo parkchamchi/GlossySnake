@@ -24,8 +24,9 @@ class UploadedCorpus(models.Model):
 		return out
 	
 	def corpus_init(self, corpus):
+		print(corpus)
 		self.corpuses_history = {
-			"corpuses_history": corpus
+			"corpuses_history": [corpus]
 		}
  
 	def add_corpus(self, corpus, task_id: int):
@@ -38,7 +39,7 @@ class UploadedCorpus(models.Model):
 		)
 		self.corpuses_history = target
 
-	def get_curpus(self, task_id: int) -> Corpus:
+	def get_corpus(self, task_id: int) -> Corpus:
 		target = self.corpuses_history
 		for c_task_id, c in target["corpuses_history"]:
 			if c_task_id == task_id:
@@ -49,7 +50,7 @@ class UploadedCorpus(models.Model):
 class Task(models.Model):
 	task_id = models.BigAutoField(primary_key=True)
 	timestamp = models.DateTimeField(auto_now_add=True)
-	target_corpus_id = models.BigIntegerField()
+	target_corpus_id = models.BigIntegerField() #TODO: FK
 
 	def abort(self):
 		#raise NotImplementedError()
@@ -60,3 +61,10 @@ class Task(models.Model):
 
 	def get_logs(self):
 		warnings.warn("Not implemented.")
+
+	def run(self, func):
+		func() #TODO: aynch-ize this
+
+		uploaded_corpus = UploadedCorpus.objects.get(corpus_id=self.target_corpus_id)
+		uploaded_corpus.current_task = None
+		uploaded_corpus.processed_tasks.append(self.task_id)

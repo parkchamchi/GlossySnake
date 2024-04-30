@@ -74,10 +74,18 @@ class Parser:
   def parse_paragraph(p: Paragraph, token_delimieters=?: list[char], **kwargs):
       p.tokens = [Token() ...]
       p.pstate = "PARSED"
+      p.token_delimieters = token_delimiters
 ```
 
 ### Backend
 ![images/class_backend.png](images/class_backend.png)
+
+```python
+#After the task is completed:
+uploaded_corpus.current_task = None
+uploaded_corpus.processed_tasks.append(task_id)
+#Set `Task`'s status -- next time (TODO)
+```
 
 ## Seq.
 ![images/seq_general.png](images/seq_general.png)

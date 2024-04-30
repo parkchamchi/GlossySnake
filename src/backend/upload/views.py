@@ -11,6 +11,11 @@ from rest_framework.views import APIView
 
 from .models import UploadedCorpus, Task
 
+from .parser import Parser
+from .serializables import Corpus
+
+import traceback
+
 #TODO: generalize?
 
 class UploadAPIView(APIView):
@@ -35,6 +40,7 @@ class UploadAPIView(APIView):
 			)
 	
 		except Exception as e:
+			traceback.print_exc(e)
 			return Response(
 				{"error": str(e)},
 				status=status.HTTP_400_BAD_REQUEST
@@ -55,8 +61,19 @@ class ParserDivideAPIView(APIView):
 				raise ValueError(f"The corpus is already being processed by another task: {uc.current_task}")
 			
 			#Set the task
+
+			def divide_task():
+				parser = Parser()
+				
+				print("On divide_task()")
+				corpus = uc.corpuses_history["corpuses_history"][-1]
+				corpus = Corpus.fromdict(corpus)
+				parser.divide_into_paragraphs(corpus)
+				uc.corpuses_history["corpuses_history"].append(corpus.todict())
+
 			task = Task.objects.create(target_corpus_id=corpus_id)
 			task_id = task.task_id
+			task.run(divide_task)
 
 			uc.current_task = task_id
 			uc.save()
@@ -70,6 +87,7 @@ class ParserDivideAPIView(APIView):
 			)
 	
 		except Exception as e:
+			traceback.print_exc(e)
 			return Response(
 				{"error": str(e)},
 				status=status.HTTP_400_BAD_REQUEST

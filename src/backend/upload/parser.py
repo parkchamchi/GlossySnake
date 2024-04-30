@@ -16,12 +16,12 @@ def tokenize(txt, delimiters: list) -> List[Tuple[str, bool]]:
 
 class Parser:
 	def divide_into_paragraphs(self, corpus, paragraph_delimiters=['\n'], **kwargs):
-		original_txt = corpus.original_txt
+		original_text = corpus.original_text
 
-		fragments = [original_txt]
+		fragments = [original_text]
 		for delim in sorted(paragraph_delimiters, key=len):
-			for i in len(fragments):
-				fragments[i] = delim.join(fragments.split(delim))
+			for i in range(len(fragments)):
+				fragments[i] = delim.join(fragments[i].split(delim))
 			fragments = list(itertools.chain(*fragments))
 
 		corpus.p_div_locs = list(itertools.accumulate([len(e) for e in fragments]))
@@ -30,6 +30,9 @@ class Parser:
 				pstate="DIVIDED", 
 				original_text=f,
 				is_delimiter=(f in paragraph_delimiters),
+				tokens=[],
+				token_delimiters="",
+				annotator_info="",
 			)
 			for f
 			in fragments
@@ -39,13 +42,13 @@ class Parser:
 		#Characters that would be ideal for dividing paragraphs (that exceeds the max_len_per_p)
 		endchars = ['.', '!', '?']
 
-		original_txt = corpus.original_txt
+		original_text = corpus.original_text
 		p_div_locs = [0] #End of the sentences
 
 		#Indices whose ch is in `endchars`
 		#TODO: optimize this (use regex)
 		idx_w_endchars = []
-		for idx, ch in enumerate(original_txt):
+		for idx, ch in enumerate(original_text):
 			if ch in endchars:
 				idx_w_endchars.append(idx)
 
@@ -54,7 +57,7 @@ class Parser:
 			last = p_div_locs[-1]
 
 			upperlimit = last + max_len_per_p
-			if upperlimit > len(original_txt):
+			if upperlimit > len(original_text):
 				break
 
 			targets = [e for e in idx_w_endchars if last < e <= upperlimit]
@@ -66,13 +69,13 @@ class Parser:
 				
 			p_div_locs.append(target)
 
-		p_div_locs = p_div_locs[1:] + [len(original_txt)-1]
+		p_div_locs = p_div_locs[1:] + [len(original_text)-1]
 		
 		corpus.p_div_locs = p_div_locs
 		corpus.tokens = [
 			Paragraph(
 				pstate="DIVIDED", 
-				original_text=original_txt[
+				original_text=original_text[
 					p_div_locs[i]
 					: p_div_locs[i+1]
 				]
@@ -89,5 +92,8 @@ class Parser:
 			paragraph.tokens = [
 				Token(txt, is_delimiter)
 				for txt, is_delimiter
-				in tokenize(paragraph.original_text)
+				in tokenize(paragraph.original_text, delimiters=token_delimiters)
 			]
+
+		paragraph.pstate = "PARSED",
+		token_delimiters = token_delimiters

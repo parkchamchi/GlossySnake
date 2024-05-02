@@ -3,6 +3,7 @@ from django.db import models
 from .serializables import Corpus
 
 import warnings
+import traceback
 
 # Create your models here.
 	
@@ -60,7 +61,17 @@ class Task(models.Model):
 		uploaded_corpus.current_task = self.task_id
 		uploaded_corpus.save()
 
-		func(uploaded_corpus, data) #TODO: aynch-ize this
+		exc_to_rethrow = None
 
+		try:
+			func(uploaded_corpus, data) #TODO: aynch-ize this
+		except Exception as exc:
+			#TODO: set task status
+			exc_to_rethrow = exc
+			print(traceback.format_exc())
+			
 		uploaded_corpus.current_task = None
 		uploaded_corpus.save()
+
+		if exc_to_rethrow:
+			raise exc_to_rethrow

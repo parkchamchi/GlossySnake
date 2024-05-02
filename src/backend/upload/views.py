@@ -84,7 +84,6 @@ class ManipulatorAPIView(APIView):
 			)
 	
 		except Exception as e:
-			#traceback.print_exc(e)
 			print(traceback.format_exc())
 			return Response(
 				{"error": str(e)},
@@ -92,9 +91,6 @@ class ManipulatorAPIView(APIView):
 			)
 		
 class ParserDivideAPIView(ManipulatorAPIView):
-	parser_classes = [JSONParser]
-	permission_classes = (AllowAny, )
-	
 	def __init__(self):
 		def divide_task(uc, data):
 			#Get the p_delims
@@ -113,30 +109,27 @@ class ParserDivideAPIView(ManipulatorAPIView):
 
 		super().__init__(divide_task, ["divide_options"])
 
-class ParserParserAPIView(APIView):
-	parser_classes = [JSONParser]
-	permission_classes = (AllowAny, )
+class ParserParserAPIView(ManipulatorAPIView):
+	def __init__(self):
+		def parse_task(uc, data):
+			#Get the p_delims
+			if data["parse_options"] is None:
+				raise ValueError("`parse_options` is required.")
+			t_delims = data["parse_options"]["t_delims"]
 
-	def post(self, request, *args, **kwargs):
-		try:
-			corpus_id = request.data.get("corpus_id")
-			parse_options = request.data.get("parse_options")
-
-			task_id = "NOT_IMPLEMENTED"
+			parser = Parser()
 			
-			return Response(
-				{
-					"message": "Task put",
-					"task_id": str(task_id), #TODO: change the doc to `int`
-				},
-				status=status.HTTP_201_CREATED
-			)
-	
-		except Exception as e:
-			return Response(
-				{"error": str(e)},
-				status=status.HTTP_400_BAD_REQUEST
-			)
+			print("On parse_task()")
+			corpus = uc.corpuses_history["corpuses_history"][-1]
+			corpus = Corpus.fromdict(corpus)
+
+			for p in corpus.paragraphs:
+				parser.parse_paragraph(p, t_delims)
+			
+			uc.add_corpus(corpus)
+			uc.save()
+
+		super().__init__(parse_task, ["parse_options"])
 		
 class CorpusesAPIView(APIView):
 	parser_classes = [JSONParser]

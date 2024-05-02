@@ -105,15 +105,18 @@ class Parser:
 		]
 		"""
 
-	def parse_paragraph(paragraph, token_delimiters=string.whitespace ,**kwargs):
+	def parse_paragraph(self, paragraph, token_delimiters=string.whitespace ,**kwargs):
+		if token_delimiters is None:
+			token_delimiters = string.whitespace
+
 		if paragraph.is_delimiter:
-			paragraph.tokens = [Token(txt=paragraph.original_text, is_delimiter=True)]
+			paragraph.tokens = [Token(txt=paragraph.original_text, gloss=None, is_delimiter=True)]
 		else:
 			paragraph.tokens = [
-				Token(txt, is_delimiter)
+				Token(txt=txt, gloss=None, is_delimiter=is_delimiter)
 				for txt, is_delimiter
 				in tokenize(paragraph.original_text, delimiters=token_delimiters)
 			]
 
 		paragraph.pstate = "PARSED",
-		token_delimiters = token_delimiters
+		paragraph.token_delimiters = token_delimiters

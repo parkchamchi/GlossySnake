@@ -79,7 +79,7 @@ class Paragraph(Serializable):
 
 	@staticmethod
 	def fromdict(d):
-		toret = Paragraph()
+		toret = Paragraph("PLAIN", [], True, "", "", "")
 		dcopy = d.copy()
 		dcopy["tokens"] = [Token.fromdict(tokend) for tokend in dcopy["tokens"]]
 		toret.__dict__ = dcopy

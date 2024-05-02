@@ -55,12 +55,12 @@ class Task(models.Model):
 	def get_logs(self):
 		warnings.warn("Not implemented.")
 
-	def run(self, func):
+	def run(self, func, data):
 		uploaded_corpus = UploadedCorpus.objects.get(corpus_id=self.target_corpus_id)
 		uploaded_corpus.current_task = self.task_id
 		uploaded_corpus.save()
 
-		func() #TODO: aynch-ize this
+		func(uploaded_corpus, data) #TODO: aynch-ize this
 
 		uploaded_corpus.current_task = None
 		uploaded_corpus.save()

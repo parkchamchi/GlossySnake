@@ -69,7 +69,7 @@ class ParserDivideAPIView(APIView):
 				corpus = uc.corpuses_history["corpuses_history"][-1]
 				corpus = Corpus.fromdict(corpus)
 				parser.divide_into_paragraphs(corpus)
-				uc.corpuses_history["corpuses_history"].append(corpus.todict())
+				uc.add_corpus(corpus)
 
 			task = Task.objects.create(target_corpus_id=corpus_id)
 			task_id = task.task_id

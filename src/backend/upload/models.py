@@ -9,7 +9,8 @@ import warnings
 class UploadedCorpus(models.Model):
 	corpus_id = models.BigAutoField(primary_key=True)
  
-	corpuses_history = models.JSONField(null=True) #{"corpuses_history": [(task_id, {}), ...]}
+	#TODO: use django serialization
+	corpuses_history = models.JSONField(null=True) #{"corpuses_history": [{}, {}, ...]
 
 	current_task = models.BigIntegerField(null=True)
 	
@@ -29,16 +30,15 @@ class UploadedCorpus(models.Model):
 			"corpuses_history": [corpus]
 		}
  
-	def add_corpus(self, corpus, task_id: int):
+	def add_corpus(self, corpus):
 		if type(corpus) == Corpus:
 			corpus = corpus.todict()
 
 		target = self.corpuses_history
-		target["corpuses_history"].append(
-			(task_id, corpus)
-		)
+		target["corpuses_history"].append(corpus)
 		self.corpuses_history = target
 
+	"""
 	def get_corpus(self, task_id: int) -> Corpus:
 		target = self.corpuses_history
 		for c_task_id, c in target["corpuses_history"]:
@@ -46,6 +46,7 @@ class UploadedCorpus(models.Model):
 				return Corpus.fomrdict(c)
 			
 		return None
+	"""
 	
 class Task(models.Model):
 	task_id = models.BigAutoField(primary_key=True)

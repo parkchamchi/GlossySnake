@@ -74,9 +74,7 @@ class ParserDivideAPIView(APIView):
 			task = Task.objects.create(target_corpus_id=corpus_id)
 			task_id = task.task_id
 			task.run(divide_task)
-
-			uc.current_task = task_id
-			uc.save()
+			uc.save() #
 			
 			return Response(
 				{

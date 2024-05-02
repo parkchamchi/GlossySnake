@@ -1,11 +1,15 @@
 import warnings
 
 class Serializable:
-	def todict(self):
-		return self.__dict__
-
 	def __repr__(self):
 		return f"<{type(self).__name__} {str(self)}>"
+	
+	@staticmethod
+	def fromdict(d):
+		raise NotImplementedError("Use the subclasses")
+
+	def todict(self):
+		raise NotImplementedError("Use the subclasses")
 
 class Token(Serializable):
 	def __init__(self, txt: str, gloss: str, is_delimiter: bool):
@@ -24,6 +28,9 @@ class Token(Serializable):
 			out += f", {repr(self.gloss)[1:-1]}"
 		return f"{l}{out}{r}"
 	
+	def todict(self):
+		return self.__dict__
+
 	@staticmethod
 	def fromdict(d):
 		toret = Token()
@@ -65,6 +72,11 @@ class Paragraph(Serializable):
 		tokens_str = ', '.join([str(t) for t in self.tokens])
 		return f"{l}{tokens_str}{r}"
 	
+	def todict(self):
+		d =  self.__dict__
+		d["tokens"] = [t.todict() for t in self.tokens]
+		return d
+
 	@staticmethod
 	def fromdict(d):
 		toret = Paragraph()
@@ -104,3 +116,8 @@ class Corpus(Serializable):
 		dcopy["paragraphs"] = [Paragraph.fromdict(pd) for pd in dcopy["paragraphs"]]
 		toret.__dict__ = dcopy
 		return toret
+	
+	def todict(self):
+		d =  self.__dict__
+		d["paragraphs"] = [p.todict() for p in self.paragraphs]
+		return d

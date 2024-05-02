@@ -81,11 +81,14 @@ class Parser:
 ![images/class_backend.png](images/class_backend.png)
 
 ```python
+uploaded_corpus.current_task = task_id
+
+# Run the task
+
 #After the task is completed:
 newcorpus.task_ids.append(task_id)
 uploaded.corpus.corpuses_history.append(newcorpus)
 uploaded_corpus.current_task = None
-uploaded_corpus.processed_tasks.append(task_id)
 #Set `Task`'s status -- next time (TODO)
 ```
 

@@ -19,13 +19,33 @@ class Parser:
 		original_text = corpus.original_text
 
 		fragments = [original_text]
+		#print("fragmaents:", fragments)
 		for delim in sorted(paragraph_delimiters, key=len):
+			#print("DELIM:", delim)
 			for i in range(len(fragments)):
-				fragments[i] = delim.join(fragments[i].split(delim))
+				splitted = fragments[i].split(delim) # ["token0", "token1"]
+
+				#Insert the delim between them
+				splitted = [
+					(el, delim)
+					for el
+					in splitted
+				]
+				splitted = [
+					item
+					for subtuple
+					in splitted
+					for item
+					in subtuple
+				]
+				fragments[i] = splitted[:-1] #Remove the last delim
+				#print("f:", fragments)
+				
 			fragments = list(itertools.chain(*fragments))
+			#print("now frag:", fragments)
 
 		corpus.p_div_locs = list(itertools.accumulate([len(e) for e in fragments]))
-		corpus.tokens = [
+		corpus.paragraphs = [
 			Paragraph(
 				pstate="DIVIDED", 
 				original_text=f,

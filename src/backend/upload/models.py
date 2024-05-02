@@ -14,18 +14,10 @@ class UploadedCorpus(models.Model):
 
 	current_task = models.BigIntegerField(null=True)
 	
-	@property
-	def processed_tasks(self):
-		out = []
-
-		target = self.corpuses_history
-		for c_task_id, _ in target["corpuses_history"]:
-			out.append(c_task_id)
-		
-		return out
-	
 	def corpus_init(self, corpus):
-		print(corpus)
+		if type(corpus) == Corpus:
+			corpus = corpus.todict()
+
 		self.corpuses_history = {
 			"corpuses_history": [corpus]
 		}
@@ -64,8 +56,11 @@ class Task(models.Model):
 		warnings.warn("Not implemented.")
 
 	def run(self, func):
+		uploaded_corpus = UploadedCorpus.objects.get(corpus_id=self.target_corpus_id)
+		uploaded_corpus.current_task = self.task_id
+		uploaded_corpus.save()
+
 		func() #TODO: aynch-ize this
 
-		uploaded_corpus = UploadedCorpus.objects.get(corpus_id=self.target_corpus_id)
 		uploaded_corpus.current_task = None
-		uploaded_corpus.processed_tasks.append(self.task_id)
+		uploaded_corpus.save()

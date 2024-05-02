@@ -17,8 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from django.http import HttpResponse
+
 urlpatterns = [
 	path("admin/", admin.site.urls),
+	path("", lambda _: HttpResponse("""
+		<h1>Test</h1>
+		<a href="admin/">admin/</a><br>
+		<a href="api/v2/upload">api/v2/upload</a><br>
+		<a href="api/v2/parser/divide">api/v2/divide</a><br>
+		<a href="api/v2/parser/parse">api/v2/parse</a><br>
+	""")),
+
 	path("v1/glosses/", include("glosses.urls")),
 
 	path("api/v2/", include('upload.urls')), #cf. design doc

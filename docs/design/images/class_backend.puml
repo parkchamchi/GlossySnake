@@ -6,10 +6,8 @@ class UploadedCorpus {
 	Corpus[] corpuses_history
 
 	string current_task
-	string[] processed_tasks
 	
-	void add_corpus(string task_id)
-	Corpus get_corpus(string task_id)
+	void add_corpus(Corpus c)
 }
 
 class Task {

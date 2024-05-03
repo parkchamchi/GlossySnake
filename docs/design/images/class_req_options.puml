@@ -1,0 +1,22 @@
+@startuml
+
+class DivideOptions <<serializable>> {
+	string[] p_delims
+}
+
+class ParseOptions <<serializable>> {
+	char[] t_delims
+}
+note left of ParseOptions::t_delims
+	can be null
+end note
+
+class AnnotateOptions <<serializable>> {
+	string lang_from
+	string lang_to
+}
+
+class ReannotateOptions <<serializable>> {
+	int[] target_tokens
+}
+@enduml

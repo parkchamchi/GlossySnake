@@ -1,0 +1,42 @@
+@startuml
+
+class Token <<serializable>> {
+	string txt
+	string gloss
+	bool is_delimiter
+}
+
+class Paragraph <<serializable>> {
+	string pstate
+
+	Token[] tokens
+	bool is_delimiter
+	char[] token_delimiters
+
+	string annotator_info
+	string original_text
+}
+Paragraph o-left- Token
+
+class Corpus <<serializable>> {
+	Paragraph[] paragraphs
+	string[] paragraph_delimiters
+
+	string orignal_text
+	int[] p_div_locs
+	string[] task_ids
+}
+Corpus o-left- Paragraph
+
+enum pstate <<quasi>> ##[dashed] {
+	"PLAIN"
+	"DIVIDED"
+	"PARSED"
+	"ANNOTATED"
+}
+Paragraph *-- pstate
+note right of pstate::"ANNOTATED"
+	default fallback
+end note
+
+@enduml

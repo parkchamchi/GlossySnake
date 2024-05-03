@@ -18,24 +18,92 @@ Proof-of-Concept 참조.
 ## Backend
 
 ### Endpoints
-e.g. `http://localhost/v1/glosses/annotate`
+e.g. `http://localhost/api/v2/annotator/annotate`
 
-#### v1
-- `POST /glosses/annotate`
-- `POST /glosses/reannotate`
+#### /api/v2
+- `POST /upload`
+  - Req: `"corpus"`
+  - Res: `"corpus_id"`
+
+- `POST /parser/divide`
+  - Req: `"corpus_id"`, `"divide_options"`
+  - Res: `"task_id"`
+- `POST /parser/parse`
+  - Req: `"corpus_id"`, `"parse_options"`
+  - Res: `"task_id"`
+
+- `POST /annotator/annotate`
+  - Req: `"corpus_id"`, `"annotate_options"`
+  - Res: `"task_id"`
+- `POST /annotator/reannotate`
+  - Req: `"corpus_id"`, `"annotate_options"`, `"reannotate_options"`
+  - Res: `"task_id"`
+
+- `GET /tasks/<id>/status`
+  - Res: `"status"`
+- `GET /tasks/<id>/abort`
+
+- `GET /corpuses/<id>`
+  - Res: `"corpuses_history"`
+
 - `GET /login` (redirection)
 - `GET /logout` (redirection)
 
-- `POST /glosses/preprocess` (cf. `UC003`)
+## Classes
 
-## JSON
+### Serializable
+![images/class_serializable.png](images/class_serializable.png)
 
-### Request JSON
-![images/reqjson.png](images/reqjson.png)
+### Req. options
+![images/class_req_options.png](images/class_req_options.png)
+
+### Manipulators
+![images/class_manipulators.png](images/class_manipulators.png)
+
+```python
+class Parser: 
+  def divide_into_paragraphs(c: Corpus, paragraph_delimiters=?: list[str], **kwargs) {
+      c.p_div_locs = [p0, p1, p2, ...]
+      c.paragraphs = [
+          Paragraph(original_text=c.original_text[p:q], pstate="DIVIDED")
+          for p, q
+          in the sequence of the c.p_div_locs
+      ]
+  }
+
+  def parse_paragraph(p: Paragraph, token_delimieters=?: list[char], **kwargs):
+      p.tokens = [Token() ...]
+      p.pstate = "PARSED"
+      p.token_delimieters = token_delimiters
+```
+
+### Backend
+![images/class_backend.png](images/class_backend.png)
+
+```python
+uploaded_corpus.current_task = task_id
+
+# Run the task
+
+#After the task is completed:
+newcorpus.task_ids.append(task_id)
+uploaded.corpus.corpuses_history.append(newcorpus)
+uploaded_corpus.current_task = None
+#Set `Task`'s status -- next time (TODO)
+```
+
+## Seq.
+![images/seq_general.png](images/seq_general.png)
+
+## Deprecated
+### Endpoints
+- `POST /v1/glosses/annotate`
+  - ![images/v1_reqjson.png](images/v1_reqjson.png)
+  - Returns the "Result JSON" below
 
 ### Result JSON
 
-![images/resjson.png](images/resjson.png)
+![images/v1_resjson.png](images/v1_resjson.png)
 
 [Week 2](/docs/weekly/week2.md) 참조.
 

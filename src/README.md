@@ -7,3 +7,4 @@
 - Put comments in English, superfluously.
 - Set the dev ports as (frontend: `56122`, backend: `56123`)
 - Utilize `#TODO: `
+- Python: Try using `"..."` instead of `'...'`

@@ -56,7 +56,20 @@ class Task(models.Model):
 	def get_logs(self):
 		warnings.warn("Not implemented.")
 
-	def run(self, func, data):
+	def run(self, func, data, use_threading=True):
+		if not use_threading:
+			self.run_inner(func, data)
+		
+		else:
+			#TODO: unstable
+			import threading
+
+			th = threading.Thread(target=self.run_inner, args=(func, data))
+			th.start()
+
+	def run_inner(self, func, data):
+		print("run_inner() started")
+
 		uploaded_corpus = UploadedCorpus.objects.get(corpus_id=self.target_corpus_id)
 		uploaded_corpus.current_task = self.task_id
 		uploaded_corpus.save()
@@ -75,3 +88,5 @@ class Task(models.Model):
 
 		if exc_to_rethrow:
 			raise exc_to_rethrow
+		
+		print("run_inner() terminated")

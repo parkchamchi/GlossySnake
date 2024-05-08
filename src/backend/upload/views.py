@@ -73,7 +73,7 @@ class ManipulatorAPIView(APIView):
 			
 			task = Task.objects.create(target_corpus_id=corpus_id)
 			task_id = task.task_id
-			task.run(self.taskfunc, data) #will save uc
+			task.run(self.taskfunc, data, use_threading=True) #will save uc
 			
 			return Response(
 				{

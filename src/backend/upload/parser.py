@@ -119,5 +119,5 @@ class Parser:
 				in tokenize(paragraph.original_text, delimiters=token_delimiters)
 			]
 
-		paragraph.pstate = "PARSED",
+		paragraph.pstate = "PARSED"
 		paragraph.token_delimiters = token_delimiters

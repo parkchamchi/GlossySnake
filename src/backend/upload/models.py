@@ -78,7 +78,7 @@ class Task(models.Model):
 			th.start()
 
 	def run_inner(self, func, data):
-		print("run_inner() started")
+		#print("run_inner() started")
 
 		#self.status = self.TaskStatus.RUNNING #Redundant
 		#self.save()
@@ -105,4 +105,4 @@ class Task(models.Model):
 		self.status = self.TaskStatus.FINISHED
 		self.save()
 		
-		print("run_inner() terminated")
+		#print("run_inner() terminated")

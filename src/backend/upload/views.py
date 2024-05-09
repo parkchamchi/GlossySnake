@@ -100,7 +100,7 @@ class ParserDivideAPIView(ManipulatorAPIView):
 
 			parser = Parser()
 			
-			print("On divide_task()")
+			#print("On divide_task()")
 			corpus = uc.corpuses_history["corpuses_history"][-1]
 			corpus = Corpus.fromdict(corpus)
 			parser.divide_into_paragraphs(corpus, paragraph_delimiters=p_delims)
@@ -119,7 +119,7 @@ class ParserParserAPIView(ManipulatorAPIView):
 
 			parser = Parser()
 			
-			print("On parse_task()")
+			#print("On parse_task()")
 			corpus = uc.corpuses_history["corpuses_history"][-1]
 			corpus = Corpus.fromdict(corpus)
 

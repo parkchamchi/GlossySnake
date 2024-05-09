@@ -66,8 +66,20 @@ class UploadTestCase(APITestCase):
 """
 ### DivideTestCase
 1. Set up a data whose only filled is `original_text`.
-2. Test various `p_delims`, and check if they are divided correctly.
+2. Test `parser/divide`.
+3. Test `parser/parse`.
 
+For this test data, with `p_delim`
+- For `['\n']`, `7` p's.
+- A test string. Second sentence.
+- \n
+- Next paragraph. Another one.
+- \n
+- 
+- \n
+- A paragraph after two newlines.
+
+## These are to be tested in another test code:
 - For `['\n']`, `7` p's.
   - A test string. Second sentence.
   - \n
@@ -90,8 +102,8 @@ class UploadTestCase(APITestCase):
   -  after two newlines.
 """
 
-class DivideTestCase(APITransactionTestCase):
-	def test_divide_once(self):
+class ParserTestCase(APITransactionTestCase):
+	def test_divide_parse(self):
 		#Upload
 		original_text = TESTSTRING0
 		url = reverse("api-upload")
@@ -114,6 +126,7 @@ class DivideTestCase(APITransactionTestCase):
 		self.assertEqual(response.data["target_corpus_id"], corpus_id)
 		self.assertIn(response.data["status"], ["RUNNING", "FINISHED"])
 
+		#This snippet assumes that `Task` is parallelized, but works on the sequential code too
 		import time
 		timeout = 4
 		start = time.time()
@@ -138,3 +151,52 @@ class DivideTestCase(APITransactionTestCase):
 		self.assertEqual(last_corpus["paragraph_delimiters"], p_delims)
 		#self.assertEqual(last_corpus["task_ids"][-1], task_id)
 		self.assertEqual(len(last_corpus["paragraphs"]), 7)
+		
+		p0 = last_corpus["paragraphs"][0]
+		self.assertEqual(p0["pstate"], "DIVIDED")
+		self.assertEqual(p0["tokens"], [])
+		self.assertFalse(p0["is_delimiter"])
+		self.assertNotEqual(p0["original_text"], "")
+		self.assertIsNotNone(p0["original_text"])
+
+		#Test /parser/parse
+		url = reverse("api-parser-parse")
+		t_delims = None
+		data = {"corpus_id": corpus_id, "parse_options": {"t_delims": t_delims}}
+
+		response = self.client.post(url, data, format="json")
+		task_id = response.data["task_id"]
+
+		#Repeating the procedure above.
+		timeout = 4
+		start = time.time()
+		while True:
+			task = Task.objects.get(task_id=task_id)
+			task_status = task.status
+			if task_status == "FINISHED":
+				break
+			elif task_status != "RUNNING":
+				raise RuntimeError(f"Unexpected status: {task_status}")
+
+			if time.time() - start > timeout:
+				raise RuntimeError("test_divide_one_newline: timeout")
+			
+		#Check if the UploadedCorpus is updated
+		uc = UploadedCorpus.objects.get(corpus_id=corpus_id)
+		self.assertIs(uc.current_task, None)
+		corpuses_history = uc.corpuses_history["corpuses_history"]
+		self.assertEqual(len(corpuses_history), 3)
+
+		last_corpus = corpuses_history[-1]
+		p0 = last_corpus["paragraphs"][0]
+		self.assertEqual(p0["pstate"], "PARSED")
+		self.assertNotEqual(p0["token_delimiters"], "")
+		self.assertIsNotNone(p0["token_delimiters"])
+
+		tokens = p0["tokens"]
+		self.assertEqual(len(tokens), 9)
+		t0, t1 = tokens[0], tokens[1]
+
+		self.assertFalse(t0["is_delimiter"])
+		self.assertTrue(t1["is_delimiter"])
+		self.assertIsNotNone(t0["txt"])

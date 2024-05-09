@@ -39,8 +39,8 @@ e.g. `http://localhost/api/v2/annotator/annotate`
   - Req: `"corpus_id"`, `"annotate_options"`, `"reannotate_options"`
   - Res: `"task_id"`
 
-- `GET /tasks/<id>/status`
-  - Res: `"status"`
+- `GET /tasks/<id>`
+  - Res: `"status"`, `"target_corpus_id"`
 - `GET /tasks/<id>/abort`
 
 - `GET /corpuses/<id>`
@@ -81,16 +81,23 @@ class Parser:
 ![images/class_backend.png](images/class_backend.png)
 
 ```python
-uploaded_corpus.current_task = task_id
+class Task:
+	def run(self, func, data):
+		self.status = "RUNNING"
 
-# Run the task
+		uploaded_corpus = get from self.target_corpus_id
+		uploaded_corpus.current_task = task_id
 
-#After the task is completed:
-newcorpus.task_ids.append(task_id)
-uploaded.corpus.corpuses_history.append(newcorpus)
-uploaded_corpus.current_task = None
-#Set `Task`'s status -- next time (TODO)
+		# Run the task
+		func(args) 
+			#newcorpus.task_ids.append(task_id)
+			#uploaded_corpuzs.corpuses_history.append(newcorpus)
+
+		#After the task is completed:
+		uploaded_corpus.current_task = None
+		self.status = "FINISHED"
 ```
+- **TODO**: Change the model and seperate the array fields (in the next iteration)
 
 ## Seq.
 ![images/seq_general.png](images/seq_general.png)

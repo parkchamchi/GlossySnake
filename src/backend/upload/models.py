@@ -44,19 +44,29 @@ class UploadedCorpus(models.Model):
 class Task(models.Model):
 	task_id = models.BigAutoField(primary_key=True)
 	timestamp = models.DateTimeField(auto_now_add=True)
+
 	target_corpus_id = models.BigIntegerField() #TODO: FK
+
+	class TaskStatus(models.TextChoices):
+		READY = "READY"
+		RUNNING = "RUNNING"
+		FINISHED = "FINISHED"
+
+		ERROR = "ERROR"
+		ABORTED = "ABORTED"
+	status = models.CharField(max_length=16, choices=TaskStatus.choices, default=TaskStatus.READY)
 
 	def abort(self):
 		#raise NotImplementedError()
 		warnings.warn("Not implemented.")
 
-	def get_status(self):
-		warnings.warn("Not implemented.")
-
 	def get_logs(self):
 		warnings.warn("Not implemented.")
 
-	def run(self, func, data, use_threading=True):
+	def run(self, func, data, use_threading=False):
+		self.status = self.TaskStatus.RUNNING
+		self.save()
+
 		if not use_threading:
 			self.run_inner(func, data)
 		
@@ -69,6 +79,9 @@ class Task(models.Model):
 
 	def run_inner(self, func, data):
 		print("run_inner() started")
+
+		#self.status = self.TaskStatus.RUNNING #Redundant
+		#self.save()
 
 		uploaded_corpus = UploadedCorpus.objects.get(corpus_id=self.target_corpus_id)
 		uploaded_corpus.current_task = self.task_id
@@ -87,6 +100,9 @@ class Task(models.Model):
 		uploaded_corpus.save()
 
 		if exc_to_rethrow:
+			self.status = self.TaskStatus.ERROR
 			raise exc_to_rethrow
+		self.status = self.TaskStatus.FINISHED
+		self.save()
 		
 		print("run_inner() terminated")

@@ -15,11 +15,21 @@ class Task {
 	Datetime timestamp
 
 	string target_corpus_id
+	string status
+	string[] logs
 
+	void run(function func, dict data)
 	void abort()
-
-	string get_status()
-	string[] get_logs()
 }
+
+enum TaskState {
+	READY
+	RUNNING
+	FINISHED
+
+	ERROR
+	ABORTED
+}
+Task *-- TaskState
 
 @enduml

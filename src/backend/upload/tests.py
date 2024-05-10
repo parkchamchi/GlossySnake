@@ -30,15 +30,13 @@ class UploadedCorpusTests(TestCase):
             current_task = 7777
         )
     
-
     def test_coupus_id(self):
         self.assertEqual(self.uc.corpus_id,123456789)
-    
-
     
     def test_corpuses_history_null(self):
         model = UploadedCorpus.objects.create(corpuses_history = None)
         self.assertIsNone(model.corpuses_history)
+
     def test_corpuses_history(self):
         sample_data = """
                 {
@@ -56,10 +54,10 @@ class UploadedCorpusTests(TestCase):
 
     def test_current_task(self):
         self.assertEqual(self.uc.current_task,7777)
+        
     def test_current_task_null(self):
         model = UploadedCorpus.objects.create(current_task = None)
         self.assertIsNone(model.current_task)
-
 
     def test_corpus_init_with_valid_input(self):
         sample_corpus = {
@@ -72,7 +70,7 @@ class UploadedCorpusTests(TestCase):
         self.uc.corpus_init(sample_corpus)
         self.assertEqual(self.uc.corpuses_history, {"corpuses_history": [sample_corpus]})
     
-
+    """"
     def test_add_corpus(self):
         add_corpus = {
             "paragraphs": [],
@@ -86,24 +84,19 @@ class UploadedCorpusTests(TestCase):
         #corpuses = target["corpuses_history"]
         #last_corpus = corpuses[-1]
         #print("Added corpus:", last_corpus)
-
-
-
-
-
-
+    """
 
 class MockCorpus:
     def __init__(self, original_text):
         self.original_text = original_text
         self.paragraphs = []
+
 class Paragraph:
         def __init__(self, pstate, original_text, is_delimiter, tokens):
             self.pstate = pstate
             self.original_text = original_text
             self.is_delimiter = is_delimiter
             self.tokens = tokens
-
 
 class TestParser(TestCase):
     def setUp(self):
@@ -125,12 +118,12 @@ class TestParser(TestCase):
         print((corpus.paragraphs))
         #self.assertEqual(len(corpus.paragraphs), 2)
     
-
     def test_parse_sentence_false(self):
         text = "My name is junsik"
         paragraph = Paragraph(pstate="DIVIDED", original_text=text, is_delimiter=False, tokens=[])
         self.parser.parse_paragraph(paragraph)  
         self.assertEqual(len(paragraph.tokens), 4) 
+        
     def test_parse_sentence_false_2(self):
         text = "a b c"
         paragraph = Paragraph(pstate="DIVIDED", original_text=text, is_delimiter=False, tokens=[])

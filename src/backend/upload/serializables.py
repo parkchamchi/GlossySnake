@@ -33,7 +33,7 @@ class Token(Serializable):
 
 	@staticmethod
 	def fromdict(d):
-		toret = Token()
+		toret = Token(None, None, None)
 		toret.__dict__ = d
 		return toret
 

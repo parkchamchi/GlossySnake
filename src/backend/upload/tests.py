@@ -1,9 +1,5 @@
 from django.test import TestCase
-
-# Create your tests here.
-from django.test import TestCase
 from django.urls import reverse
-
 from .models import UploadedCorpus
 from .parser import Parser
 from django.core.exceptions import ValidationError
@@ -123,7 +119,7 @@ class TestParser(TestCase):
         paragraph = Paragraph(pstate="DIVIDED", original_text=text, is_delimiter=False, tokens=[])
         self.parser.parse_paragraph(paragraph)  
         self.assertEqual(len(paragraph.tokens), 4) 
-        
+
     def test_parse_sentence_false_2(self):
         text = "a b c"
         paragraph = Paragraph(pstate="DIVIDED", original_text=text, is_delimiter=False, tokens=[])

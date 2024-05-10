@@ -57,6 +57,7 @@ class Parser:
 			for f
 			in fragments
 		]
+		corpus.paragraph_delimiters = paragraph_delimiters
 				
 		"""
 		#Characters that would be ideal for dividing paragraphs (that exceeds the max_len_per_p)
@@ -118,5 +119,5 @@ class Parser:
 				in tokenize(paragraph.original_text, delimiters=token_delimiters)
 			]
 
-		paragraph.pstate = "PARSED",
+		paragraph.pstate = "PARSED"
 		paragraph.token_delimiters = token_delimiters

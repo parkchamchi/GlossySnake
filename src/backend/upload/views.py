@@ -41,7 +41,7 @@ class UploadAPIView(APIView):
 			)
 	
 		except Exception as e:
-			traceback.print_exc(e)
+			traceback.print_exc()
 			return Response(
 				{"error": str(e)},
 				status=status.HTTP_400_BAD_REQUEST
@@ -80,7 +80,7 @@ class ManipulatorAPIView(APIView):
 					"message": "Task put",
 					"task_id": str(task_id), #TODO: change the doc to `int`
 				},
-				status=status.HTTP_201_CREATED
+				status=status.HTTP_200_OK
 			)
 	
 		except Exception as e:
@@ -100,7 +100,7 @@ class ParserDivideAPIView(ManipulatorAPIView):
 
 			parser = Parser()
 			
-			print("On divide_task()")
+			#print("On divide_task()")
 			corpus = uc.corpuses_history["corpuses_history"][-1]
 			corpus = Corpus.fromdict(corpus)
 			parser.divide_into_paragraphs(corpus, paragraph_delimiters=p_delims)
@@ -119,7 +119,7 @@ class ParserParserAPIView(ManipulatorAPIView):
 
 			parser = Parser()
 			
-			print("On parse_task()")
+			#print("On parse_task()")
 			corpus = uc.corpuses_history["corpuses_history"][-1]
 			corpus = Corpus.fromdict(corpus)
 
@@ -139,13 +139,14 @@ class CorpusesAPIView(APIView):
 		try:
 			corpus_id = self.kwargs.get("pk")
 			uc = UploadedCorpus.objects.get(corpus_id=corpus_id) #TODO: on fail
-			corpus_history = uc.corpus_history
+			corpuses_history = uc.corpuses_history
+			corpuses_history = corpuses_history["corpuses_history"]
 			
 			return Response(
 				{
-					"corpus_history": corpus_history, #TODO: change the doc to `int`
+					"corpuses_history": corpuses_history,
 				},
-				status=status.HTTP_201_CREATED
+				status=status.HTTP_200_OK
 			)
 	
 		except Exception as e:
@@ -153,3 +154,28 @@ class CorpusesAPIView(APIView):
 				{"error": str(e)},
 				status=status.HTTP_400_BAD_REQUEST
 			)
+		
+class TasksAPIView(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (AllowAny, )
+
+	def get(self, request, *args, **kwargs):
+		try:
+			task_id = self.kwargs.get("pk")
+			task = Task.objects.get(task_id=task_id) #TODO: on fail
+			
+			return Response(
+				{
+					"timestamp": task.timestamp,
+					"target_corpus_id": str(task.target_corpus_id),
+					"status": task.status
+				},
+				status=status.HTTP_200_OK
+			)
+	
+		except Exception as e:
+			return Response(
+				{"error": str(e)},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+		

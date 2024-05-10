@@ -24,7 +24,7 @@ class Corpus <<serializable>> {
 
 	string orignal_text
 	int[] p_div_locs
-	string[] task_ids
+	<strike>string[] task_ids</strike>
 }
 Corpus o-left- Paragraph
 

@@ -218,6 +218,8 @@
 
             // Gets the text entered by the user.
             let endpoint = document.getElementById('endpoint').value;
+			//Need not equal.
+			/*
             if (endpoint !=='http://127.0.0.1:56123'){
                 console.log("endpoint가 http://127.0.0.1:56123와 일치하지 않습니다");
                 console.log("Input Endpoint: ", endpoint);
@@ -225,6 +227,7 @@
             else {
                 console.log("Input Endpoint: ",endpoint);
             }
+			*/
 
             let originalValue = document.getElementById('originalSelect').value;
             if (originalValue == null){
@@ -270,11 +273,12 @@
             }
 
             //Send a POST request to Backend
-            fetch('http://127.0.0.1:56123', {
+            let full_url = endpoint + "/v1/glosses/annotate"
+			fetch(full_url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*' // Allow requests from all domains
+                    //'Access-Control-Allow-Origin': 'http://127.0.0.1:56122' // Allow requests from all domains
                 },
                 body: JSON.stringify({
                     text: inputText,
@@ -289,7 +293,7 @@
             })
             .then(data => {
                 // Displays the responses for backend received in the results column
-                document.getElementById('output').textContent = data;
+                document.getElementById('output').textContent = JSON.stringify(data);
             })
             .catch(error => {
                 console.error('Error:', error);

@@ -6,7 +6,7 @@ import argparse
 import json
 
 app = flask.Flask(__name__)
-cors = CORS(app, resources={r"/v1/*": {"origins": "*"}})
+cors = CORS(app, resources={r"*": {"origins": "*"}})
 
 json_okay = \
 	{"paragraph_delimiters":["\n"],"paragraphs":[{"is_delimiter":False,"token_delimiters":" \t\n\r\u000b\f","tokens":[{"txt":"Les","is_delimiter":False,"gloss":"The"},{"txt":" ","is_delimiter":True,"gloss":None},{"txt":"champs","is_delimiter":False,"gloss":"fields"}]},{"is_delimiter":True,"token_delimiters":" \t\n\r\u000b\f","tokens":[{"txt":"\n\n","is_delimiter":True,"gloss":None}]},{"is_delimiter":False,"token_delimiters":" \t\n\r\u000b\f","tokens":[{"txt":"n'étaient","is_delimiter":False,"gloss":"!UNKNOWN"}]}]}

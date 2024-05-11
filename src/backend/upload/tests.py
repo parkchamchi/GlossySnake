@@ -5,6 +5,8 @@ from .parser import Parser
 from django.core.exceptions import ValidationError
 import json
 
+#TODO: Change the indentaions to '\t'
+
 class UploadedCorpusTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -22,17 +24,18 @@ class UploadedCorpusTests(TestCase):
                         }
                     ]
                 }
-            """, #New uploa
+            """, #New upload
             current_task = 7777
         )
     
     def test_coupus_id(self):
-        self.assertEqual(self.uc.corpus_id,123456789)
+        self.assertEqual(self.uc.corpus_id, 123456789)
     
     def test_corpuses_history_null(self):
         model = UploadedCorpus.objects.create(corpuses_history = None)
         self.assertIsNone(model.corpuses_history)
 
+	#What is this test for?
     def test_corpuses_history(self):
         sample_data = """
                 {
@@ -49,7 +52,7 @@ class UploadedCorpusTests(TestCase):
             """
 
     def test_current_task(self):
-        self.assertEqual(self.uc.current_task,7777)
+        self.assertEqual(self.uc.current_task, 7777)
         
     def test_current_task_null(self):
         model = UploadedCorpus.objects.create(current_task = None)
@@ -82,11 +85,15 @@ class UploadedCorpusTests(TestCase):
         #print("Added corpus:", last_corpus)
     """
 
+#What is this class for?
 class MockCorpus:
     def __init__(self, original_text):
         self.original_text = original_text
         self.paragraphs = []
 
+#What is this for?
+#Also bad indentaions
+#Just import from `.serializables`...
 class Paragraph:
         def __init__(self, pstate, original_text, is_delimiter, tokens):
             self.pstate = pstate
@@ -94,6 +101,7 @@ class Paragraph:
             self.is_delimiter = is_delimiter
             self.tokens = tokens
 
+#Bad class name
 class TestParser(TestCase):
     def setUp(self):
         self.parser = Parser()
@@ -102,29 +110,29 @@ class TestParser(TestCase):
         text = "asdf\nzxcvzxcv\n\n345"
         corpus = MockCorpus(text)
         self.parser.divide_into_paragraphs(corpus)
-        print("123",len(corpus.paragraphs))
-        print((corpus.paragraphs))
+        #print("123",len(corpus.paragraphs))
+        #print((corpus.paragraphs))
         #self.assertEqual(len(corpus.paragraphs), 3)
     
     def test_divide_into_paragraphs_2(self):
         text = "abc\n\n\nefg"
         corpus = MockCorpus(text)
         self.parser.divide_into_paragraphs(corpus)
-        print("456",len(corpus.paragraphs))
-        print((corpus.paragraphs))
+        #print("456",len(corpus.paragraphs))
+        #print((corpus.paragraphs))
         #self.assertEqual(len(corpus.paragraphs), 2)
     
     def test_parse_sentence_false(self):
         text = "My name is junsik"
         paragraph = Paragraph(pstate="DIVIDED", original_text=text, is_delimiter=False, tokens=[])
         self.parser.parse_paragraph(paragraph)  
-        self.assertEqual(len(paragraph.tokens), 4) 
+        self.assertEqual(len(paragraph.tokens), 4 + 3) #Token includes the delimiters
 
     def test_parse_sentence_false_2(self):
         text = "a b c"
         paragraph = Paragraph(pstate="DIVIDED", original_text=text, is_delimiter=False, tokens=[])
         self.parser.parse_paragraph(paragraph)  
-        self.assertEqual(len(paragraph.tokens), 3) 
+        self.assertEqual(len(paragraph.tokens), 3 + 2) 
 
     """def test_parse_sentence_true(self):
         text = "My name is junsik"

@@ -47,7 +47,7 @@ class Task(models.Model):
 
 	target_corpus_id = models.BigIntegerField() #TODO: FK
 
-	class TaskStatus(models.TextChoices):
+	class TaskStatus(models.TextChoices): 
 		READY = "READY"
 		RUNNING = "RUNNING"
 		FINISHED = "FINISHED"
@@ -65,7 +65,7 @@ class Task(models.Model):
 
 	def run(self, func, data, use_threading=False):
 		self.status = self.TaskStatus.RUNNING
-		self.save()
+		self.save() 
 
 		if not use_threading:
 			self.run_inner(func, data)

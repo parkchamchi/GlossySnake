@@ -51,4 +51,3 @@
 * page 분할에 대한 필요성 검토와 가능한 시나리오
 * Log-in page 구체화
 * CreateAccount page 구체화
-

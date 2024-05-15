@@ -139,7 +139,7 @@ class ParserTestCase(APITransactionTestCase):
 				raise RuntimeError(f"Unexpected status: {task_status}")
 
 			if time.time() - start > timeout:
-				raise RuntimeError("test_divide_one_newline: timeout")
+				raise RuntimeError("test_divide_parse: timeout")
 			
 		#Check if the UploadedCorpus is updated
 		uc = UploadedCorpus.objects.get(corpus_id=corpus_id)
@@ -179,7 +179,7 @@ class ParserTestCase(APITransactionTestCase):
 				raise RuntimeError(f"Unexpected status: {task_status}")
 
 			if time.time() - start > timeout:
-				raise RuntimeError("test_divide_one_newline: timeout")
+				raise RuntimeError("test_divide_parse: timeout")
 			
 		#Check if the UploadedCorpus is updated
 		uc = UploadedCorpus.objects.get(corpus_id=corpus_id)
@@ -192,6 +192,10 @@ class ParserTestCase(APITransactionTestCase):
 		self.assertEqual(p0["pstate"], "PARSED")
 		self.assertNotEqual(p0["token_delimiters"], "")
 		self.assertIsNotNone(p0["token_delimiters"])
+		
+		self.assertFalse(p0["is_delimiter"])
+		p1 = last_corpus["paragraphs"][1]
+		self.assertTrue(p1["is_delimiter"])
 
 		tokens = p0["tokens"]
 		self.assertEqual(len(tokens), 9)
@@ -200,3 +204,47 @@ class ParserTestCase(APITransactionTestCase):
 		self.assertFalse(t0["is_delimiter"])
 		self.assertTrue(t1["is_delimiter"])
 		self.assertIsNotNone(t0["txt"])
+
+		#Test /annotator/annotate
+		url = reverse("api-annotator-annotate")
+		lang_from = "english"
+		lang_to = "french"
+		data = {"corpus_id": corpus_id, "annotate_options": {"lang_from": lang_from, "lang_to": lang_to}}
+
+		response = self.client.post(url, data, format="json")
+		task_id = response.data["task_id"]
+
+		#Repeating the procedure above.
+		timeout = 4
+		start = time.time()
+		while True:
+			task = Task.objects.get(task_id=task_id)
+			task_status = task.status
+			if task_status == "FINISHED":
+				break
+			elif task_status != "RUNNING":
+				raise RuntimeError(f"Unexpected status: {task_status}")
+
+			if time.time() - start > timeout:
+				raise RuntimeError("test_divide_parse: timeout")
+			
+		#Check if the UploadedCorpus is updated
+		uc = UploadedCorpus.objects.get(corpus_id=corpus_id)
+		self.assertIs(uc.current_task, None)
+		corpuses_history = uc.corpuses_history["corpuses_history"]
+		self.assertEqual(len(corpuses_history), 4)
+
+		last_corpus = corpuses_history[-1]
+		p0 = last_corpus["paragraphs"][0]
+		self.assertEqual(p0["pstate"], "ANNOTATED")
+		self.assertIsNotNone(p0["annotator_info"])
+
+		self.assertFalse(p0["is_delimiter"])
+		p1 = last_corpus["paragraphs"][1]
+		self.assertTrue(p1["is_delimiter"])
+
+		tokens = p0["tokens"]
+		t0, t1 = tokens[0], tokens[1]
+		self.assertFalse(t0["is_delimiter"])
+		self.assertIsNotNone(t0["gloss"])
+		self.assertTrue(t1["is_delimiter"])

@@ -2,13 +2,13 @@
 
 class Parser {
 	void divide_into_paragraphs(Corpus c, string[] paragraph_delimiters=?, **kwargs)
-	void parse_paragraph(Paragraph p)
+	void parse_paragraph(Paragraph p, char[] token_delimiters=?, **kwargs)
 }
 
 class Annotator {
-	void annotate(Paragraph p, char[] token_delimiters=?, **kwargs)
+	void annotate(Paragraph p, string lang_from, string lang_to, **kwargs)
 
-	int get_max_tokens()
+	int get_max_tokens(**kwargs)
 }
 
 Parser -[hidden]-> Annotator

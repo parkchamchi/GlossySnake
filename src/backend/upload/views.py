@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from .models import UploadedCorpus, Task
 
 from .parser import Parser
+from .annotator import Annotator
 from .serializables import Corpus
 
 import traceback
@@ -120,7 +121,7 @@ class ParserParserAPIView(ManipulatorAPIView):
 			parser = Parser()
 			
 			#print("On parse_task()")
-			corpus = uc.corpuses_history["corpuses_history"][-1]
+			corpus = uc.corpuses_history["corpuses_history"][-1] #TODO: Does the former corpus here change in the DB? (should not)
 			corpus = Corpus.fromdict(corpus)
 
 			for p in corpus.paragraphs:
@@ -130,6 +131,31 @@ class ParserParserAPIView(ManipulatorAPIView):
 			uc.save()
 
 		super().__init__(parse_task, ["parse_options"])
+
+class AnnotatorAnnotateAPIView(ManipulatorAPIView):
+	def __init__(self):
+		def annotate_task(uc, data):
+			#Parse `annotate_options`
+			if data["annotate_options"] is None:
+				raise ValueError("`annotate_options` is required.")
+			annotate_options = data["annotate_options"]
+			lang_from = annotate_options["lang_from"]
+			lang_to = annotate_options["lang_to"]
+			
+			#Annotate
+			annotator = Annotator()
+
+			#print("On parse_task()")
+			corpus = uc.corpuses_history["corpuses_history"][-1] #TODO: Does the former corpus here change in the DB? (should not)
+			corpus = Corpus.fromdict(corpus)
+
+			for p in corpus.paragraphs:
+				annotator.annotate(p, lang_from, lang_to)
+
+			uc.add_corpus(corpus)
+			uc.save()
+
+		super().__init__(annotate_task, ["annotate_options"])
 		
 class CorpusesAPIView(APIView):
 	parser_classes = [JSONParser]

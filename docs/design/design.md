@@ -75,6 +75,18 @@ class Parser:
       p.tokens = [Token() ...]
       p.pstate = "PARSED"
       p.token_delimieters = token_delimiters
+
+
+class Annotator:
+	def annotate(p: Paragraph, lang_from: str, lang_to: str, **kwargs):
+		if not p.is_delimiter:
+			for token in p.tokens:
+				if token.is_delimiter:
+					continue
+				token.gloss = ...
+
+		p.pstate = "ANNOTATED"
+		p.annotator_info = ...
 ```
 
 ### Backend

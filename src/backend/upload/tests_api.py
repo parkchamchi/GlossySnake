@@ -44,8 +44,8 @@ to `/upload`.
 class UploadTestCase(APITestCase):
 	def test_upload(self):
 		url = reverse("api-upload")
-		orignal_text = TESTSTRING0
-		data = get_orig_corpus(orignal_text)
+		original_text = TESTSTRING0
+		data = get_orig_corpus(original_text)
 
 		response = self.client.post(url, data, format="json")
 		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -53,7 +53,7 @@ class UploadTestCase(APITestCase):
 
 		corpus_id = response.data["corpus_id"]
 		corpuses_history = UploadedCorpus.objects.get().corpuses_history["corpuses_history"]
-		self.assertEqual(corpuses_history[0]["original_text"], orignal_text)
+		self.assertEqual(corpuses_history[0]["original_text"], original_text)
 
 		#Check the uploaded one
 		url = reverse("api-corpuses-pk", args=[corpus_id])
@@ -62,6 +62,44 @@ class UploadTestCase(APITestCase):
 
 		returned_corpuses_history = response.data["corpuses_history"]
 		self.assertEqual(returned_corpuses_history, corpuses_history)
+
+	def test_upload_only_original_text(self):
+		url = reverse("api-upload")
+		original_text = TESTSTRING0
+		data = {"original_text": original_text} #No `corpus`
+		
+		response = self.client.post(url, data, format="json")
+		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+		self.assertEqual(UploadedCorpus.objects.count(), 1)
+
+		#Check if the `original_text` is not changed
+		corpus_id = response.data["corpus_id"]
+		corpuses_history = UploadedCorpus.objects.get().corpuses_history["corpuses_history"]
+		self.assertEqual(corpuses_history[0]["original_text"], original_text)
+
+	def test_upload_none(self):
+		#Should fail.
+		url = reverse("api-upload")
+		data = {}
+		
+		try:
+			response = self.client.post(url, data, format="json")
+		except ValueError:
+			pass
+		self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
+
+	def test_upload_both(self):
+		#Should fail.
+		url = reverse("api-upload")
+		original_text = TESTSTRING0
+		data = get_orig_corpus(original_text)
+		data["original_text"] = original_text
+		
+		try:
+			response = self.client.post(url, data, format="json")
+		except ValueError:
+			pass
+		self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
 
 """
 ### DivideTestCase
@@ -139,7 +177,7 @@ class ParserTestCase(APITransactionTestCase):
 				raise RuntimeError(f"Unexpected status: {task_status}")
 
 			if time.time() - start > timeout:
-				raise RuntimeError("test_divide_one_newline: timeout")
+				raise RuntimeError("test_divide_parse: timeout")
 			
 		#Check if the UploadedCorpus is updated
 		uc = UploadedCorpus.objects.get(corpus_id=corpus_id)
@@ -179,7 +217,7 @@ class ParserTestCase(APITransactionTestCase):
 				raise RuntimeError(f"Unexpected status: {task_status}")
 
 			if time.time() - start > timeout:
-				raise RuntimeError("test_divide_one_newline: timeout")
+				raise RuntimeError("test_divide_parse: timeout")
 			
 		#Check if the UploadedCorpus is updated
 		uc = UploadedCorpus.objects.get(corpus_id=corpus_id)
@@ -192,6 +230,10 @@ class ParserTestCase(APITransactionTestCase):
 		self.assertEqual(p0["pstate"], "PARSED")
 		self.assertNotEqual(p0["token_delimiters"], "")
 		self.assertIsNotNone(p0["token_delimiters"])
+		
+		self.assertFalse(p0["is_delimiter"])
+		p1 = last_corpus["paragraphs"][1]
+		self.assertTrue(p1["is_delimiter"])
 
 		tokens = p0["tokens"]
 		self.assertEqual(len(tokens), 9)
@@ -200,3 +242,47 @@ class ParserTestCase(APITransactionTestCase):
 		self.assertFalse(t0["is_delimiter"])
 		self.assertTrue(t1["is_delimiter"])
 		self.assertIsNotNone(t0["txt"])
+
+		#Test /annotator/annotate
+		url = reverse("api-annotator-annotate")
+		lang_from = "english"
+		lang_to = "french"
+		data = {"corpus_id": corpus_id, "annotate_options": {"lang_from": lang_from, "lang_to": lang_to}}
+
+		response = self.client.post(url, data, format="json")
+		task_id = response.data["task_id"]
+
+		#Repeating the procedure above.
+		timeout = 4
+		start = time.time()
+		while True:
+			task = Task.objects.get(task_id=task_id)
+			task_status = task.status
+			if task_status == "FINISHED":
+				break
+			elif task_status != "RUNNING":
+				raise RuntimeError(f"Unexpected status: {task_status}")
+
+			if time.time() - start > timeout:
+				raise RuntimeError("test_divide_parse: timeout")
+			
+		#Check if the UploadedCorpus is updated
+		uc = UploadedCorpus.objects.get(corpus_id=corpus_id)
+		self.assertIs(uc.current_task, None)
+		corpuses_history = uc.corpuses_history["corpuses_history"]
+		self.assertEqual(len(corpuses_history), 4)
+
+		last_corpus = corpuses_history[-1]
+		p0 = last_corpus["paragraphs"][0]
+		self.assertEqual(p0["pstate"], "ANNOTATED")
+		self.assertIsNotNone(p0["annotator_info"])
+
+		self.assertFalse(p0["is_delimiter"])
+		p1 = last_corpus["paragraphs"][1]
+		self.assertTrue(p1["is_delimiter"])
+
+		tokens = p0["tokens"]
+		t0, t1 = tokens[0], tokens[1]
+		self.assertFalse(t0["is_delimiter"])
+		self.assertIsNotNone(t0["gloss"])
+		self.assertTrue(t1["is_delimiter"])

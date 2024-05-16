@@ -12,10 +12,12 @@ from rest_framework.views import APIView
 from .models import UploadedCorpus, Task
 
 from .parser import Parser
+from .annotator import Annotator
 from .serializables import Corpus
 
 import traceback
 from typing import Callable
+import json
 
 #TODO: generalize?
 
@@ -26,6 +28,14 @@ class UploadAPIView(APIView):
 	def post(self, request, *args, **kwargs):
 		try:
 			corpus_data = request.data.get("corpus")
+			original_text = request.data.get("original_text")
+
+			if corpus_data is None and original_text is None:
+				raise ValueError("One of `corpus` and `origianl_text` should be provided.")
+			elif corpus_data is not None and original_text is not None:
+				raise ValueError("Only one of `corpus` and `origianl_text` should be provided.")
+			elif original_text is not None:
+				corpus_data = Corpus(paragraphs=[], paragraph_delimiters=[], original_text=original_text, p_div_locs=[], task_ids=[])
 			
 			uc = UploadedCorpus.objects.create()
 			uc.corpus_init(corpus_data) #see model.py
@@ -96,6 +106,8 @@ class ParserDivideAPIView(ManipulatorAPIView):
 			#Get the p_delims
 			if data["divide_options"] is None:
 				raise ValueError("`divide_options` is required.")
+			if type(data["divide_options"]) is str:
+				data["divide_options"] = json.loads(data["divide_options"])
 			p_delims = data["divide_options"]["p_delims"]
 
 			parser = Parser()
@@ -115,12 +127,14 @@ class ParserParserAPIView(ManipulatorAPIView):
 			#Get the p_delims
 			if data["parse_options"] is None:
 				raise ValueError("`parse_options` is required.")
+			if type(data["parse_options"]) is str:
+				data["parse_options"] = json.loads(data["parse_options"])
 			t_delims = data["parse_options"]["t_delims"]
 
 			parser = Parser()
 			
 			#print("On parse_task()")
-			corpus = uc.corpuses_history["corpuses_history"][-1]
+			corpus = uc.corpuses_history["corpuses_history"][-1] #TODO: Does the former corpus here change in the DB? (should not)
 			corpus = Corpus.fromdict(corpus)
 
 			for p in corpus.paragraphs:
@@ -130,6 +144,33 @@ class ParserParserAPIView(ManipulatorAPIView):
 			uc.save()
 
 		super().__init__(parse_task, ["parse_options"])
+
+class AnnotatorAnnotateAPIView(ManipulatorAPIView):
+	def __init__(self):
+		def annotate_task(uc, data):
+			#Parse `annotate_options`
+			if data["annotate_options"] is None:
+				raise ValueError("`annotate_options` is required.")
+			if type(data["annotate_options"]) is str:
+				data["annotate_options"] = json.loads(data["annotate_options"])
+			annotate_options = data["annotate_options"]
+			lang_from = annotate_options["lang_from"]
+			lang_to = annotate_options["lang_to"]
+			
+			#Annotate
+			annotator = Annotator()
+
+			#print("On parse_task()")
+			corpus = uc.corpuses_history["corpuses_history"][-1] #TODO: Does the former corpus here change in the DB? (should not)
+			corpus = Corpus.fromdict(corpus)
+
+			for p in corpus.paragraphs:
+				annotator.annotate(p, lang_from, lang_to)
+
+			uc.add_corpus(corpus)
+			uc.save()
+
+		super().__init__(annotate_task, ["annotate_options"])
 		
 class CorpusesAPIView(APIView):
 	parser_classes = [JSONParser]

@@ -17,6 +17,7 @@ from .serializables import Corpus
 
 import traceback
 from typing import Callable
+import json
 
 #TODO: generalize?
 
@@ -105,6 +106,8 @@ class ParserDivideAPIView(ManipulatorAPIView):
 			#Get the p_delims
 			if data["divide_options"] is None:
 				raise ValueError("`divide_options` is required.")
+			if type(data["divide_options"]) is str:
+				data["divide_options"] = json.loads(data["divide_options"])
 			p_delims = data["divide_options"]["p_delims"]
 
 			parser = Parser()
@@ -124,6 +127,8 @@ class ParserParserAPIView(ManipulatorAPIView):
 			#Get the p_delims
 			if data["parse_options"] is None:
 				raise ValueError("`parse_options` is required.")
+			if type(data["parse_options"]) is str:
+				data["parse_options"] = json.loads(data["parse_options"])
 			t_delims = data["parse_options"]["t_delims"]
 
 			parser = Parser()
@@ -146,6 +151,8 @@ class AnnotatorAnnotateAPIView(ManipulatorAPIView):
 			#Parse `annotate_options`
 			if data["annotate_options"] is None:
 				raise ValueError("`annotate_options` is required.")
+			if type(data["annotate_options"]) is str:
+				data["annotate_options"] = json.loads(data["annotate_options"])
 			annotate_options = data["annotate_options"]
 			lang_from = annotate_options["lang_from"]
 			lang_to = annotate_options["lang_to"]

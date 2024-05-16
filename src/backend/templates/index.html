@@ -39,11 +39,14 @@
 		</div>
 
 		<label for="endpoint">Endpoint</label><br>
-		<select name="endpoint" id="endpoint_select" size="4" required onchange="onEndpointChanged()">
+		<select name="endpoint" id="endpoint_select" size="6" required onchange="onEndpointChanged()">
 			<option value="/upload" selected>/upload</option>
 			<option value="/parser/divide">/parser/divide</option>
 			<option value="/parser/parse">/parser/parse</option>
 			<option value="/annotator/annotate">/annotator/annotate</option>
+
+			<option value="/tasks/[id]">/tasks/[id]</option>
+			<option value="/corpuses/[id]">/corpuses/[id]</option>
 		</select>
 	</div>
 
@@ -59,19 +62,19 @@
 		<!-- /parser/divide -->
 		<div id="divide_options_field" class="field_div">
 			<label for="divide_options">divide_options</label>
-			<input type="text" name="divide_options" placeholder="{'p_delims': ['\n']}" value="{'p_delims': ['\n']}" id="divide_options_input" class="field_input"><br>
+			<input type="text" name="divide_options" placeholder='{"p_delims": ["\n"]}' value='{"p_delims": ["\n"]}' id="divide_options_input" class="field_input"><br>
 		</div>
 
 		<!-- /parser/parse -->
 		<div id="parse_options_field" class="field_div">
 			<label for="parse_options">parse_options</label>
-			<input type="text" name="parse_options" placeholder="{'t_delims': null}" value="{'t_delims': null}" id="parse_options_input"  class="field_input"><br>
+			<input type="text" name="parse_options" placeholder='{"t_delims": null}' value='{"t_delims": null}' id="parse_options_input"  class="field_input"><br>
 		</div>
 
 		<!-- /annotator/annotate -->
 		<div id="annotate_options_field" class="field_div">
 			<label for="annotate_options">annotate_options</label>
-			<input type="text" name="annotate_options" placeholder="{'lang_from': 'French', 'lang_to': 'English'}" value="{'lang_from': 'French', 'lang_to': 'English'}" id="annotate_options_input"  class="field_input"><br>
+			<input type="text" name="annotate_options" placeholder='{"lang_from": "French", "lang_to": "English"}' value='{"lang_from": "French", "lang_to": "English"}' id="annotate_options_input"  class="field_input"><br>
 		</div>
 
 		<!-- /upload -->
@@ -127,12 +130,14 @@
 
 		const METHODS = ["GET", "POST"]; //prolly not actual const
 
-		const ENDPOINTS_AND_REQS = {
+		const POST_ENDPOINTS_AND_REQS = {
 			"/upload": ["original_text"],
 			"/parser/divide": ["corpus_id", "divide_options"],
 			"/parser/parse": ["corpus_id", "parse_options"],
-			"/annotator/annotate": ["corpus_id", "annoatate_optoins"]
+			"/annotator/annotate": ["corpus_id", "annotate_options"]
 		}
+		//TODO: merge with above. This assumes that each endpoint has only on method.
+		const GET_ENDPOINTS = ["/tasks/[id]", "/corpuses/[id]"]
 
 		window.onload = function () {
 			onEndpointChanged();
@@ -140,7 +145,9 @@
 
 		function onEndpointChanged() {
 			let endpoint = document.getElementById("endpoint_select").value;
-			const reqs = ENDPOINTS_AND_REQS[endpoint];
+			let reqs = [];
+			if (!GET_ENDPOINTS.includes(endpoint))
+				reqs = POST_ENDPOINTS_AND_REQS[endpoint];
 
 			const fields_div = document.getElementById("fields_div");
 			const divs = fields_div.getElementsByClassName("field_div");
@@ -185,7 +192,16 @@
 
 		function makeQuery() {
 			let endpoint = document.getElementById("endpoint_select").value;
-			const reqs = ENDPOINTS_AND_REQS[endpoint];
+			setUri(endpoint);
+			let method = (GET_ENDPOINTS.includes(endpoint) ? "GET" : "POST");
+			setMethod(method);
+
+			if (method == "GET") {
+				setQuery("");
+				return;
+			}
+
+			const reqs = POST_ENDPOINTS_AND_REQS[endpoint];
 
 			const fields_div = document.getElementById("fields_div");
 			const inputs = fields_div.getElementsByClassName("field_input"); //Incl. textarea
@@ -193,9 +209,7 @@
 			let query = {};
 
 			for (const input of inputs) {
-				console.log(input);
 				let name = input.name;
-				console.log(name);
 				if (!reqs.includes(name))
 					continue;
 
@@ -204,41 +218,24 @@
 			}
 
 			setQuery(query);
-			setUri(endpoint);
-			setMethod("POST");
 		}
-
-		/*
-		function makeUploadQuery() {
-			let original_text = document.getElementById("original_text_textarea").value;
-			
-			let query = {
-				"corpus": {
-					"original_text": original_text,
-
-					paragraphs: [], paragraph_delimiters: [], p_div_locs: []
-				}
-			};
-			setQuery(query);
-		
-			setUri("/upload");
-			setMethod("POST");
-		}
-		*/
 
 		function submit() {
 			let uri = document.getElementById("uri_input").value;
 			let query = document.getElementById("query_textarea").value;
 			let method = getMethod();
-			
-			fetch(uri, {
+
+			let data = {
 				method: method,
-				body: query,
 
 				headers: {
 					"Content-type": "application/json; charset=UTF-8",
 				}
-			})
+			}
+			if (method == "POST")
+				data.body = query;
+			
+			fetch(uri, data)
 			.then((res) => {
 				let status_pre = document.getElementById("status_pre");
 				status_pre.innerText = res.status + " " + res.statusText;

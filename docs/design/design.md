@@ -22,7 +22,7 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 
 #### /api/v2
 - `POST /upload`
-  - Req: `"corpus"`
+  - Req: `"corpus"` *or* `"original_text"`*, not both*
   - Res: `"corpus_id"`
 
 - `POST /parser/divide`

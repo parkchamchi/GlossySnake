@@ -44,8 +44,8 @@ to `/upload`.
 class UploadTestCase(APITestCase):
 	def test_upload(self):
 		url = reverse("api-upload")
-		orignal_text = TESTSTRING0
-		data = get_orig_corpus(orignal_text)
+		original_text = TESTSTRING0
+		data = get_orig_corpus(original_text)
 
 		response = self.client.post(url, data, format="json")
 		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -53,7 +53,7 @@ class UploadTestCase(APITestCase):
 
 		corpus_id = response.data["corpus_id"]
 		corpuses_history = UploadedCorpus.objects.get().corpuses_history["corpuses_history"]
-		self.assertEqual(corpuses_history[0]["original_text"], orignal_text)
+		self.assertEqual(corpuses_history[0]["original_text"], original_text)
 
 		#Check the uploaded one
 		url = reverse("api-corpuses-pk", args=[corpus_id])
@@ -62,6 +62,44 @@ class UploadTestCase(APITestCase):
 
 		returned_corpuses_history = response.data["corpuses_history"]
 		self.assertEqual(returned_corpuses_history, corpuses_history)
+
+	def test_upload_only_original_text(self):
+		url = reverse("api-upload")
+		original_text = TESTSTRING0
+		data = {"original_text": original_text} #No `corpus`
+		
+		response = self.client.post(url, data, format="json")
+		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+		self.assertEqual(UploadedCorpus.objects.count(), 1)
+
+		#Check if the `original_text` is not changed
+		corpus_id = response.data["corpus_id"]
+		corpuses_history = UploadedCorpus.objects.get().corpuses_history["corpuses_history"]
+		self.assertEqual(corpuses_history[0]["original_text"], original_text)
+
+	def test_upload_none(self):
+		#Should fail.
+		url = reverse("api-upload")
+		data = {}
+		
+		try:
+			response = self.client.post(url, data, format="json")
+		except ValueError:
+			pass
+		self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
+
+	def test_upload_both(self):
+		#Should fail.
+		url = reverse("api-upload")
+		original_text = TESTSTRING0
+		data = get_orig_corpus(original_text)
+		data["original_text"] = original_text
+		
+		try:
+			response = self.client.post(url, data, format="json")
+		except ValueError:
+			pass
+		self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
 
 """
 ### DivideTestCase

@@ -18,32 +18,75 @@
 		<a href="api/v2/corpuses/">api/v2/corpuses/</a> |
 		<a href="api/v2/tasks/">api/v2/tasks/</a>
 		<br>
-		<a href="api/v2/parser/divide">api/v2/divide</a> |
-		<a href="api/v2/parser/parse">api/v2/parse</a>
+		<a href="api/v2/parser/divide">api/v2/parser/divide</a> |
+		<a href="api/v2/parser/parse">api/v2/parser/parse</a>
+		<br>
+		<a href="api/v2/annotator/annotate">api/v2/annotator/annotate</a>
 	</div>
 	
 	<br>
 	<hr>
 
-	<div id="baseurl_div" class="container">
-		<label for="baseurl">Base URL</label>
-		<input type="text" name="baseurl" placeholder="Baseurl" value="http://127.0.0.1:56123" id="baseurl_input"><br>
+	<div id="endpoint_div" class="container">
+		<label for="route">Route</label>
+		<input type="text" name="route" placeholder="route" value="http://127.0.0.1:56123" id="route_input"><br>
+
+		<label for="api_uri">API URI</label>
+		<input type="text" name="api_uri" placeholder="/api/v2" value="/api/v2" id="api_uri_input"><br>
+
+		<div id="divide_options">
+			
+		</div>
+
+		<label for="endpoint">Endpoint</label><br>
+		<select name="endpoint" id="endpoint_select" size="4" required onchange="onEndpointChanged()">
+			<option value="/upload" selected>/upload</option>
+			<option value="/parser/divide">/parser/divide</option>
+			<option value="/parser/parse">/parser/parse</option>
+			<option value="/annotator/annotate">/annotator/annotate</option>
+		</select>
 	</div>
 
 	<hr>
 
-	<div id="upload_div" class="container">
-		<h3>/upload</h3>
+	<div id="fields_div" class="container">
+		<!-- /parser/divide | /parser/parser | /annotator/annotate -->
+		<div id="corpus_id_field" class="field_div">
+			<label for="corpus_id">corpus_id</label>
+			<input type="text" name="corpus_id" placeholder="corpus_id" id="corpus_id_input" class="field_input"><br>
+		</div>
 		
-		<label for="original_text">Original Text</label><br>
-		<textarea class="context_input auto-resize"
-			name="original_text"
-			spellcheck="true"
-			autofocus
-			placeholder="Original Text"
-			id="original_text_textarea"></textarea>
-		<br>
-		<button class="makequerybutton btn btn-primary" onclick="makeUploadQuery()">Make Query</button>
+		<!-- /parser/divide -->
+		<div id="divide_options_field" class="field_div">
+			<label for="divide_options">divide_options</label>
+			<input type="text" name="divide_options" placeholder="{'p_delims': ['\n']}" value="{'p_delims': ['\n']}" id="divide_options_input" class="field_input"><br>
+		</div>
+
+		<!-- /parser/parse -->
+		<div id="parse_options_field" class="field_div">
+			<label for="parse_options">parse_options</label>
+			<input type="text" name="parse_options" placeholder="{'t_delims': null}" value="{'t_delims': null}" id="parse_options_input"  class="field_input"><br>
+		</div>
+
+		<!-- /annotator/annotate -->
+		<div id="annotate_options_field" class="field_div">
+			<label for="annotate_options">annotate_options</label>
+			<input type="text" name="annotate_options" placeholder="{'lang_from': 'French', 'lang_to': 'English'}" value="{'lang_from': 'French', 'lang_to': 'English'}" id="annotate_options_input"  class="field_input"><br>
+		</div>
+
+		<!-- /upload -->
+		<div id="original_text_field" class="field_div">
+			<label for="original_text">Original Text</label><br>
+			<textarea class="context_input auto-resize field_input"
+				name="original_text"
+				spellcheck="true"
+				autofocus
+				placeholder="Original Text"
+				id="original_text_textarea"></textarea>
+			<br>
+		</div>
+
+		<button class="makequerybutton btn btn-primary" onclick="makeQuery()">Make Query</button>
 	</div>
 
 	<hr>
@@ -68,6 +111,8 @@
 		<button class="submitbutton btn btn-primary" onclick="submit()">SUBMIT</button>
 	</div>
 
+	<hr>
+
 	<div id="result_div" class="container">
 		<h2>RESULT</h2>
 
@@ -82,9 +127,36 @@
 
 		const METHODS = ["GET", "POST"]; //prolly not actual const
 
+		const ENDPOINTS_AND_REQS = {
+			"/upload": ["original_text"],
+			"/parser/divide": ["corpus_id", "divide_options"],
+			"/parser/parse": ["corpus_id", "parse_options"],
+			"/annotator/annotate": ["corpus_id", "annoatate_optoins"]
+		}
+
+		window.onload = function () {
+			onEndpointChanged();
+		}
+
+		function onEndpointChanged() {
+			let endpoint = document.getElementById("endpoint_select").value;
+			const reqs = ENDPOINTS_AND_REQS[endpoint];
+
+			const fields_div = document.getElementById("fields_div");
+			const divs = fields_div.getElementsByClassName("field_div");
+
+			for (const div of divs) {
+				let field = div.id.replace("_field", "");
+				if (reqs.includes(field))
+					div.hidden = false;
+				else
+					div.hidden = true;
+			}
+		}
+
 		function setUri(resource, version="/api/v2") {
-			let baseurl = document.getElementById("baseurl_input").value;
-			uri = baseurl + version + resource;
+			let route = document.getElementById("route_input").value;
+			uri = route + version + resource;
 			document.getElementById("uri_input").value = uri;
 		}
 
@@ -111,6 +183,32 @@
 			throw new Error("Couldn't get the method");
 		}
 
+		function makeQuery() {
+			let endpoint = document.getElementById("endpoint_select").value;
+			const reqs = ENDPOINTS_AND_REQS[endpoint];
+
+			const fields_div = document.getElementById("fields_div");
+			const inputs = fields_div.getElementsByClassName("field_input"); //Incl. textarea
+
+			let query = {};
+
+			for (const input of inputs) {
+				console.log(input);
+				let name = input.name;
+				console.log(name);
+				if (!reqs.includes(name))
+					continue;
+
+				let value = input.value;
+				query[name] = value;
+			}
+
+			setQuery(query);
+			setUri(endpoint);
+			setMethod("POST");
+		}
+
+		/*
 		function makeUploadQuery() {
 			let original_text = document.getElementById("original_text_textarea").value;
 			
@@ -126,6 +224,7 @@
 			setUri("/upload");
 			setMethod("POST");
 		}
+		*/
 
 		function submit() {
 			let uri = document.getElementById("uri_input").value;
@@ -205,6 +304,10 @@
 
 		#res_json_pre {
 			text-align: left;
+		}
+
+		input.field_input {
+			width: 70%;
 		}
 	</style>
 </body>

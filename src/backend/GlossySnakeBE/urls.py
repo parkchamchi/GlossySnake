@@ -17,23 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from django.http import HttpResponse
+from .views import IndexPageView
 
 urlpatterns = [
+	path("", IndexPageView.as_view()),
 	path("admin/", admin.site.urls),
-	path("", lambda _: HttpResponse("""
-		<h1>Test</h1>
-		<a href="admin/">admin/</a><br>
-		<br>
-		<a href="api/v2/upload">api/v2/upload</a><br>
-		<a href="api/v2/corpuses/">api/v2/corpuses/</a><br>
-		<a href="api/v2/tasks/">api/v2/tasks/</a><br>
-		<br>
-		<a href="api/v2/parser/divide">api/v2/divide</a><br>
-		<a href="api/v2/parser/parse">api/v2/parse</a><br>
-	""")),
 
+	# Both `glosses` and `upload` are minomers.
 	path("v1/glosses/", include("glosses.urls")),
-
 	path("api/v2/", include('upload.urls')), #cf. design doc
 ]

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>GlossySnake Backend</title>
+
+		<!-- Bootstrap -->
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	</head>
+</html>
+<body>
+	<h1>GlossySnake Backend</h1>
+	<p>INDEX PAGE</p>
+	<div id="urls">
+		<a href="admin/">admin/</a>
+		<br>
+		<a href="api/v2/upload">api/v2/upload</a> |
+		<a href="api/v2/corpuses/">api/v2/corpuses/</a> |
+		<a href="api/v2/tasks/">api/v2/tasks/</a>
+		<br>
+		<a href="api/v2/parser/divide">api/v2/divide</a> |
+		<a href="api/v2/parser/parse">api/v2/parse</a>
+	</div>
+	
+	<br>
+	<hr>
+
+	<div id="baseurl_div" class="container">
+		<label for="baseurl">Base URL</label>
+		<input type="text" name="baseurl" placeholder="Baseurl" value="http://127.0.0.1:56123" id="baseurl_input"><br>
+	</div>
+
+	<hr>
+
+	<div id="upload_div" class="container">
+		<h3>/upload</h3>
+		
+		<label for="original_text">Original Text</label><br>
+		<textarea class="context_input auto-resize"
+			name="original_text"
+			spellcheck="true"
+			autofocus
+			placeholder="Original Text"
+			id="original_text_textarea"></textarea>
+		<br>
+		<button class="makequerybutton btn btn-primary" onclick="makeUploadQuery()">Make Query</button>
+	</div>
+
+	<hr>
+
+	<div id="query_div" class="container">
+		<h2>QUERY</h2>
+		
+		<input type="radio" name="method" value="GET" id="GET_radio">
+		<label for="method">GET</label>
+		<input type="radio" name="method" value="POST" id="POST_radio" checked>
+		<label for="method">POST</label><br>
+
+		<label for="uri">URI</label>
+		<input type="text" name="uri" placeholder="uri" id="uri_input"><br>
+
+		<label for="query">QUERY</label><br>
+		<textarea class="context_input auto-resize"
+			name="query"
+			placeholder="QUERY"
+			id="query_textarea"></textarea>
+		<br>
+		<button class="submitbutton btn btn-primary" onclick="submit()">SUBMIT</button>
+	</div>
+
+	<div id="result_div" class="container">
+		<h2>RESULT</h2>
+
+		<pre id="status_pre"></pre>
+		<pre id="res_json_pre"></pre>
+	</div>
+
+	<script>
+		///////////////////////////////////////////////////////////////////////////////////////////////////////
+		// SCRIPTS
+		///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		const METHODS = ["GET", "POST"]; //prolly not actual const
+
+		function setUri(resource, version="/api/v2") {
+			let baseurl = document.getElementById("baseurl_input").value;
+			uri = baseurl + version + resource;
+			document.getElementById("uri_input").value = uri;
+		}
+
+		function setQuery(obj) { 
+			let ta =  document.getElementById("query_textarea");
+			ta.value = JSON.stringify(obj, null, '\t');
+		}
+
+		function setMethod(method) {
+			if (!METHODS.includes(method))
+				throw new Error("Unknown method: " + method);
+
+			let radio = document.getElementById(method + "_radio");
+			radio.click();
+		}
+
+		function getMethod() {
+			for (let method of METHODS) {
+				let radio = document.getElementById(method + "_radio");
+				if (radio.checked)
+					return method;
+			}
+
+			throw new Error("Couldn't get the method");
+		}
+
+		function makeUploadQuery() {
+			let original_text = document.getElementById("original_text_textarea").value;
+			
+			let query = {
+				"corpus": {
+					"original_text": original_text,
+
+					paragraphs: [], paragraph_delimiters: [], p_div_locs: []
+				}
+			};
+			setQuery(query);
+		
+			setUri("/upload");
+			setMethod("POST");
+		}
+
+		function submit() {
+			let uri = document.getElementById("uri_input").value;
+			let query = document.getElementById("query_textarea").value;
+			let method = getMethod();
+			
+			fetch(uri, {
+				method: method,
+				body: query,
+
+				headers: {
+					"Content-type": "application/json; charset=UTF-8",
+				}
+			})
+			.then((res) => {
+				let status_pre = document.getElementById("status_pre");
+				status_pre.innerText = res.status + " " + res.statusText;
+
+				if (res.ok) {
+
+				}
+				else {
+
+				}
+
+				return res.json();
+			})
+			.then((json) => {
+				let res_json_pre = document.getElementById("res_json_pre");
+				res_json_pre.innerText = JSON.stringify(json, null, '\t');
+			});
+		}
+	</script>
+
+	<style>
+		body {
+			background-color: #000000;
+			color: #ffffff;
+			font-family: sans-serif;
+			text-align: center;
+		}
+
+		#urls {
+			font-size: 120%;
+			font-weight: 125;
+		}
+		a:link {
+			color: lightgrey;
+		}
+
+		/* Imported from the PoC */
+		.token_txt {
+			font-size: 150%;
+		}
+
+		.gloss {
+			font-size: 90%;
+			/*font-style: italic;*/
+			font-family: monospace;
+			
+			text-align: center;
+		}
+
+		li {
+			border: none !important;
+		}
+		/* END PoC import */
+
+		textarea {
+			width: 90%;
+			height: 18em;
+		}
+
+		#uri_input {
+			width: 80%;
+		}
+
+		#res_json_pre {
+			text-align: left;
+		}
+	</style>
+</body>

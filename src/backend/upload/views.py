@@ -26,7 +26,8 @@ class UploadAPIView(APIView):
 
 	def post(self, request, *args, **kwargs):
 		try:
-			corpus_data = request.data.get("corpus")
+			#corpus_data = request.data.get("corpus")
+			corpus_data = request.data["corpus"]
 			
 			uc = UploadedCorpus.objects.create()
 			uc.corpus_init(corpus_data) #see model.py

@@ -123,6 +123,13 @@
 		<pre id="res_json_pre"></pre>
 	</div>
 
+	<hr>
+
+	<div id="corpus_div" class="container">
+		<h2>Corpus</h2>
+		<div id="corpus_inner"></div>
+	</div>
+
 	<script>
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
 		// SCRIPTS
@@ -252,7 +259,67 @@
 			.then((json) => {
 				let res_json_pre = document.getElementById("res_json_pre");
 				res_json_pre.innerText = JSON.stringify(json, null, '\t');
+
+				visualizeRes(json);
 			});
+		}
+
+		function visualizeRes(obj) {
+			const target = document.getElementById("corpus_inner");
+			
+			//Check "corpuses_history"
+			if (obj.hasOwnProperty("corpuses_history"))
+				target.innerHTML = corpusToHtml(obj["corpuses_history"].at(-1)); //last one
+			else
+				target.innerText = "";
+		}
+
+		function corpusToHtml(corpus) {
+			let copy = structuredClone(corpus);
+			delete copy.paragraphs;
+
+			let str = `
+				<pre>${JSON.stringify(copy)}</pre>
+
+				<h4>paragraphs</h4>
+			`;
+
+			for (const p of corpus.paragraphs) {
+				let copy = structuredClone(p);
+				delete copy.tokens;
+
+				str += `<pre>${JSON.stringify(copy)}</pre>`;
+
+				for (const t of p.tokens) {
+					//txt, gloss, is_delimiter
+
+					t_str = "";
+					if (t.is_delimiter) {
+						t_str = `<span>${t.txt}</span>`;
+					}
+					else {
+						
+						let gloss = t.gloss;
+						if (gloss == "!UNKNOWN")
+							gloss = "-";
+							
+						t_str += `
+							<div class="card bg-black" style="display: inline-block; margin-right: 1px;">
+								<ul class="list-group list-group-flush">
+									<li class="list-group-item token_txt bg-black text-white">${ t.txt }</li>
+									<li class="list-group-item gloss bg-black text-white">${ gloss }</li>
+								</ul>
+							</div>
+						`
+					}
+
+					str += t_str;
+				}
+
+				str += "<br><hr>";
+			}
+
+			return str;
 		}
 	</script>
 

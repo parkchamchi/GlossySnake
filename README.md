@@ -9,8 +9,8 @@
 | 최재영 | 역사콘텐츠전공 | 201810035 | 프론트엔드 | @yhs06285 |
 
 ## 주요 문서
-[Req analysis](docs/req_analysis/req_analysis.md)
-[Design](docs/design/design.md)
+- [Req analysis](docs/req_analysis/req_analysis.md)
+- [Design](docs/design/design.md)
 
 ## 주차별 결과물
 - [Week 1: Proposal](docs/proposal/proposal.md)
@@ -23,3 +23,4 @@
 - [Week 7: Impl. of iter-2 #1](docs/weekly/week7.md)
 - [Week 9: Impl. of iter-2 #2](docs/weekly/week9.md)
 - [Week 10: Impl. of iter-2 #3](docs/weekly/week10.md)
+- [Week 11: Impl. of iter-2 #4](docs/weekly/week11.md)

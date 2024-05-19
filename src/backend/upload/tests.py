@@ -3,9 +3,7 @@ from django.urls import reverse
 from .models import UploadedCorpus
 from .parser import Parser
 from django.core.exceptions import ValidationError
-import json
-
-#TODO: Change the indentaions to '\t'
+from .serializables import Paragraph,Corpus
 
 class UploadedCorpusTests(TestCase):
     @classmethod
@@ -24,18 +22,17 @@ class UploadedCorpusTests(TestCase):
                         }
                     ]
                 }
-            """, #New upload
+            """, #New uploa
             current_task = 7777
         )
     
     def test_coupus_id(self):
-        self.assertEqual(self.uc.corpus_id, 123456789)
+        self.assertEqual(self.uc.corpus_id,123456789)
     
     def test_corpuses_history_null(self):
         model = UploadedCorpus.objects.create(corpuses_history = None)
         self.assertIsNone(model.corpuses_history)
 
-	#What is this test for?
     def test_corpuses_history(self):
         sample_data = """
                 {
@@ -50,15 +47,16 @@ class UploadedCorpusTests(TestCase):
                     ]
                 }
             """
+        self.assertEqual(self.uc.corpuses_history, sample_data)
 
     def test_current_task(self):
-        self.assertEqual(self.uc.current_task, 7777)
+        self.assertEqual(self.uc.current_task,7777)
         
     def test_current_task_null(self):
         model = UploadedCorpus.objects.create(current_task = None)
         self.assertIsNone(model.current_task)
 
-    def test_corpus_init_with_valid_input(self):
+    def test_corpus_init(self):
         sample_corpus = {
             "paragraphs": [],
             "paragraph_delimiters": [],
@@ -69,74 +67,117 @@ class UploadedCorpusTests(TestCase):
         self.uc.corpus_init(sample_corpus)
         self.assertEqual(self.uc.corpuses_history, {"corpuses_history": [sample_corpus]})
     
-    """"
     def test_add_corpus(self):
         add_corpus = {
             "paragraphs": [],
             "paragraph_delimiters": [],
-            "original_text": "Sample text",
-            "p_div_locs": [],
-            "task_ids": []
+             "original_text": "Sample text",
+             "p_div_locs": [],
+             "task_ids": []
         }
+        self.uc.corpuses_history = {"corpuses_history": []}
         self.uc.add_corpus(add_corpus)
-        #target = json.loads(self.uc.corpuses_history)
-        #corpuses = target["corpuses_history"]
-        #last_corpus = corpuses[-1]
-        #print("Added corpus:", last_corpus)
-    """
+        self.assertIn(add_corpus, self.uc.corpuses_history["corpuses_history"])
 
-#What is this class for?
-class MockCorpus:
-    def __init__(self, original_text):
-        self.original_text = original_text
-        self.paragraphs = []
-
-#What is this for?
-#Also bad indentaions
-#Just import from `.serializables`...
-class Paragraph:
-        def __init__(self, pstate, original_text, is_delimiter, tokens):
-            self.pstate = pstate
-            self.original_text = original_text
-            self.is_delimiter = is_delimiter
-            self.tokens = tokens
-
-#Bad class name
-class TestParser(TestCase):
+class ParserTests(TestCase):
     def setUp(self):
         self.parser = Parser()
+        
 
     def test_divide_into_paragraphs(self):
         text = "asdf\nzxcvzxcv\n\n345"
-        corpus = MockCorpus(text)
+        paragraph_delimiters = ["\n"]
+        original_text = text
+        p_div_locs = [0, 18, len(text)]
+        task_ids =  ["task_id_1"]
+        paragraphs = []     
+        corpus = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs, task_ids)
         self.parser.divide_into_paragraphs(corpus)
-        #print("123",len(corpus.paragraphs))
-        #print((corpus.paragraphs))
-        #self.assertEqual(len(corpus.paragraphs), 3)
-    
+        self.assertEqual(len(corpus.paragraphs), 7)
+        #print("Number of paragraphs:", len(corpus.paragraphs))
+        #for idx, paragraph in enumerate(corpus.paragraphs):
+            #rint(f"Paragraph {idx + 1}: {paragraph.original_text}")
+        
     def test_divide_into_paragraphs_2(self):
         text = "abc\n\n\nefg"
-        corpus = MockCorpus(text)
+        paragraph_delimiters = ["\n"]
+        original_text = text
+        p_div_locs = [0, 4, 5, 8, len(text)]
+        task_ids =  ["task_id_2"]
+        paragraphs = []
+        corpus = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs, task_ids)
         self.parser.divide_into_paragraphs(corpus)
-        #print("456",len(corpus.paragraphs))
-        #print((corpus.paragraphs))
-        #self.assertEqual(len(corpus.paragraphs), 2)
-    
+        self.assertEqual(len(corpus.paragraphs), 7)
+        #for idx, paragraph in enumerate(corpus.paragraphs):
+            #print(f"Paragraph {idx + 1}: {paragraph.original_text}")
+        
     def test_parse_sentence_false(self):
         text = "My name is junsik"
-        paragraph = Paragraph(pstate="DIVIDED", original_text=text, is_delimiter=False, tokens=[])
+        paragraph = Paragraph(pstate="DIVIDED", original_text=text, is_delimiter=False, tokens=[], token_delimiters="", annotator_info="")
         self.parser.parse_paragraph(paragraph)  
-        self.assertEqual(len(paragraph.tokens), 4 + 3) #Token includes the delimiters
+        #print("Tokens:", paragraph.tokens)
+        self.assertEqual(len(paragraph.tokens), 7)
 
     def test_parse_sentence_false_2(self):
         text = "a b c"
-        paragraph = Paragraph(pstate="DIVIDED", original_text=text, is_delimiter=False, tokens=[])
+        paragraph = Paragraph(pstate="DIVIDED", original_text=text, is_delimiter=False, tokens=[], token_delimiters="", annotator_info="")
         self.parser.parse_paragraph(paragraph)  
-        self.assertEqual(len(paragraph.tokens), 3 + 2) 
+        #print("Tokens:", paragraph.tokens)
+        self.assertEqual(len(paragraph.tokens), 5) 
 
-    """def test_parse_sentence_true(self):
-        text = "My name is junsik"
-        paragraph = Paragraph(pstate="DIVIDED", original_text=text, is_delimiter=True, tokens=[])
+class UploadedCorpusHistoryTest(TestCase):
+    def setUp(self):
+        self.parser = Parser()
+        self.uc = UploadedCorpus.objects.create()
+
+    def test_history(self):
+        text = "abc\n\n\nefg"
+        paragraph_delimiters = ["\n"]
+        original_text = text
+        p_div_locs = [0, 4, 5, 8, len(text)]
+        task_ids =  ["task_id_2"]
+        paragraphs = []
+        corpus1 = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs, task_ids)
+        self.parser.divide_into_paragraphs(corpus1)
+        self.uc.corpus_init(corpus1)
+        
+        text = "asdf\nzxcvzxcv\n\n345"
+        paragraph_delimiters = ["\n"]
+        original_text = text
+        p_div_locs = [0, 4, 5, 8, len(text)]
+        task_ids =  ["task_id_2"]
+        paragraphs = []
+        corpus2 = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs, task_ids)
+        self.parser.divide_into_paragraphs(corpus2)
+        self.uc.add_corpus(corpus2)
+        
+        text = "a b c"
+        paragraph = Paragraph(pstate="DIVIDED", original_text=text, is_delimiter=False, tokens=[], token_delimiters="", annotator_info="")
         self.parser.parse_paragraph(paragraph)  
-        self.assertEqual(len(paragraph.tokens), 1)  
-        """
+        paragraphs=[paragraph]  
+        paragraph_delimiters=["\n"] 
+        original_text=text
+        p_div_locs=[0, len(text)]  
+        task_ids=["task_id_3"]
+        corpus3 = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs, task_ids)
+        self.uc.add_corpus(corpus3)
+
+        text = "My name is junsik"
+        paragraph = Paragraph(pstate="DIVIDED", original_text=text, is_delimiter=False, tokens=[], token_delimiters="", annotator_info="")
+        self.parser.parse_paragraph(paragraph)
+        paragraphs = [paragraph]
+        paragraph_delimiters = ["\n"]
+        original_text = text
+        p_div_locs = [0, len(text)]
+        task_ids = ["task_id_4"]
+        corpus4 = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs, task_ids)
+        self.uc.add_corpus(corpus4)
+        corpuses_history = self.uc.corpuses_history
+
+        self.assertEqual(corpuses_history['corpuses_history'][0]['original_text'], "abc\n\n\nefg")
+        self.assertEqual(corpuses_history['corpuses_history'][1]['original_text'], "asdf\nzxcvzxcv\n\n345")
+        self.assertEqual(corpuses_history['corpuses_history'][2]['original_text'], "a b c")
+        self.assertEqual(corpuses_history['corpuses_history'][3]['original_text'], "My name is junsik")
+        
+
+                

@@ -1,0 +1,20 @@
+@startuml
+
+user --> "start page"
+-->[input value]"Is it correct?"
+
+if "" then
+-->[Yes] "Do you select the Token?"
+if "" then
+->[Yes]"Output without modifying the result" as a3
+else
+if "" then
+-right->[No] "modify/delete"
+->a3
+endif
+endif
+else
+->[No] "re-enter value or endpoint"
+endif
+
+@enduml

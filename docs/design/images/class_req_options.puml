@@ -14,7 +14,14 @@ end note
 class AnnotateOptions <<serializable>> {
 	string lang_from
 	string lang_to
+
+	string annotator_name
 }
+note left of AnnotateOptions::annotator_name
+	can be:
+	  - null
+	  - "chatgpt_ft0"
+end note
 
 class ReannotateOptions <<serializable>> {
 	int[] target_tokens

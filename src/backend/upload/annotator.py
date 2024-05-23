@@ -5,17 +5,21 @@ import string
 import re
 from typing import List, Tuple
 
-def get_dummy_gloss(token: Token):
-	return f"dummygloss({token.txt})"
+TOKEN_UNKNOWN = "!UNKNOWN"
 
 class Annotator:
 	def annotate(self, p: Paragraph, lang_from: str, lang_to: str, **kwargs):
-		if not p.is_delimiter:
-			for token in p.tokens:
-				if token.is_delimiter:
-					continue
-				token.gloss = get_dummy_gloss(token)
+		self.lang_from = lang_from
+		self.lang_to = lang_to
 
-		p.pstate = "ANNOTATED"
-		p.annotator_info = f"dummy_`{lang_from}`_`{lang_to}`"
+		if not p.is_delimiter:
+			self.put_gloss(p)
+			p.pstate = "ANNOTATED"
 		
+	def put_gloss(self, p: Paragraph):
+		for token in p.tokens:
+			if token.is_delimiter:
+				continue
+			token.gloss = f"dummygloss({token.txt})"
+
+		p.annotator_info = f"dummy_`{self.lang_from}`_`{self.lang_to}`"

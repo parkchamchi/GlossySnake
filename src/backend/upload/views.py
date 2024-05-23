@@ -156,9 +156,15 @@ class AnnotatorAnnotateAPIView(ManipulatorAPIView):
 			annotate_options = data["annotate_options"]
 			lang_from = annotate_options["lang_from"]
 			lang_to = annotate_options["lang_to"]
+
+			annotator_name = annotate_options.get("annotator_name")
 			
 			#Annotate
-			annotator = Annotator()
+			if annotator_name == "chatgpt_ft0":
+				from .chatgpt_annotator import ChatgptAnnotator #TODO: try?
+				annotator = ChatgptAnnotator()
+			else:
+				annotator = Annotator()
 
 			#print("On parse_task()")
 			corpus = uc.corpuses_history["corpuses_history"][-1] #TODO: Does the former corpus here change in the DB? (should not)

@@ -2,6 +2,10 @@
 
 구동 목표
 -------
+
+*구동과정 다이어그램
+![Frontend_Readme](https://github.com/parkchamchi/GlossySnake/assets/105274341/40ad32e0-0c65-49ad-b995-44d09be341ab)
+
 * UC001
   * 로그인/회원가입 페이지 UI 제작
   * 가운데로 정렬해 페이지 제작하도록 함
@@ -51,3 +55,10 @@
 * page 분할에 대한 필요성 검토와 가능한 시나리오
 * Log-in page 구체화
 * CreateAccount page 구체화
+  
+12WEEK
+----------
+* Single page app의 디자인 시각화 -
+* 프론트엔드 다이어그램화 추가 작업 - O
+* /인덱스 API 테스트 - O
+* 프론트엔드 bootstrap 사용하여 디자인 -

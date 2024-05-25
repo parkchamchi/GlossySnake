@@ -4,7 +4,7 @@
 -------
 
 *구동과정 다이어그램
-![Frontend_Readme](https://github.com/parkchamchi/GlossySnake/assets/105274341/40ad32e0-0c65-49ad-b995-44d09be341ab)
+![images/frontend_target.png](images/frontend_target.png)
 
 * UC001
   * 로그인/회원가입 페이지 UI 제작

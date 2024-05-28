@@ -116,18 +116,18 @@
 
 	<hr>
 
+	<div id="corpus_div" class="container">
+		<h2>Corpus</h2>
+		<div id="corpus_inner"></div>
+	</div>
+
+	<hr>
+
 	<div id="result_div" class="container">
 		<h2>RESULT</h2>
 
 		<pre id="status_pre"></pre>
 		<pre id="res_json_pre"></pre>
-	</div>
-
-	<hr>
-
-	<div id="corpus_div" class="container">
-		<h2>Corpus</h2>
-		<div id="corpus_inner"></div>
 	</div>
 
 	<script>
@@ -270,6 +270,16 @@
 			//Check "corpuses_history"
 			if (obj.hasOwnProperty("corpuses_history"))
 				target.innerHTML = corpusToHtml(obj["corpuses_history"].at(-1)); //last one
+			else if (obj.constructor === Array) {
+				let out = "";
+				for (const el of obj) {
+					if (el.hasOwnProperty("corpus_id"))
+						out += "<h4>corpus_id: " + el["corpus_id"] + "</h4>"
+					if (el.hasOwnProperty("corpuses_history"))
+						out += corpusToHtml(el["corpuses_history"].at(-1)); //last one
+				}
+				target.innerHTML = out;
+			}
 			else
 				target.innerText = "";
 		}

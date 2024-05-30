@@ -380,14 +380,18 @@
 
 				out += "<div class='corpus_wrapper'><hr>"
 					const corpus_id = el["corpus_id"]
-					out += "<h4 onclick='onCorpusHeadClicked(this)' >CORPUS: " + corpus_id + "</h4>"
+					out += "<h4 onclick='onCorpusHeadClicked(this)'>CORPUS: " + corpus_id + "</h4>"
+					out += `<p hidden class="corpus_id_hidden_p">${corpus_id}</p>`
 
 					if (el.hasOwnProperty("corpuses_history")) {
 						out += "<div class='corpus' " + (collapsed ? "hidden" : "" ) + ">";
 							out += `
-								<button class="btn btn-light" onclick="onCorpusDivideButtonClicked(${corpus_id})">Divide</button><br>
-								<button class="btn btn-light" onclick="onCorpusParseButtonClicked(${corpus_id})">Parse</button><br>
-								<button class="btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id})">Annotate</button><br>
+								<span class="corpus_buttons_span">
+									<button class="corpus_button btn btn-light" onclick="onCorpusDivideButtonClicked(${corpus_id})">Divide</button>
+									<button class="corpus_button btn btn-light" onclick="onCorpusParseButtonClicked(${corpus_id})">Parse</button>
+									<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id})">Annotate</button>
+								</span>
+								<br>
 							`;
 							out += corpusToHtml(el["corpuses_history"].at(-1));
 						out += "</div>"
@@ -401,6 +405,9 @@
 		function onCorpusHeadClicked(el) {
 			const target = el.parentNode.getElementsByClassName("corpus")[0];
 			target.hidden = !target.hidden;
+
+			const corpus_id = el.parentNode.getElementsByClassName("corpus_id_hidden_p")[0].innerText;
+			setField("corpus_id", corpus_id);
 		}
 
 		function selectEndpoint(endpoint) {
@@ -546,6 +553,10 @@
 
 		input.field_input {
 			width: 70%;
+		}
+
+		.corpus_buttons_span {
+			display: inline;
 		}
 	</style>
 </body>

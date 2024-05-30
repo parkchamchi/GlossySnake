@@ -19,13 +19,12 @@
 			<hr>
 			<h2>Frontend Test</h2>
 			
-			<h3>Corpuses</h3>
 			<div id="frontend_corpuses_div">
 			</div>
 			<hr>
-
-			<h3>Upload...</h3>
+			
 			<div id="frontend_upload_div">
+				<h3>Upload...</h3>
 				<label for="frontend_original_text">Original Text</label><br>
 				<textarea class="context_input auto-resize field_input"
 					name="frontend_original_text"
@@ -76,13 +75,13 @@
 
 				<label for="endpoint">Endpoint</label><br>
 				<select name="endpoint" id="endpoint_select" size="6" required onchange="onEndpointChanged()">
-					<option value="/upload" id="endpoint_option_upload" selected>/upload</option>
+					<option value="/upload" selected>/upload</option>
 					<option value="/parser/divide">/parser/divide</option>
 					<option value="/parser/parse">/parser/parse</option>
 					<option value="/annotator/annotate">/annotator/annotate</option>
 
-					<option value="/tasks/[id]">/tasks/[id]</option>
-					<option value="/corpuses/[id]" id="endpoint_option_corpuses">/corpuses/[id]</option>
+					<option value="/tasks/">/tasks/</option>
+					<option value="/corpuses/">/corpuses/</option>
 				</select>
 			</div>
 
@@ -182,7 +181,7 @@
 			"/annotator/annotate": ["corpus_id", "annotate_options"]
 		}
 		//TODO: merge with above. This assumes that each endpoint has only on method.
-		const GET_ENDPOINTS = ["/tasks/[id]", "/corpuses/[id]"]
+		const GET_ENDPOINTS = ["/tasks/", "/corpuses/"]
 
 		window.onload = function () {
 			onEndpointChanged();
@@ -379,14 +378,16 @@
 			for (const el of arr) {
 				if (!el.hasOwnProperty("corpus_id")) continue;
 
-				out += "<div class='corpus_wrapper' onclick='onCorpusWrapperClicked(this)'><hr>"
+				out += "<div class='corpus_wrapper'><hr>"
 					const corpus_id = el["corpus_id"]
-					out += "<h4>CORPUS: " + corpus_id + "</h4>"
+					out += "<h4 onclick='onCorpusHeadClicked(this)' >CORPUS: " + corpus_id + "</h4>"
 
 					if (el.hasOwnProperty("corpuses_history")) {
 						out += "<div class='corpus' " + (collapsed ? "hidden" : "" ) + ">";
 							out += `
+								<button class="btn btn-light" onclick="onCorpusDivideButtonClicked(${corpus_id})">Divide</button><br>
 								<button class="btn btn-light" onclick="onCorpusParseButtonClicked(${corpus_id})">Parse</button><br>
+								<button class="btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id})">Annotate</button><br>
 							`;
 							out += corpusToHtml(el["corpuses_history"].at(-1));
 						out += "</div>"
@@ -397,22 +398,42 @@
 			return out;
 		}
 
-		function onCorpusWrapperClicked(el) {
-			const target = el.getElementsByClassName("corpus")[0];
+		function onCorpusHeadClicked(el) {
+			const target = el.parentNode.getElementsByClassName("corpus")[0];
 			target.hidden = !target.hidden;
 		}
 
-		function selectEndpoint(targetOptionId) {
-				document.getElementById(targetOptionId).selected = true;
-				onEndpointChanged(); //has to be called manually for some reason...
+		function selectEndpoint(endpoint) {
+				const select = document.getElementById("endpoint_select");
+				const options = Array.from(select.querySelectorAll("option"));
+				const option = options.find((o) => o.value == endpoint);
+
+				option.selected = true;
+				//onEndpointChanged(); //has to be called manually for some reason...
+		}
+
+		function getInput(field) {
+			let input = document.getElementById(field + "_input");
+			if (!input)
+				input = document.getElementById(field + "_textarea");
+
+			return input;
+		}
+
+		function setField(field, value) {
+			const input = getInput(field);
+			input.value = value;
+		}
+
+		function getField(field) {
+			const input = getInput(field);
+			return input.value;
 		}
 
 		function setCorpusesDiv() {
-			selectEndpoint("endpoint_option_corpuses");
+			selectEndpoint("/corpuses/");
 			makeQuery();
 
-			let uri = document.getElementById("uri_input").value;
-			document.getElementById("uri_input").value = uri.replace("[id]", "");
 			submit();
 		}
 
@@ -428,19 +449,42 @@
 		}
 		document.addEventListener("response_event", onCorpusesResponse);
 
-		function onFrontendUploadButtonClicked() {
-			const text = document.getElementById("frontend_original_text_textarea").value;
-
-			selectEndpoint("endpoint_option_upload");
-			document.getElementById("original_text_textarea").value = text;
-			makeQuery();
-			submit();
+		async function onAnyOtherResponse(event) {
+			if (event.detail.url.endsWith("/corpuses/"))
+				return;
 
 			setCorpusesDiv();
 		}
+		document.addEventListener("response_event", onAnyOtherResponse);
+
+		function onFrontendUploadButtonClicked() {
+			const text = document.getElementById("frontend_original_text_textarea").value;
+
+			selectEndpoint("/upload");
+			setField("original_text", text);
+			makeQuery();
+			submit();
+		}
+
+		function onCorpusDivideButtonClicked(corpus_id) {
+			selectEndpoint("/parser/divide");
+			setField("corpus_id", corpus_id);
+			makeQuery();
+			submit();
+		}
 
 		function onCorpusParseButtonClicked(corpus_id) {
-			;
+			selectEndpoint("/parser/parse");
+			setField("corpus_id", corpus_id);
+			makeQuery();
+			submit();
+		}
+
+		function onCorpusAnnotateButtonClicked(corpus_id) {
+			selectEndpoint("/annotator/annotate");
+			setField("corpus_id", corpus_id);
+			makeQuery();
+			submit();
 		}
 	</script>
 

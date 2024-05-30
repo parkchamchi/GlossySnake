@@ -19,8 +19,27 @@
 			<hr>
 			<h2>Frontend Test</h2>
 			
-			<div id="corpuses_div">
+			<h3>Corpuses</h3>
+			<div id="frontend_corpuses_div">
+			</div>
+			<hr>
 
+			<h3>Upload...</h3>
+			<div id="frontend_upload_div">
+				<label for="frontend_original_text">Original Text</label><br>
+				<textarea class="context_input auto-resize field_input"
+					name="frontend_original_text"
+					spellcheck="true"
+					autofocus
+					placeholder="Original Text"
+					id="frontend_original_text_textarea"></textarea>
+				<br>
+
+				<button id="frontend_original_text_button"
+					class="btn btn-primary"
+					onclick="onFrontendUploadButtonClicked()">
+					Upload
+				</button>
 			</div>
 		</div>
 
@@ -57,7 +76,7 @@
 
 				<label for="endpoint">Endpoint</label><br>
 				<select name="endpoint" id="endpoint_select" size="6" required onchange="onEndpointChanged()">
-					<option value="/upload" selected>/upload</option>
+					<option value="/upload" id="endpoint_option_upload" selected>/upload</option>
 					<option value="/parser/divide">/parser/divide</option>
 					<option value="/parser/parse">/parser/parse</option>
 					<option value="/annotator/annotate">/annotator/annotate</option>
@@ -354,21 +373,44 @@
 			return str;
 		}
 
-		function corpusesToHtml(arr) {
+		function corpusesToHtml(arr, collapsed=false) {
 			let out = "";
+
 			for (const el of arr) {
-				if (el.hasOwnProperty("corpus_id"))
-					out += "<h4>corpus_id: " + el["corpus_id"] + "</h4>"
-				if (el.hasOwnProperty("corpuses_history"))
-					out += corpusToHtml(el["corpuses_history"].at(-1)); //last one
+				if (!el.hasOwnProperty("corpus_id")) continue;
+
+				out += "<div class='corpus_wrapper' onclick='onCorpusWrapperClicked(this)'><hr>"
+					const corpus_id = el["corpus_id"]
+					out += "<h4>CORPUS: " + corpus_id + "</h4>"
+
+					if (el.hasOwnProperty("corpuses_history")) {
+						out += "<div class='corpus' " + (collapsed ? "hidden" : "" ) + ">";
+							out += `
+								<button class="btn btn-light" onclick="onCorpusParseButtonClicked(${corpus_id})">Parse</button><br>
+							`;
+							out += corpusToHtml(el["corpuses_history"].at(-1));
+						out += "</div>"
+					}
+				out += "</div>"
 			}
 
 			return out;
 		}
 
+		function onCorpusWrapperClicked(el) {
+			const target = el.getElementsByClassName("corpus")[0];
+			target.hidden = !target.hidden;
+		}
+
+		function selectEndpoint(targetOptionId) {
+				document.getElementById(targetOptionId).selected = true;
+				onEndpointChanged(); //has to be called manually for some reason...
+		}
+
 		function setCorpusesDiv() {
-			document.getElementById("endpoint_option_corpuses").selected = true;
+			selectEndpoint("endpoint_option_corpuses");
 			makeQuery();
+
 			let uri = document.getElementById("uri_input").value;
 			document.getElementById("uri_input").value = uri.replace("[id]", "");
 			submit();
@@ -381,10 +423,25 @@
 
 			const json = await event.detail.json;
 
-			let corpuses_div = document.getElementById("corpuses_div");
-			corpuses_div.innerHTML = corpusesToHtml(json);
+			let corpuses_div = document.getElementById("frontend_corpuses_div");
+			corpuses_div.innerHTML = corpusesToHtml(json, collapsed=true);
 		}
 		document.addEventListener("response_event", onCorpusesResponse);
+
+		function onFrontendUploadButtonClicked() {
+			const text = document.getElementById("frontend_original_text_textarea").value;
+
+			selectEndpoint("endpoint_option_upload");
+			document.getElementById("original_text_textarea").value = text;
+			makeQuery();
+			submit();
+
+			setCorpusesDiv();
+		}
+
+		function onCorpusParseButtonClicked(corpus_id) {
+			;
+		}
 	</script>
 
 	<style>

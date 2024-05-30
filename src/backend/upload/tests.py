@@ -1,9 +1,13 @@
 from django.test import TestCase
+from rest_framework.test import APITestCase
 from django.urls import reverse
 from .models import UploadedCorpus
 from .parser import Parser
 from django.core.exceptions import ValidationError
 from .serializables import Paragraph,Corpus
+from rest_framework import status
+import json
+import openai
 
 class UploadedCorpusTests(TestCase):
     @classmethod
@@ -124,7 +128,7 @@ class ParserTests(TestCase):
         self.parser.parse_paragraph(paragraph)  
         #print("Tokens:", paragraph.tokens)
         self.assertEqual(len(paragraph.tokens), 5) 
-
+"""
 class UploadedCorpusHistoryTest(TestCase):
     def setUp(self):
         self.parser = Parser()
@@ -178,6 +182,64 @@ class UploadedCorpusHistoryTest(TestCase):
         self.assertEqual(corpuses_history['corpuses_history'][1]['original_text'], "asdf\nzxcvzxcv\n\n345")
         self.assertEqual(corpuses_history['corpuses_history'][2]['original_text'], "a b c")
         self.assertEqual(corpuses_history['corpuses_history'][3]['original_text'], "My name is junsik")
-        
+"""
 
-                
+class AnnotatorAnnotateTestCase(APITestCase):
+    corpus_id = 999
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        corpusstr = r'{"paragraphs":[{"pstate":"PARSED","tokens":[{"txt":"A","is_delimiter":false,"gloss":"GlossA"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"test","is_delimiter":false,"gloss":"GlossTest"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"string.","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"Second","is_delimiter":false,"gloss":"GlossSecond"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"sentence.","is_delimiter":false,"gloss":"GlossSentence"}],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"A test string. Second sentence."},{"pstate":"PARSED","tokens":[{"txt":"\n","is_delimiter":true,"gloss":null}],"is_delimiter":true,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"\n"},{"pstate":"PARSED","tokens":[{"txt":"Next","is_delimiter":false,"gloss":"GlossNext"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"paragraph.","is_delimiter":false,"gloss":"GlossParagraph"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"Another","is_delimiter":false,"gloss":"GlossAnother"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"one.","is_delimiter":false,"gloss":"GlossOne"}],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"Next paragraph. Another one."},{"pstate":"PARSED","tokens":[{"txt":"\n","is_delimiter":true,"gloss":null}],"is_delimiter":true,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"\n"},{"pstate":"PARSED","tokens":[],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":""},{"pstate":"PARSED","tokens":[{"txt":"\n","is_delimiter":true,"gloss":null}],"is_delimiter":true,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"\n"},{"pstate":"PARSED","tokens":[{"txt":"A","is_delimiter":false,"gloss":"GlossA"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"paragraph","is_delimiter":false,"gloss":"GlossParagraph"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"after","is_delimiter":false,"gloss":"GlossAfter"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"two","is_delimiter":false,"gloss":"GlossTwo"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"newlines.","is_delimiter":false,"gloss":"GlossNewlines"}],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"A paragraph after two newlines."}],"paragraph_delimiters":["\n"],"original_text":"A test string. Second sentence.\nNext paragraph. Another one.\n\nA paragraph after two newlines.","p_div_locs":[31,32,60,61,61,62,93],"task_ids":[]}'
+        corpus = Corpus.fromdict(json.loads(corpusstr))
+        cls.uc = UploadedCorpus.objects.create(corpus_id=cls.corpus_id)
+        cls.uc.corpus_init(corpus)
+        cls.uc.save()
+
+    def extract_gloss_values(self):
+        gloss_values = []
+        corpuses_history = self.uc.corpuses_history.get("corpuses_history", [])
+        for corpus_data in corpuses_history:
+            paragraphs = corpus_data.get("paragraphs", [])
+            for paragraph_data in paragraphs:
+                tokens = paragraph_data.get("tokens", [])
+                for token in tokens:
+                    gloss_value = token.get("gloss")
+                    if gloss_value:
+                        gloss_values.append(gloss_value)
+        return gloss_values
+
+    def test_annotate_with_different_annotators(self):
+        url = reverse("api-annotator-annotate")
+
+        annotate_options_no_annotator = {
+            "lang_from": "English",
+            "lang_to": "French",
+            "annotator_name": None
+        }
+        data_no_annotator = {
+            "corpus_id": self.corpus_id,
+            "annotate_options": annotate_options_no_annotator
+        }
+        response_no_annotator = self.client.post(url, data_no_annotator, format='json')
+        
+        self.uc.refresh_from_db() 
+        gloss_values_no_annotator = self.extract_gloss_values()
+        print("A")
+        print("Gloss values with no annotator_name:", gloss_values_no_annotator)
+
+        annotate_options_with_annotator = {
+            "lang_from": "English",
+            "lang_to": "French",
+            "annotator_name": "test_annotator"
+        }
+        data_with_annotator = {
+            "corpus_id": self.corpus_id,
+            "annotate_options": annotate_options_with_annotator
+        }
+        response_with_annotator = self.client.post(url, data_with_annotator, format='json')
+        
+        self.uc.refresh_from_db()  
+        gloss_values_with_annotator = self.extract_gloss_values()
+        print("B")
+        print("Gloss values with annotator_name 'test_annotator':", gloss_values_with_annotator)

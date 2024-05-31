@@ -93,25 +93,24 @@
         <div style="font-size:25px;">
             <b>Upload a processed JSON</b>
         </div>
-        <form id="uploadForm" enctype="multipart/form-data">
+        <form action="" method="post" enctype="multipart/form-data">
             <input type="file" name="fileToUpload" id="fileToUpload">
-            <input type="button" value="Upload" onclick="sendFile()">
+            <input type="submit" value="업로드">
         </form>
     </div>
     <br />
-    <div id="output"></div>
     <div>
-        <div class="warningbox" id="warningmessage">
+        <div class="warningbox" , id="warningmessage">
             WARNING: The backend returned an error(Only shown when an event occurs.)
             <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
 
         </div>
-        <div class="shown3box" id="shown3message">
+        <div class="shown3box" , id="shown3message">
             -A message: These can be shown at most 3 at the same time
             <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
 
         </div>
-        <div class="scrollbox" id="scrollmessage">
+        <div class="scrollbox" , id="scrollmessage">
             and more messages should be accessed via the scroll
             <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
 
@@ -228,6 +227,8 @@
             }
         }
         function sendRequest() {
+
+            // Gets the text entered by the user.
             let endpoint = document.getElementById('endpoint').value;
 
             let originalValue = document.getElementById('originalSelect').value;
@@ -273,7 +274,10 @@
                 console.log("Input Text: ", inputText);
             }
 
-            let full_url = endpoint + "/v1/glosses/annotate"
+            //Send a POST request to Backend
+            let full_url = endpoint + "/api/v2/annotator/annotate";
+            console.log('Fetching URL:', full_url);
+
             fetch(full_url, {
                 method: 'POST',
                 headers: {
@@ -287,9 +291,13 @@
                 }),
             })
                 .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
                     return response.json();
                 })
                 .then(data => {
+                    console.log('Success:', data);
                     document.getElementById('output').textContent = JSON.stringify(data);
                     document.getElementById("shown3message").style.display = "block";
                     document.getElementById("scrollmessage").style.display = "block";
@@ -297,37 +305,6 @@
                 .catch(error => {
                     console.error('Error:', error);
                     document.getElementById("warningmessage").style.display = "block";
-                });
-        }
-
-        function sendFile() {
-            let fileInput = document.getElementById('fileToUpload');
-            let file = fileInput.files[0];
-            if (!file) {
-                alert("Please select a file first.");
-                return;
-            }
-
-            let formData = new FormData();
-            formData.append('fileToUpload', file);
-
-            let endpoint = "http://127.0.0.1:56123/v1/glosses/upload"; // 수정된 URL
-            fetch(endpoint, {
-                method: 'POST',
-                body: formData,
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById('output').textContent = JSON.stringify(data);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('output').textContent = 'Error: ' + error.message;
                 });
         }
     </script>

@@ -61,8 +61,16 @@
 			
 			<br>
 			<hr>
+			
+			<input type="checkbox" id="listupdate_checkbox" checked>
+			<label for="listupdate_checkbox">Update the list after every API call</label>
+
+			<br>
+			<hr>
+
 
 			<div id="endpoint_div" class="container">
+
 				<label for="route">Route</label>
 				<input type="text" name="route" placeholder="route" value="http://127.0.0.1:56123" id="route_input"><br>
 
@@ -389,7 +397,17 @@
 								<span class="corpus_buttons_span">
 									<button class="corpus_button btn btn-light" onclick="onCorpusDivideButtonClicked(${corpus_id})">Divide</button>
 									<button class="corpus_button btn btn-light" onclick="onCorpusParseButtonClicked(${corpus_id})">Parse</button>
-									<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id})">Annotate</button>
+									<br>
+
+									<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id})">
+										Annotate (dummy)
+									</button>
+									<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id}, 'French', 'English', 'chatgpt_ft0')">
+										Annotate (chatgpt_ft0, from French)
+									</button>
+									<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id}, 'German', 'French', 'chatgpt_ft0')">
+										Annotate (chatgpt_ft0, from German)
+									</button>
 								</span>
 								<br>
 							`;
@@ -460,6 +478,11 @@
 			if (event.detail.url.endsWith("/corpuses/"))
 				return;
 
+			//Check the option
+			const checkbox = document.getElementById("listupdate_checkbox");
+			if (!checkbox.checked)
+				return;
+
 			setCorpusesDiv();
 		}
 		document.addEventListener("response_event", onAnyOtherResponse);
@@ -487,9 +510,16 @@
 			submit();
 		}
 
-		function onCorpusAnnotateButtonClicked(corpus_id) {
+		function onCorpusAnnotateButtonClicked(corpus_id, lang_from="French", lang_to="English", annotator_name=null) {
 			selectEndpoint("/annotator/annotate");
 			setField("corpus_id", corpus_id);
+
+			let annotate_options = {
+				lang_from: lang_from, lang_to: lang_to, annotator_name: annotator_name
+			};
+			annotate_options = JSON.stringify(annotate_options);
+			setField("annotate_options", annotate_options);
+
 			makeQuery();
 			submit();
 		}
@@ -553,10 +583,6 @@
 
 		input.field_input {
 			width: 70%;
-		}
-
-		.corpus_buttons_span {
-			display: inline;
 		}
 	</style>
 </body>

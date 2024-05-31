@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token</title>
+</head>
+<style>
+   
+    .token-container {
+        margin-bottom: 20px;
+    }
+
+    .token-input {
+        width: 300px;
+        margin-bottom: 10px;
+    }
+
+    .token-output {
+        width: 300px;
+        height: 100px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        overflow: auto;
+    }
+</style>
+<body>
+    <div class="token-container">
+        <button onclick="getToken()">토큰 가져오기</button>
+    </div>
+    <div>
+        <ul class="Token" onclick="toggleToken()">
+            <li class="li0">
+                <span style="display: inline;">
+                    <form style="display: inline;">
+                        <select class="hover" name="hover" onchange="handleChange(this)">
+                            <option value="▼">▼</option>
+                            <option value="edit">edit</option>
+                            <option value="delete">delete</option>
+                        </select>
+                    </form>
+                </span>
+            </li>         
+        </ul>
+    </div>
+    <div>
+        <h2>결과:</h2>
+        <div id="output" class="token-output"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll("li").forEach(function (element) {
+                element.addEventListener('click', function () {
+                    this.classList.add("selected");
+                    this.siblings().forEach(function (sibling) {
+                        sibling.classList.remove("selected");
+                    });
+                });
+            });
+        });
+
+        function errormsg() {
+            alert('에러가 발생했습니다!');
+        }
+
+        function handleChange(select) {
+            var selectedValue = select.value;
+            if (selectedValue === 'edit') {
+                editToken();
+            } else if (selectedValue === 'delete') {
+                deleteToken();
+            }
+        }
+
+        function setCurrentTokenText(newText) {
+            var token = document.querySelector('.li0');
+            if (token) {
+                token.childNodes[0].nodeValue = newText;
+                var tokenOutput = document.getElementById('output');
+                if (tokenOutput) {
+                    tokenOutput.textContent = newText;
+                } else {
+                    console.warn("결과 출력 요소를 찾을 수 없습니다.");
+                }
+            } else {
+                console.warn("토큰 요소를 찾을 수 없습니다.");
+            }
+        }
+
+        function toggleToken() {
+            var token = document.querySelector('.token');
+            if (!token) {
+                console.warn("토큰 요소를 찾을 수 없습니다.");
+                return;
+            }
+
+            if (token.textContent.trim() === '선택됨') {
+                token.textContent = '비선택됨';
+                token.style.backgroundColor = 'lightcoral';
+            } else {
+                token.textContent = '선택됨';
+                token.style.backgroundColor = 'lightgray';
+            }
+        }
+
+        function getCurrentTokenText() {
+            var token = document.querySelector('.li0');
+            if (token && token.childNodes[0].nodeValue !== null) {
+                return token.childNodes[0].nodeValue.trim();
+            } else {
+                console.warn("토큰 요소를 찾을 수 없거나 내용이 없습니다.");
+                return null;
+            }
+        }
+
+        function editToken() {
+            var currentText = getCurrentTokenText();
+            if (currentText !== null) {
+                var newText = prompt('수정할 내용을 입력하세요:', currentText);
+                if (newText !== null && newText.trim() !== '') {
+                    setCurrentTokenText(newText);
+                    alert('토큰이 수정되었습니다.');
+                } else {
+                    alert('수정할 내용을 입력해주세요.');
+                }
+            } else {
+                alert('토큰 요소가 없거나 내용이 없습니다.');
+            }
+        }
+
+        function deleteToken() {
+            if (confirm('정말로 삭제하시겠습니까?')) {
+                setCurrentTokenText('');
+                alert('토큰이 삭제되었습니다.');
+            } else {
+                alert('삭제가 취소되었습니다.');
+            }
+        }
+
+        async function getToken() {
+            try {
+                const response = await fetch('http://localhost:3000/api/token', { // testcors.js
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('네트워크 응답이 올바르지 않습니다.');
+                }
+                const data = await response.json();
+                setCurrentTokenText(data.token);  // Assuming the response has a `token` field
+                console.log("Token: ", data.token)
+            } catch (error) {
+                console.error('토큰을 가져오는 중 오류가 발생했습니다:', error);
+                errormsg();
+            }
+        }
+    </script>
+</body>
+</html>

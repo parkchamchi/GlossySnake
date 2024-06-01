@@ -396,6 +396,9 @@
 							out += `
 								<span class="corpus_buttons_span">
 									<button class="corpus_button btn btn-light" onclick="onCorpusDivideButtonClicked(${corpus_id})">Divide</button>
+									<button class="corpus_button btn btn-light" onclick="onCorpusDivideButtonClicked(${corpus_id}, '\\n\\n')">Divide (for poems, \\n\\n)</button>
+									<br>
+
 									<button class="corpus_button btn btn-light" onclick="onCorpusParseButtonClicked(${corpus_id})">Parse</button>
 									<br>
 
@@ -496,9 +499,16 @@
 			submit();
 		}
 
-		function onCorpusDivideButtonClicked(corpus_id) {
+		function onCorpusDivideButtonClicked(corpus_id, p_delim='\n') {
 			selectEndpoint("/parser/divide");
 			setField("corpus_id", corpus_id);
+
+			let divide_options = {
+				p_delims: [p_delim]
+			};
+			divide_options = JSON.stringify(divide_options);
+			setField("divide_options", divide_options);
+
 			makeQuery();
 			submit();
 		}

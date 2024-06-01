@@ -167,13 +167,20 @@ class AnnotatorAnnotateAPIView(ManipulatorAPIView):
 				annotator = Annotator()
 
 			#print("On parse_task()")
-			corpus = uc.corpuses_history["corpuses_history"][-1] #TODO: Does the former corpus here change in the DB? (should not)
+			corpus = uc.get_last_corpus()
 			corpus = Corpus.fromdict(corpus)
+
+			#To be edited.
+			uc.add_corpus(corpus)
 
 			for p in corpus.paragraphs:
 				annotator.annotate(p, lang_from, lang_to)
 
-			uc.add_corpus(corpus)
+				#Apply to DB
+				#Now this is why the model has to be changed to the Django model... (TODO)
+				uc.edit_last_corpus(corpus)
+				uc.save()
+
 			uc.save()
 
 		super().__init__(annotate_task, ["annotate_options"])

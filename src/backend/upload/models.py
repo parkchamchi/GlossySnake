@@ -31,6 +31,14 @@ class UploadedCorpus(models.Model):
 		target["corpuses_history"].append(corpus)
 		self.corpuses_history = target
 
+	def get_last_corpus(self):
+		return self.corpuses_history["corpuses_history"][-1]
+
+	def edit_last_corpus(self, corpus):
+		if type(corpus) == Corpus:
+			corpus = corpus.todict()
+		self.corpuses_history["corpuses_history"][-1] = corpus
+
 	"""
 	def get_corpus(self, task_id: int) -> Corpus:
 		target = self.corpuses_history

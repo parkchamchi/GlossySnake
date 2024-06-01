@@ -29,7 +29,7 @@ class Token(Serializable):
 		return f"{l}{out}{r}"
 	
 	def todict(self):
-		return self.__dict__
+		return self.__dict__.copy()
 
 	@staticmethod
 	def fromdict(d):
@@ -73,7 +73,7 @@ class Paragraph(Serializable):
 		return f"{l}{tokens_str}{r}"
 	
 	def todict(self):
-		d =  self.__dict__
+		d =  self.__dict__.copy()
 		d["tokens"] = [t.todict() for t in self.tokens]
 		return d
 
@@ -118,6 +118,6 @@ class Corpus(Serializable):
 		return toret
 	
 	def todict(self):
-		d =  self.__dict__
+		d = self.__dict__.copy()
 		d["paragraphs"] = [p.todict() for p in self.paragraphs]
 		return d

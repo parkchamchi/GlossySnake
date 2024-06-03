@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlossySnake</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header {
+            font-size: 30px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+
+        .section {
+            width: 48%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f1f1f1;
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            /* endpoint design */
+            flex: 2;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+
+        .input-group select,
+        .input-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+
+        }
+
+        .textarea {
+            height: 200px;
+            width: 530px;
+            resize: none;
+        }
+
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+
+        .button-group button.preview {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .button-group button.request {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .tokenoperate {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .tokenoperate div {
+            flex: 1;
+            text-align: center;
+            border: 1px solid #ccc;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+        }
+
+        .arrowbox {
+            float: left;
+            margin-left: 10px;
+        }
+
+        .previewbox {
+            position: relative;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 20px 30px 20px;
+            border-radius: 5px;
+            border-color: transparent transparent #0112ff transparent;
+            transform: rotate(90deg);
+        }
+
+        .previewbox::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 10px;
+            background-color: #0112ff;
+            top: 29px;
+            transform: translate(-50%, 0%);
+            border-radius: 3px;
+        }
+
+        .requestbox {
+            position: relative;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 20px 30px 20px;
+            border-radius: 5px;
+            border-color: transparent transparent #25b800 transparent;
+            transform: rotate(90deg);
+        }
+
+        .requestbox::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 10px;
+            background-color: #25b800;
+            top: 29px;
+            transform: translate(-50%, 0%);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <b>Glossy Snake</b>
+        </div>
+        <a href="C:\Users\a3053\OneDrive\바탕 화면\htmltest\loginpage.html">Login</a>
+        <div class="main-content">
+            <div class="section">
+                <div class="input-group">
+                    <label for="originalSelect">Original Language</label>
+                    <select id="originalSelect">
+                        <option value="english" selected>English</option>
+                        <option value="korean">Korean</option>
+                        <option value="chinese">Chinese</option>
+                        <option value="spanish">Spanish</option>
+                    </select>
+                </div>
+                <textarea class="textarea" id="input-text" placeholder="The corpus insert textarea"></textarea>
+                <div class="button-group">
+                    Other Options
+                    <button onclick="OpenOtherOption()">∇</button>
+                </div>
+                <div class="otheroption" id="otheroption" style="display:none">
+                    <div class="input-group">
+                        <label for="endpoint">Endpoint</label>
+                        <input type="text" id="endpoint" value="http://127.0.0.1:56122">
+                    </div>
+                    <div class="input-group">
+                        <select id="delimeter">
+                            <option value="\n" selected>\n</option>
+                            <option value="\\n">\\n</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="arrowbox">
+                <br /><br /><br /><br /><br /><br />
+                <div class="previewbox" onclick="selecttoken()"></div>
+                <br /><br /><br /><br /><br /><br />
+                <div class="requestbox" onclick="selecttoken()"></div>
+            </div>
+            <div class="section">
+                <div class="input-group">
+                    <label for="glossSelect">Gloss Language</label>
+                    <select id="glossSelect">
+                        <option value="english">English</option>
+                        <option value="korean" selected>Korean</option>
+                        <option value="chinese">Chinese</option>
+                        <option value="spanish">Spanish</option>
+                    </select>
+                </div>
+                <textarea class="textarea" readonly></textarea>
+                <div class="tokenoperate">
+                    <div onclick="selecttoken()">Select</div>
+                    <div onclick="edittoken()">Edit</div>
+                    <div onclick="deletetoken()">Delete</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function OpenOtherOption() {
+            const ooo = document.getElementById('otheroption');
+            ooo.style.display = ooo.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function selecttoken() {
+            alert('선택하셨습니다');
+        }
+
+        function edittoken() {
+            alert('수정하셨습니다');
+        }
+
+        function deletetoken() {
+            alert('삭제하셨습니다');
+        }
+    </script>
+</body>
+
+</html>

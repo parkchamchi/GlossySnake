@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div style="font-size: 30px;">
+        <b>Glossy Snake</b>
+    </div>
+    <a href="C:\Users\a3053\OneDrive\바탕 화면\htmltest\loginpage.html">
+        Login
+    </a>
+    <br><br>
+    <div class="requestbox">
+        <div>
+            <div style="font-size:25px;">
+                <b>Request to the server</b>
+            </div>
+            <hr style="float:left; width:200px; height:1px;"/><br/>
+        </div>
+        <div style="display:inline;">
+            Endpoint <input style="border:none; position:relative; left:130px;" type="text" id="endpoint" value=" http://127.0.0.1:56123"></input>
+            <br/>
+            <hr style="float:left; width:200px; height:1px;"/>
+        </div>
+        <div>
+            <div>
+                <br/><b>Languages</b>
+            </div>            <hr style="float:left; width:200px; height:1px;"/><br/>
+            <div style="display:inline;">
+                Original
+                <form style="display:inline; position:relative; left:140px;">
+                    <select id="originalSelect" name="Original" >
+                      <option value="english" selected>english</option>
+                      <option value="korean">korean</option>
+                      <option value="chinese">chinese</option>
+                      <option value="spanish">spanish</option>
+                    </select>
+                  </form>
+            </div><br/>
+            <div style="display:inline;">
+                Gloss
+                <form style="display:inline; position:relative; left:158px;">
+                    <select id="glossSelect" name="Gloss" >
+                      <option value="english">english</option>
+                      <option value="korean" selected>korean</option>
+                      <option value="chinese">chinese</option>
+                      <option value="spanish">spanish</option>
+                    </select>
+                  </form>
+            </div>
+            <br/><hr style="float:left; width:200px; height:1px;"/>
+        </div>
+        <div>
+            <div>
+                <br/><b>Other Options</b>
+            </div>            
+            <hr style="float:left; width:200px; height:1px;"/><br/>
+            <div style="display:inline;">
+                P. delimeter
+                <form id="delimeter" style="display:inline; position: relative; left: 110px">
+                    <input type="radio" name="delimeter" checked="checked" /> <span class="up">\n</span>
+                    <input type="radio" name="delimeter"/> <span class="up">\\n</span>
+                </form>
+            </div>
+            <br/><hr style="float:left; width:200px; height:1px;"/>
+        </div>
+        <div>
+            <br/> corpus
+            <form style="display:inline">
+                <textarea id="input-text" style="width: 300px; height: 50px; position: relative; left: 150px" type="text" placeholder="The corpus insert textarea"></textarea>
+            </form>
+        </div>
+        <div>
+            <br/>
+            <button type="button" onclick="errormsg()">Preview</button>
+        </div>
+        <div>
+            <button type="button" onclick="sendRequest()">Request</button>
+        </div>
+    </div>
+    <br/>
+    <div class="jsonbox">
+        <div style="font-size:25px;">
+            <b>Upload a processed JSON</b>
+        </div>
+        <form action="" method="post" enctype="multipart/form-data">
+            <input type="file" name="fileToUpload" id="fileToUpload">
+            <input type="submit" value="업로드">
+        </form>
+    </div>
+    <br/>
+    <div>
+        <div class="warningbox", id="warningmessage">
+            WARNING: The backend returned an error(Only shown when an event occurs.)
+            <span onclick="this.parentElement.style.display='none'" class="close">✖</span> 
+            
+        </div>
+        <div class="shown3box", id="shown3message" >
+            -A message: These can be shown at most 3 at the same time
+            <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
+            
+        </div>
+        <div class="scrollbox", id="scrollmessage" >
+            and more messages should be accessed via the scroll
+            <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
+                   
+        </div>
+    </div>
+    <br/>
+    <div class="outputbox">
+        <div style="font-size:25px;">
+            <b>Output</b>
+        </div>
+        <div>
+            <div style="display: inline">
+                <input type="button" value="Resend request"/>
+            </div>
+            <div style="display: inline; position:relative; left:90px;">
+                <input type="button" value="save"/>
+            </div>
+            <div style="display: inline; position:relative; left:237px;">
+                <input type="button" value="undo..."/>
+            </div>
+        </div>
+        <div>
+            <label><input type="checkbox" name="hidden token" value="hidden token">Show hidden tokens</label>
+            <br/><hr style="float:left; width:200px; height:1px;"/><br/>
+        </div>
+        <div>
+            <body style="padding:10px;">
+                <div>
+                    <ul class="Token" onclick="toggleToken()">
+                        <li class="li0">Token()
+                          <span style="display: inline;">
+                            <form style="display: inline;">
+                              <select class="hover" name="hover" onchange="handleChange(this)">
+                                <option value="▼">▼</option>
+                                <option value="edit">edit</option>
+                                <option value="delete">delete</option>
+                              </select>
+                            </form>
+                          </span>
+                        </li>
+                        <li class="li1">Selected-Token1
+                          <span style="display: inline;">
+                            <form style="display: inline;">
+                              <select class="hover" name="hover" onchange="handleChange(this)">
+                                <option value="▼">▼</option>
+                                <option value="edit">edit</option>
+                                <option value="delete">delete</option>
+                              </select>
+                            </form>
+                          </span>
+                        </li>           
+                        <li class="li2">Selected-Token2
+                          <span style="display: inline;">
+                            <form style="display: inline;">
+                              <select class="hover" name="hover" onchange="handleChange(this)">
+                                <option value="▼">▼</option>
+                                <option value="edit">edit</option>
+                                <option value="delete">delete</option>
+                              </select>
+                            </form>
+                          </span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h2>결과:</h2>
+                    <div id="output"></div>
+                </div>
+            <div>
+                Tokens are elaborated elsewhere
+            </div>
+        </div>
+    </div>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $("li").each(function () {
+          $(this).click(function () {
+            $(this).addClass("selected");                      //Apply the clicked part to the selected class, which is the CCS defined at the top
+            $(this).siblings().removeClass("selected");  //siblings:Brotherly elements,    removeClass:Eliminating the characteristics of the selected class
+          });
+        });
+      });
+        function errormsg() {
+            alert('에러가 발생했습니다!');
+        }
+        function handleChange(select) {
+            var selectedValue = select.value;
+            if (selectedValue === 'edit') {
+                editToken();
+            } else if (selectedValue === 'delete') {
+                deleteToken();
+            }
+        }
+
+        function editToken() {
+            alert('수정 액션을 수행합니다.');
+        }
+
+        function deleteToken() {
+            alert('삭제 액션을 수행합니다.');
+        }
+        function toggleToken() {
+            var token = document.querySelector('.token');
+            if (token.textContent == '선택됨'){
+                token.textContent = '비선택됨';
+                token.style.backgroundColor = 'lightcoral';
+                }
+            else {
+                token.textContent = '선택됨';
+                token.style.backgroundColor = 'lightgray';
+                }
+        }
+        function sendRequest() {
+
+            // Gets the text entered by the user.
+            let endpoint = document.getElementById('endpoint').value;
+			//Need not equal.
+			/*
+            if (endpoint !=='http://127.0.0.1:56123'){
+                console.log("endpoint가 http://127.0.0.1:56123와 일치하지 않습니다");
+                console.log("Input Endpoint: ", endpoint);
+            }
+            else {
+                console.log("Input Endpoint: ",endpoint);
+            }
+			*/
+
+            let originalValue = document.getElementById('originalSelect').value;
+            if (originalValue == null){
+                console.log("originalValue가 null상태입니다");
+            }
+            else if (originalValue == undefined){
+                console.log("originalValue가 undefined상태입니다");
+            }
+            else {
+                console.log("Selected Original Character: ", originalValue);
+            }
+            
+            let glossValue = document.getElementById('glossSelect').value;
+            if (glossValue == null){
+                console.log("glossValue가 null상태입니다");
+            }
+            else if (glossValue == undefined){
+                console.log("glossValue가 undefined상태입니다");
+            }
+            else {
+                console.log("Selected Gloss Character: ", glossValue);
+            }
+
+            let delimeterValue = document.getElementById('delimeter').value;
+            if (delimeterValue == null){
+                console.log("delimeterValue가 null상태입니다");
+            }
+            else if (delimeterValue == undefined){
+                console.log("delimeterValue가 undefined상태입니다");
+            }
+            else {
+                console.log("Selected Delimeter: ", delimeterValue);
+            }
+            let inputText = document.getElementById('input-text').value;
+            if (inputText == null){
+                console.log("inputText가 null상태입니다");
+            }
+            else if (inputText == undefined){
+                console.log("inputText가 undefined상태입니다");
+            }
+            else {
+                console.log("Input Text: ", inputText);
+            }
+
+            //Send a POST request to Backend
+            let full_url = endpoint + "/api/v2/upload";
+            console.log('Fetching URL:', full_url);
+
+            fetch(full_url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    corpus: inputText,
+                    original: originalValue,
+                    gloss: glossValue,
+                    delimeter: delimeterValue
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                document.getElementById('output').textContent = JSON.stringify(data);
+                
+                document.getElementById("shown3message").style.display = "block";
+                document.getElementById("scrollmessage").style.display = "block";
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("warningmessage").style.display = "block";
+            });
+        }
+    </script>
+</body>
+
+<style>
+    .requestbox {
+        width: 600px;
+        padding: 1px;
+        border: 1px solid;
+        border: 5px solid;
+        border-color: #febe98;
+        border-radius: 10px;
+    }
+    .jsonbox {
+        width: 350px;
+        padding: 1px;
+        border: 1px solid; 
+        border: 5px solid;
+        border-color: #febe98;
+        border-radius: 10px;
+    }
+    .warningbox {
+        width: 600px;
+        padding: 1px;
+        border: 1px solid;
+        background-color:crimson;
+        display: none;
+    }
+    .shown3box {
+        width: 500px;
+        padding: 1px;
+        border: 1px solid;
+        display: none;
+    }
+    .scrollbox {
+        width: 450px;
+        padding: 1px;
+        border: 1px solid;
+        display: none;
+    }
+    .outputbox {
+        width: 600px;
+        padding: 1px;
+        border: 1px solid;
+        border: 5px solid;
+        border-color: #febe98;
+        border-radius: 10px;
+    }
+    .Token {
+        list-style-type: none;
+        div,pre { background : #FFF; padding:10px; margin:10px; }
+        table { border:1px solid #AAA; }
+        td { border:1px solid #AAA; width:25px; height:25px; }
+        .selected { background:red }
+    }
+    .li0 {
+        display: inline;
+        border-top: none;
+        border-bottom: 1px solid;
+        border-left: none;
+        border-right: none;
+        padding: 3px;
+    }
+    .li1 {
+        display: inline;
+        border-top: none;
+        border-bottom: 1px solid;
+        border-left: none;
+        border-right: none;
+        padding: 3px;
+    }
+    .li2 {
+        display: inline;
+        border-top: none;
+        border-bottom: 1px solid;
+        border-left: none;
+        border-right: none;
+        padding: 3px;
+    }
+</style>
+</html>

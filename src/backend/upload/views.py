@@ -153,11 +153,13 @@ class AnnotatorAnnotateAPIView(ManipulatorAPIView):
 				raise ValueError("`annotate_options` is required.")
 			if type(data["annotate_options"]) is str:
 				data["annotate_options"] = json.loads(data["annotate_options"])
+			
 			annotate_options = data["annotate_options"]
 			lang_from = annotate_options["lang_from"]
 			lang_to = annotate_options["lang_to"]
-
+	
 			annotator_name = annotate_options.get("annotator_name")
+			target_paragraphs = annotate_options.get("target_paragraphs")
 			
 			#Annotate
 			if annotator_name == "chatgpt_ft0":
@@ -173,7 +175,14 @@ class AnnotatorAnnotateAPIView(ManipulatorAPIView):
 			#To be edited.
 			uc.add_corpus(corpus)
 
-			for p in corpus.paragraphs:
+			if target_paragraphs:
+				assert all([type(tp) == int for tp in target_paragraphs])
+			
+			for i, p in enumerate(corpus.paragraphs):
+				if target_paragraphs:
+					if i not in target_paragraphs:
+						continue
+
 				annotator.annotate(p, lang_from, lang_to)
 
 				#Apply to DB

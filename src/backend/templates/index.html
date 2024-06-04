@@ -332,7 +332,7 @@
 				target.innerText = "";
 		}
 
-		function corpusToHtml(corpus) {
+		function corpusToHtml(corpus, corpus_id) {
 			let copy = structuredClone(corpus);
 			delete copy.paragraphs;
 
@@ -342,10 +342,24 @@
 				<h4>paragraphs</h4>
 			`;
 
-			for (const p of corpus.paragraphs) {
+			for (const i in corpus.paragraphs) {
+				const p = corpus.paragraphs[i];
 				let copy = structuredClone(p);
 				delete copy.tokens;
 
+				str += `
+					<span>
+						<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id}, 'lang_from', 'lang_to', null, [${i}])">
+							Annotate (dummy)
+						</button>
+						<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id}, 'French', 'English', 'chatgpt_ft0', [${i}])">
+							Annotate (chatgpt_ft0, from French)
+						</button>
+						<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id}, 'German', 'French', 'chatgpt_ft0', [${i}])">
+							Annotate (chatgpt_ft0, from German)
+						</button>
+					</span>
+				`
 				str += `<pre>${JSON.stringify(copy)}</pre>`;
 
 				for (const t of p.tokens) {
@@ -520,12 +534,12 @@
 			submit();
 		}
 
-		function onCorpusAnnotateButtonClicked(corpus_id, lang_from="French", lang_to="English", annotator_name=null) {
+		function onCorpusAnnotateButtonClicked(corpus_id, lang_from="French", lang_to="English", annotator_name=null, target_paragraphs=null) {
 			selectEndpoint("/annotator/annotate");
 			setField("corpus_id", corpus_id);
 
 			let annotate_options = {
-				lang_from: lang_from, lang_to: lang_to, annotator_name: annotator_name
+				lang_from: lang_from, lang_to: lang_to, annotator_name: annotator_name, target_paragraphs: target_paragraphs,
 			};
 			annotate_options = JSON.stringify(annotate_options);
 			setField("annotate_options", annotate_options);

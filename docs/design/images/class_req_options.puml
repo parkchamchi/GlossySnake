@@ -16,12 +16,19 @@ class AnnotateOptions <<serializable>> {
 	string lang_to
 
 	string annotator_name
+
+	int[] target_paragraphs
 }
 note left of AnnotateOptions::annotator_name
 	can be:
 	  - null
 	  - "chatgpt_ft0"
 end note
+note left of AnnotateOptions::target_paragraphs
+	can be null
+		(= all)
+end note
+
 
 class ReannotateOptions <<serializable>> {
 	int[] target_tokens

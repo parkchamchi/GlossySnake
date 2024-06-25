@@ -1,0 +1,46 @@
+@startuml
+
+entity DjToken {
+	* txt
+	* gloss
+	* is_delimiter
+	--
+}
+
+entity DjParagraph {
+	* id
+	--
+	pstate
+	is_delimiter
+	token_delimiters
+	annotator_info
+	original_text
+}
+
+interface DjTokenParagraphPair {
+	* DjParagraph.id
+	* index
+	* DjToken.id
+	--
+}
+DjToken ||--|{ DjTokenParagraphPair
+DjTokenParagraphPair }o--|| DjParagraph
+
+entity DjCorpus {
+	* id
+	--
+	paragraph_delimiters
+	orignal_text
+	p_div_locs
+}
+
+interface DjCorpusParagraphPair {
+	* DjCorpus.id
+	* index
+	* DjParagraph.id
+	--
+}
+DjParagraph ||--|{ DjCorpusParagraphPair
+DjCorpusParagraphPair }o--|| DjCorpus
+
+@enduml

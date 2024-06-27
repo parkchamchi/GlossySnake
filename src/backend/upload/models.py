@@ -114,3 +114,35 @@ class Task(models.Model):
 		self.save()
 		
 		#print("run_inner() terminated")
+		
+class DjToken(models.Model):
+    id = models.AutoField(primary_key=True)
+    txt = models.TextField(unique=True)
+    gloss = models.TextField()
+    is_delimiter = models.BooleanField(unique=True)
+
+class DjParagraph(models.Model):
+    id = models.AutoField(primary_key=True)
+    pstate = models.TextField()
+    is_delimiter = models.BooleanField()
+    token_delimiters = models.TextField()
+    annotator_info = models.TextField()
+    original_text = models.TextField()
+
+class DjTokenParagraphPair(models.Model):
+    id = models.AutoField(primary_key=True)
+    dj_paragraph = models.ForeignKey(DjParagraph, on_delete=models.CASCADE)
+    index = models.IntegerField(unique=True)
+    dj_token = models.ForeignKey(DjToken, on_delete=models.CASCADE)
+
+class DjCorpus(models.Model):
+    id = models.AutoField(primary_key=True)
+    paragraph_delimiters = models.TextField()
+    original_text = models.TextField()
+    p_div_locs = models.TextField()
+
+class DjCorpusParagraphPair(models.Model):
+    id = models.AutoField(primary_key=True)
+    dj_corpus = models.ForeignKey(DjCorpus, on_delete=models.CASCADE)
+    index = models.IntegerField(unique=True)
+    dj_paragraph = models.ForeignKey(DjParagraph, on_delete=models.CASCADE)

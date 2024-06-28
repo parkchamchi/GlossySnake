@@ -27,3 +27,4 @@
 - [Week 12: Impl. of iter-2 #5](docs/weekly/week12.md)
 - [Week 13: Impl. of iter-2 #6](docs/weekly/week13.md)
 - [Week 16: Impl. of iter-2 #7](docs/weekly/week16.md)
+- [Week 17: Design of iter-3](docs/weekly/week17.md)

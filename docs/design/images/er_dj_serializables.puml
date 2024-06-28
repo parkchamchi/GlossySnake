@@ -18,13 +18,13 @@ entity DjParagraph {
 }
 
 interface DjTokenParagraphPair {
-	* DjParagraph.id
+	* //DjParagraph.id//
 	* index
-	* DjToken.id
+	* //DjToken.id//
 	--
 }
-DjToken ||--|{ DjTokenParagraphPair
-DjTokenParagraphPair }o--|| DjParagraph
+DjToken ||-right-|{ DjTokenParagraphPair
+DjTokenParagraphPair }o-right-|| DjParagraph
 
 entity DjCorpus {
 	* id
@@ -35,9 +35,9 @@ entity DjCorpus {
 }
 
 interface DjCorpusParagraphPair {
-	* DjCorpus.id
+	* //DjCorpus.id//
 	* index
-	* DjParagraph.id
+	* //DjParagraph.id//
 	--
 }
 DjParagraph ||--|{ DjCorpusParagraphPair

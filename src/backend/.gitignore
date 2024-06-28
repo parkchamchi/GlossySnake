@@ -3,3 +3,5 @@
 *.pyc
 media/
 tmp/
+
+db.sqlite3

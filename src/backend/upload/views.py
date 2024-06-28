@@ -167,13 +167,20 @@ class AnnotatorAnnotateAPIView(ManipulatorAPIView):
 				annotator = Annotator()
 
 			#print("On parse_task()")
-			corpus = uc.corpuses_history["corpuses_history"][-1] #TODO: Does the former corpus here change in the DB? (should not)
+			corpus = uc.get_last_corpus()
 			corpus = Corpus.fromdict(corpus)
+
+			#To be edited.
+			uc.add_corpus(corpus)
 
 			for p in corpus.paragraphs:
 				annotator.annotate(p, lang_from, lang_to)
 
-			uc.add_corpus(corpus)
+				#Apply to DB
+				#Now this is why the model has to be changed to the Django model... (TODO)
+				uc.edit_last_corpus(corpus)
+				uc.save()
+
 			uc.save()
 
 		super().__init__(annotate_task, ["annotate_options"])
@@ -191,8 +198,32 @@ class CorpusesAPIView(APIView):
 			
 			return Response(
 				{
+					"corpus_id": corpus_id,
 					"corpuses_history": corpuses_history,
 				},
+				status=status.HTTP_200_OK
+			)
+	
+		except Exception as e:
+			return Response(
+				{"error": str(e)},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+		
+class CorpusesListAPIView(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (AllowAny, )
+
+	def get(self, request, *args, **kwargs):
+		try:
+			toret= [
+				{"corpus_id": uc.corpus_id, "corpuses_history": uc.corpuses_history["corpuses_history"]}
+				for uc
+				in UploadedCorpus.objects.all()
+			]
+			
+			return Response(
+				toret,
 				status=status.HTTP_200_OK
 			)
 	
@@ -217,6 +248,34 @@ class TasksAPIView(APIView):
 					"target_corpus_id": str(task.target_corpus_id),
 					"status": task.status
 				},
+				status=status.HTTP_200_OK
+			)
+	
+		except Exception as e:
+			return Response(
+				{"error": str(e)},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+		
+class TasksListAPIView(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (AllowAny, )
+
+	def get(self, request, *args, **kwargs):
+		try:
+			tasks = Task.objects.all()
+			toret = [
+				{
+					"timestamp": task.timestamp,
+					"target_corpus_id": str(task.target_corpus_id),
+					"status": task.status
+				}
+				for task
+				in tasks 
+			]
+			
+			return Response(
+				toret,
 				status=status.HTTP_200_OK
 			)
 	

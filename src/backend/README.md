@@ -17,5 +17,8 @@ pip install -r requirements.txt
 
 Installed: `django`, `djangorestframework`, `django-cors-headers`
 
+### Make (or reset) a DB
+Use `dbreset.db`.
+
 ### Run
 Use `runserver.bat`.

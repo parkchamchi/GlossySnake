@@ -1,6 +1,6 @@
 import warnings
 
-class Serializable:
+class dj_serializables:
 	def __repr__(self):
 		return f"<{type(self).__name__} {str(self)}>"
 	
@@ -11,7 +11,7 @@ class Serializable:
 	def todict(self):
 		raise NotImplementedError("Use the subclasses")
 
-class Token(Serializable):
+class DjToken(dj_serializables):
 	def __init__(self, txt: str, gloss: str, is_delimiter: bool):
 		self.txt = txt
 		self.is_delimiter = is_delimiter
@@ -33,27 +33,21 @@ class Token(Serializable):
 
 	@staticmethod
 	def fromdict(d):
-		toret = Token(None, None, None)
+		toret = DjToken(None, None, None)
 		toret.__dict__ = d
 		return toret
 
-"""
-class Pstate(Enum):
-	PLAIN = "PLAIN"
-	DIVIDED = "DIVIDED"
-	PARSED = "PARSED"
-	ANNOTATED = "ANNOTATED"
-"""
 ALLOWED_PSTATES = ["PLAIN", "DIVIDED", "PARSED", "ANNOTATED"]
 
-class Paragraph(Serializable):
-	def __init__(self, pstate: str, tokens: list[Token], is_delimiter: bool, token_delimiters: str, annotator_info: str, original_text: str):
+class DjParagraph(dj_serializables):
+	def __init__(self, id: int, pstate: str, tokens: list[DjToken], is_delimiter: bool, token_delimiters: str, annotator_info: str, original_text: str):
 		#Check if `pstate` is valid
 		if pstate not in ALLOWED_PSTATES:
 			fallback = "ANNOTATED"
 			warnings.warn(f"Paragraph.__init__(): Got unknown `pstate` '{pstate}`. Falling back to '{fallback}'.")
 			assert fallback in ALLOWED_PSTATES
 			pstate = fallback
+		self.id = id
 		self.pstate = pstate
 
 		self.tokens = tokens
@@ -79,18 +73,18 @@ class Paragraph(Serializable):
 
 	@staticmethod
 	def fromdict(d):
-		toret = Paragraph("PLAIN", [], True, "", "", "")
+		toret = DjParagraph("PLAIN", [], True, "", "", "")
 		dcopy = d.copy()
-		dcopy["tokens"] = [Token.fromdict(tokend) for tokend in dcopy["tokens"]]
+		dcopy["tokens"] = [DjToken.fromdict(tokend) for tokend in dcopy["tokens"]]
 		toret.__dict__ = dcopy
 		return toret
 
-class Corpus(Serializable):
+class DjCorpus(dj_serializables):
 	def __init__(self,
-		paragraphs: list[Paragraph], paragraph_delimiters: list[str],
+		id: int, paragraph_delimiters: list[str],
 		original_text: str, p_div_locs: list[int], task_ids: list[str]):
 
-		self.paragraphs = paragraphs
+		self.id = id
 		self.paragraph_delimiters = paragraph_delimiters
 		self.original_text = original_text
 		self.p_div_locs = p_div_locs
@@ -101,8 +95,8 @@ class Corpus(Serializable):
 	
 	@staticmethod
 	def init_with_txt(original_text):
-		return Corpus(
-			paragraphs=[],
+		return DjCorpus(
+			id = None,
 			paragraph_delimiters=None,
 			original_text=original_text,
 			p_div_locs=[],
@@ -111,9 +105,9 @@ class Corpus(Serializable):
 	
 	@staticmethod
 	def fromdict(d):
-		toret = Corpus.init_with_txt(None)
+		toret = DjCorpus.init_with_txt(None)
 		dcopy = d.copy()
-		dcopy["paragraphs"] = [Paragraph.fromdict(pd) for pd in dcopy["paragraphs"]]
+		dcopy["paragraphs"] = [DjParagraph.fromdict(pd) for pd in dcopy["paragraphs"]]
 		toret.__dict__ = dcopy
 		return toret
 	

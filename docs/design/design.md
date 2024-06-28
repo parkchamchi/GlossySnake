@@ -114,6 +114,9 @@ class Task:
 ## Seq.
 ![images/seq_general.png](images/seq_general.png)
 
+## ER
+![images/er_dj_serializables.png](images/er_dj_serializables.png)
+
 ## Deprecated
 ### Endpoints
 - `POST /v1/glosses/annotate`

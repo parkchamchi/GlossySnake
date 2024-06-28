@@ -5,6 +5,9 @@ from rest_framework.test import APITestCase, APITransactionTestCase
 from rest_framework import status
 
 from .models import UploadedCorpus, Task
+from .serializables import Corpus, Paragraph, Token
+
+import json, time
 
 #Verbose.
 
@@ -286,3 +289,62 @@ class ParserTestCase(APITransactionTestCase):
 		self.assertFalse(t0["is_delimiter"])
 		self.assertIsNotNone(t0["gloss"])
 		self.assertTrue(t1["is_delimiter"])
+
+class AnnotatorTestCase(APITransactionTestCase):
+	corpus_id = 999
+
+	@classmethod
+	def setUp(cls):
+		corpusstr = r'{"paragraphs":[{"pstate":"PARSED","tokens":[{"txt":"A","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"test","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"string.","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"Second","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"sentence.","is_delimiter":false,"gloss":null}],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"A test string. Second sentence."},{"pstate":"PARSED","tokens":[{"txt":"\n","is_delimiter":true,"gloss":null}],"is_delimiter":true,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"\n"},{"pstate":"PARSED","tokens":[{"txt":"Next","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"paragraph.","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"Another","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"one.","is_delimiter":false,"gloss":null}],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"Next paragraph. Another one."},{"pstate":"PARSED","tokens":[{"txt":"\n","is_delimiter":true,"gloss":null}],"is_delimiter":true,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"\n"},{"pstate":"PARSED","tokens":[],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":""},{"pstate":"PARSED","tokens":[{"txt":"\n","is_delimiter":true,"gloss":null}],"is_delimiter":true,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"\n"},{"pstate":"PARSED","tokens":[{"txt":"A","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"paragraph","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"after","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"two","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"newlines.","is_delimiter":false,"gloss":null}],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"A paragraph after two newlines."}],"paragraph_delimiters":["\n"],"original_text":"A test string. Second sentence.\nNext paragraph. Another one.\n\nA paragraph after two newlines.","p_div_locs":[31,32,60,61,61,62,93],"task_ids":[]}'
+		corpus = Corpus.fromdict(json.loads(corpusstr))
+		cls.uc = UploadedCorpus.objects.create(corpus_id=cls.corpus_id)
+		cls.uc.corpus_init(corpus)
+		cls.uc.save()
+
+	def test_dummy_annotator(self):
+		#Test /annotator/annotate
+		url = reverse("api-annotator-annotate")
+		lang_from = "English"
+		lang_to = "French"
+		annotate_options = {
+			"lang_from": lang_from, "lang_to": lang_to,
+			"annotator_name": None
+		}
+		data = {"corpus_id": self.corpus_id, "annotate_options": annotate_options}
+		
+		response = self.client.post(url, data, format="json")
+		task_id = response.data["task_id"]
+
+		#Repeating the procedure above.
+		timeout = 4
+		start = time.time()
+		while True:
+			task = Task.objects.get(task_id=task_id)
+			task_status = task.status
+			if task_status == "FINISHED":
+				break
+			elif task_status != "RUNNING":
+				raise RuntimeError(f"Unexpected status: {task_status}")
+
+			if time.time() - start > timeout:
+				raise RuntimeError("test_annotator_annotate: timeout")
+
+		#Check if the UploadedCorpus is updated
+		uc = UploadedCorpus.objects.get(corpus_id=self.corpus_id)
+		self.assertEqual(uc.current_task, None)
+		corpuses_history = uc.corpuses_history["corpuses_history"]
+		self.assertEqual(len(corpuses_history), 2)
+	
+		last_corpus = corpuses_history[-1]
+		p0 = last_corpus["paragraphs"][0]
+		self.assertEqual(p0["pstate"], "ANNOTATED")
+		self.assertIsNotNone(p0["annotator_info"])
+		self.assertNotEqual(p0["annotator_info"], "")
+
+		t0 = p0["tokens"][0]
+		self.assertIsNotNone(t0["gloss"])
+
+	def test_openai_import(self):
+		import openai
+		import tiktoken
+		import dotenv

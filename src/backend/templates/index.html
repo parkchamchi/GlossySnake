@@ -6,128 +6,173 @@
 
 		<!-- Bootstrap -->
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+		{% load static %}
+		<link rel="shortcut icon" href="{% static 'favicon.ico' %}"/>
 	</head>
 </html>
 <body>
 	<h1>GlossySnake Backend</h1>
 	<p>INDEX PAGE</p>
-	<div id="urls">
-		<a href="admin/">admin/</a>
-		<br>
-		<a href="api/v2/upload">api/v2/upload</a> |
-		<a href="api/v2/corpuses/">api/v2/corpuses/</a> |
-		<a href="api/v2/tasks/">api/v2/tasks/</a>
-		<br>
-		<a href="api/v2/parser/divide">api/v2/parser/divide</a> |
-		<a href="api/v2/parser/parse">api/v2/parser/parse</a>
-		<br>
-		<a href="api/v2/annotator/annotate">api/v2/annotator/annotate</a>
-	</div>
-	
-	<br>
-	<hr>
 
-	<div id="endpoint_div" class="container">
-		<label for="route">Route</label>
-		<input type="text" name="route" placeholder="route" value="http://127.0.0.1:56123" id="route_input"><br>
-
-		<label for="api_uri">API URI</label>
-		<input type="text" name="api_uri" placeholder="/api/v2" value="/api/v2" id="api_uri_input"><br>
-
-		<div id="divide_options">
+	<div id="main_div">
+		<div id="frontend_test_div">
+			<hr>
+			<h2>Frontend Test</h2>
 			
+			<div id="frontend_corpuses_div">
+			</div>
+			<hr>
+			
+			<div id="frontend_upload_div">
+				<h3>Upload...</h3>
+				<label for="frontend_original_text">Original Text</label><br>
+				<textarea class="context_input auto-resize field_input"
+					name="frontend_original_text"
+					spellcheck="true"
+					autofocus
+					placeholder="Original Text"
+					id="frontend_original_text_textarea"></textarea>
+				<br>
+
+				<button id="frontend_original_text_button"
+					class="btn btn-primary"
+					onclick="onFrontendUploadButtonClicked()">
+					Upload
+				</button>
+			</div>
 		</div>
 
-		<label for="endpoint">Endpoint</label><br>
-		<select name="endpoint" id="endpoint_select" size="6" required onchange="onEndpointChanged()">
-			<option value="/upload" selected>/upload</option>
-			<option value="/parser/divide">/parser/divide</option>
-			<option value="/parser/parse">/parser/parse</option>
-			<option value="/annotator/annotate">/annotator/annotate</option>
+		<div id="api_test_div">
+			<hr>
+			<h2>API Test</h2>
 
-			<option value="/tasks/[id]">/tasks/[id]</option>
-			<option value="/corpuses/[id]">/corpuses/[id]</option>
-		</select>
-	</div>
-
-	<hr>
-
-	<div id="fields_div" class="container">
-		<!-- /parser/divide | /parser/parser | /annotator/annotate -->
-		<div id="corpus_id_field" class="field_div">
-			<label for="corpus_id">corpus_id</label>
-			<input type="text" name="corpus_id" placeholder="corpus_id" id="corpus_id_input" class="field_input"><br>
-		</div>
-		
-		<!-- /parser/divide -->
-		<div id="divide_options_field" class="field_div">
-			<label for="divide_options">divide_options</label>
-			<input type="text" name="divide_options" placeholder='{"p_delims": ["\n"]}' value='{"p_delims": ["\n"]}' id="divide_options_input" class="field_input"><br>
-		</div>
-
-		<!-- /parser/parse -->
-		<div id="parse_options_field" class="field_div">
-			<label for="parse_options">parse_options</label>
-			<input type="text" name="parse_options" placeholder='{"t_delims": null}' value='{"t_delims": null}' id="parse_options_input"  class="field_input"><br>
-		</div>
-
-		<!-- /annotator/annotate -->
-		<div id="annotate_options_field" class="field_div">
-			<label for="annotate_options">annotate_options</label>
-			<input type="text" name="annotate_options" placeholder='{"lang_from": "French", "lang_to": "English", "annotator_name": null}' value='{"lang_from": "French", "lang_to": "English", "annotator_name": null}' id="annotate_options_input"  class="field_input"><br>
-		</div>
-
-		<!-- /upload -->
-		<div id="original_text_field" class="field_div">
-			<label for="original_text">Original Text</label><br>
-			<textarea class="context_input auto-resize field_input"
-				name="original_text"
-				spellcheck="true"
-				autofocus
-				placeholder="Original Text"
-				id="original_text_textarea"></textarea>
+			<div id="urls">
+				<a href="admin/">admin/</a>
+				<br>
+				<a href="api/v2/upload">api/v2/upload</a> |
+				<a href="api/v2/corpuses/">api/v2/corpuses/</a> |
+				<a href="api/v2/tasks/">api/v2/tasks/</a>
+				<br>
+				<a href="api/v2/parser/divide">api/v2/parser/divide</a> |
+				<a href="api/v2/parser/parse">api/v2/parser/parse</a>
+				<br>
+				<a href="api/v2/annotator/annotate">api/v2/annotator/annotate</a>
+			</div>
+			
 			<br>
+			<hr>
+			
+			<input type="checkbox" id="listupdate_checkbox" checked>
+			<label for="listupdate_checkbox">Update the list after every API call</label>
+
+			<br>
+			<hr>
+
+
+			<div id="endpoint_div" class="container">
+
+				<label for="route">Route</label>
+				<input type="text" name="route" placeholder="route" value="http://127.0.0.1:56123" id="route_input"><br>
+
+				<label for="api_uri">API URI</label>
+				<input type="text" name="api_uri" placeholder="/api/v2" value="/api/v2" id="api_uri_input"><br>
+
+				<div id="divide_options">
+					
+				</div>
+
+				<label for="endpoint">Endpoint</label><br>
+				<select name="endpoint" id="endpoint_select" size="6" required onchange="onEndpointChanged()">
+					<option value="/upload" selected>/upload</option>
+					<option value="/parser/divide">/parser/divide</option>
+					<option value="/parser/parse">/parser/parse</option>
+					<option value="/annotator/annotate">/annotator/annotate</option>
+
+					<option value="/tasks/">/tasks/</option>
+					<option value="/corpuses/">/corpuses/</option>
+				</select>
+			</div>
+
+			<hr>
+
+			<div id="fields_div" class="container">
+				<!-- /parser/divide | /parser/parser | /annotator/annotate -->
+				<div id="corpus_id_field" class="field_div">
+					<label for="corpus_id">corpus_id</label>
+					<input type="text" name="corpus_id" placeholder="corpus_id" id="corpus_id_input" class="field_input"><br>
+				</div>
+				
+				<!-- /parser/divide -->
+				<div id="divide_options_field" class="field_div">
+					<label for="divide_options">divide_options</label>
+					<input type="text" name="divide_options" placeholder='{"p_delims": ["\n"]}' value='{"p_delims": ["\n"]}' id="divide_options_input" class="field_input"><br>
+				</div>
+
+				<!-- /parser/parse -->
+				<div id="parse_options_field" class="field_div">
+					<label for="parse_options">parse_options</label>
+					<input type="text" name="parse_options" placeholder='{"t_delims": null}' value='{"t_delims": null}' id="parse_options_input"  class="field_input"><br>
+				</div>
+
+				<!-- /annotator/annotate -->
+				<div id="annotate_options_field" class="field_div">
+					<label for="annotate_options">annotate_options</label>
+					<input type="text" name="annotate_options" placeholder='{"lang_from": "French", "lang_to": "English", "annotator_name": null}' value='{"lang_from": "French", "lang_to": "English", "annotator_name": null}' id="annotate_options_input"  class="field_input"><br>
+				</div>
+
+				<!-- /upload -->
+				<div id="original_text_field" class="field_div">
+					<label for="original_text">Original Text</label><br>
+					<textarea class="context_input auto-resize field_input"
+						name="original_text"
+						spellcheck="true"
+						autofocus
+						placeholder="Original Text"
+						id="original_text_textarea"></textarea>
+					<br>
+				</div>
+
+				<button class="makequerybutton btn btn-primary" onclick="makeQuery()">Make Query</button>
+			</div>
+
+			<hr>
+
+			<div id="query_div" class="container">
+				<h2>QUERY</h2>
+				
+				<input type="radio" name="method" value="GET" id="GET_radio">
+				<label for="method">GET</label>
+				<input type="radio" name="method" value="POST" id="POST_radio" checked>
+				<label for="method">POST</label><br>
+
+				<label for="uri">URI</label>
+				<input type="text" name="uri" placeholder="uri" id="uri_input"><br>
+
+				<label for="query">QUERY</label><br>
+				<textarea class="context_input auto-resize"
+					name="query"
+					placeholder="QUERY"
+					id="query_textarea"></textarea>
+				<br>
+				<button class="submitbutton btn btn-primary" onclick="submit()">SUBMIT</button>
+			</div>
+
+			<hr>
+
+			<div id="corpus_div" class="container">
+				<h2>Corpus</h2>
+				<div id="corpus_inner"></div>
+			</div>
+
+			<hr>
+
+			<div id="result_div" class="container">
+				<h2>RESULT</h2>
+
+				<pre id="status_pre"></pre>
+				<pre id="res_json_pre"></pre>
+			</div>
 		</div>
-
-		<button class="makequerybutton btn btn-primary" onclick="makeQuery()">Make Query</button>
-	</div>
-
-	<hr>
-
-	<div id="query_div" class="container">
-		<h2>QUERY</h2>
-		
-		<input type="radio" name="method" value="GET" id="GET_radio">
-		<label for="method">GET</label>
-		<input type="radio" name="method" value="POST" id="POST_radio" checked>
-		<label for="method">POST</label><br>
-
-		<label for="uri">URI</label>
-		<input type="text" name="uri" placeholder="uri" id="uri_input"><br>
-
-		<label for="query">QUERY</label><br>
-		<textarea class="context_input auto-resize"
-			name="query"
-			placeholder="QUERY"
-			id="query_textarea"></textarea>
-		<br>
-		<button class="submitbutton btn btn-primary" onclick="submit()">SUBMIT</button>
-	</div>
-
-	<hr>
-
-	<div id="result_div" class="container">
-		<h2>RESULT</h2>
-
-		<pre id="status_pre"></pre>
-		<pre id="res_json_pre"></pre>
-	</div>
-
-	<hr>
-
-	<div id="corpus_div" class="container">
-		<h2>Corpus</h2>
-		<div id="corpus_inner"></div>
 	</div>
 
 	<script>
@@ -144,10 +189,11 @@
 			"/annotator/annotate": ["corpus_id", "annotate_options"]
 		}
 		//TODO: merge with above. This assumes that each endpoint has only on method.
-		const GET_ENDPOINTS = ["/tasks/[id]", "/corpuses/[id]"]
+		const GET_ENDPOINTS = ["/tasks/", "/corpuses/"]
 
 		window.onload = function () {
 			onEndpointChanged();
+			setCorpusesDiv();
 		}
 
 		function onEndpointChanged() {
@@ -246,15 +292,24 @@
 			.then((res) => {
 				let status_pre = document.getElementById("status_pre");
 				status_pre.innerText = res.status + " " + res.statusText;
+			
+				let json = res.json();
 
 				if (res.ok) {
+					let event = new CustomEvent("response_event", {
+						detail: {
+							url: res.url,
+							json: json
+						}
+					});
 
+					document.dispatchEvent(event);
 				}
 				else {
 
 				}
 
-				return res.json();
+				return json;
 			})
 			.then((json) => {
 				let res_json_pre = document.getElementById("res_json_pre");
@@ -270,6 +325,9 @@
 			//Check "corpuses_history"
 			if (obj.hasOwnProperty("corpuses_history"))
 				target.innerHTML = corpusToHtml(obj["corpuses_history"].at(-1)); //last one
+			else if (obj.constructor === Array) {
+				target.innerHTML = corpusesToHtml(obj);
+			}
 			else
 				target.innerText = "";
 		}
@@ -321,6 +379,160 @@
 
 			return str;
 		}
+
+		function corpusesToHtml(arr, collapsed=false) {
+			let out = "";
+
+			for (const el of arr) {
+				if (!el.hasOwnProperty("corpus_id")) continue;
+
+				out += "<div class='corpus_wrapper'><hr>"
+					const corpus_id = el["corpus_id"]
+					out += "<h4 onclick='onCorpusHeadClicked(this)'>CORPUS: " + corpus_id + "</h4>"
+					out += `<p hidden class="corpus_id_hidden_p">${corpus_id}</p>`
+
+					if (el.hasOwnProperty("corpuses_history")) {
+						out += "<div class='corpus' " + (collapsed ? "hidden" : "" ) + ">";
+							out += `
+								<span class="corpus_buttons_span">
+									<button class="corpus_button btn btn-light" onclick="onCorpusDivideButtonClicked(${corpus_id})">Divide</button>
+									<button class="corpus_button btn btn-light" onclick="onCorpusDivideButtonClicked(${corpus_id}, '\\n\\n')">Divide (for poems, \\n\\n)</button>
+									<br>
+
+									<button class="corpus_button btn btn-light" onclick="onCorpusParseButtonClicked(${corpus_id})">Parse</button>
+									<br>
+
+									<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id})">
+										Annotate (dummy)
+									</button>
+									<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id}, 'French', 'English', 'chatgpt_ft0')">
+										Annotate (chatgpt_ft0, from French)
+									</button>
+									<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id}, 'German', 'French', 'chatgpt_ft0')">
+										Annotate (chatgpt_ft0, from German)
+									</button>
+								</span>
+								<br>
+							`;
+							out += corpusToHtml(el["corpuses_history"].at(-1));
+						out += "</div>"
+					}
+				out += "</div>"
+			}
+
+			return out;
+		}
+
+		function onCorpusHeadClicked(el) {
+			const target = el.parentNode.getElementsByClassName("corpus")[0];
+			target.hidden = !target.hidden;
+
+			const corpus_id = el.parentNode.getElementsByClassName("corpus_id_hidden_p")[0].innerText;
+			setField("corpus_id", corpus_id);
+		}
+
+		function selectEndpoint(endpoint) {
+				const select = document.getElementById("endpoint_select");
+				const options = Array.from(select.querySelectorAll("option"));
+				const option = options.find((o) => o.value == endpoint);
+
+				option.selected = true;
+				//onEndpointChanged(); //has to be called manually for some reason...
+		}
+
+		function getInput(field) {
+			let input = document.getElementById(field + "_input");
+			if (!input)
+				input = document.getElementById(field + "_textarea");
+
+			return input;
+		}
+
+		function setField(field, value) {
+			const input = getInput(field);
+			input.value = value;
+		}
+
+		function getField(field) {
+			const input = getInput(field);
+			return input.value;
+		}
+
+		function setCorpusesDiv() {
+			selectEndpoint("/corpuses/");
+			makeQuery();
+
+			submit();
+		}
+
+		async function onCorpusesResponse(event) {
+			//Check url
+			if (!event.detail.url.endsWith("/corpuses/"))
+				return;
+
+			const json = await event.detail.json;
+
+			let corpuses_div = document.getElementById("frontend_corpuses_div");
+			corpuses_div.innerHTML = corpusesToHtml(json, collapsed=true);
+		}
+		document.addEventListener("response_event", onCorpusesResponse);
+
+		async function onAnyOtherResponse(event) {
+			if (event.detail.url.endsWith("/corpuses/"))
+				return;
+
+			//Check the option
+			const checkbox = document.getElementById("listupdate_checkbox");
+			if (!checkbox.checked)
+				return;
+
+			setCorpusesDiv();
+		}
+		document.addEventListener("response_event", onAnyOtherResponse);
+
+		function onFrontendUploadButtonClicked() {
+			const text = document.getElementById("frontend_original_text_textarea").value;
+
+			selectEndpoint("/upload");
+			setField("original_text", text);
+			makeQuery();
+			submit();
+		}
+
+		function onCorpusDivideButtonClicked(corpus_id, p_delim='\n') {
+			selectEndpoint("/parser/divide");
+			setField("corpus_id", corpus_id);
+
+			let divide_options = {
+				p_delims: [p_delim]
+			};
+			divide_options = JSON.stringify(divide_options);
+			setField("divide_options", divide_options);
+
+			makeQuery();
+			submit();
+		}
+
+		function onCorpusParseButtonClicked(corpus_id) {
+			selectEndpoint("/parser/parse");
+			setField("corpus_id", corpus_id);
+			makeQuery();
+			submit();
+		}
+
+		function onCorpusAnnotateButtonClicked(corpus_id, lang_from="French", lang_to="English", annotator_name=null) {
+			selectEndpoint("/annotator/annotate");
+			setField("corpus_id", corpus_id);
+
+			let annotate_options = {
+				lang_from: lang_from, lang_to: lang_to, annotator_name: annotator_name
+			};
+			annotate_options = JSON.stringify(annotate_options);
+			setField("annotate_options", annotate_options);
+
+			makeQuery();
+			submit();
+		}
 	</script>
 
 	<style>
@@ -337,6 +549,15 @@
 		}
 		a:link {
 			color: lightgrey;
+		}
+
+		#main_div {
+			display: flex;
+			justify-content: center;
+		}
+
+		#frontend_test_div, #api_test_div {
+			width: 40%;
 		}
 
 		/* Imported from the PoC */

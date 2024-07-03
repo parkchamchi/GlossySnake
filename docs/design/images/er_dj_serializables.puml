@@ -29,7 +29,6 @@ DjTokenParagraphPair }o-right-|| DjParagraph
 entity DjCorpus {
 	* id
 	--
-	paragraph_delimiters
 	orignal_text
 	p_div_locs
 }
@@ -40,7 +39,20 @@ interface DjCorpusParagraphPair {
 	* //DjParagraph.id//
 	--
 }
-DjParagraph ||--|{ DjCorpusParagraphPair
-DjCorpusParagraphPair }o--|| DjCorpus
+DjParagraph ||-right-|{ DjCorpusParagraphPair
+DjCorpusParagraphPair }o-right-|| DjCorpus
+
+entity DjParagraphDelimiter {
+	* id
+	char
+}
+
+interface DjParagraphDelimitersInCorpus {
+	* //DjCorpus.id//
+	* //DjParagraphDelimiter.id//
+}
+DjCorpus ||--o{ DjParagraphDelimitersInCorpus
+DjParagraphDelimitersInCorpus ||--o{ DjParagraphDelimiter
+
 
 @enduml

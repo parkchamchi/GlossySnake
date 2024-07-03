@@ -1,5 +1,7 @@
 from django.db import models
 
+import serializables
+
 class DjToken(models.Model):
 	class Meta:
 		unique_together = (("txt", "gloss", "is_delimiter"), )
@@ -13,7 +15,11 @@ class DjToken(models.Model):
 class DjParagraph(models.Model):
 	id = models.AutoField(primary_key=True)
 	
-	pstate = models.TextField()
+	pstate = models.CharField(
+		max_length=16,
+		choices=serializables.ALLOWED_PSTATES,
+	)
+
 	is_delimiter = models.BooleanField()
 	token_delimiters = models.TextField()
 	annotator_info = models.TextField()
@@ -22,7 +28,6 @@ class DjParagraph(models.Model):
 class DjCorpus(models.Model):
 	id = models.AutoField(primary_key=True)
 
-	paragraph_delimiters = models.TextField()
 	original_text = models.TextField()
 	p_div_locs = models.TextField()	
 
@@ -45,3 +50,7 @@ class DjCorpusParagraphPair(models.Model):
 	dj_corpus_id = models.ForeignKey(DjCorpus, on_delete=models.CASCADE)
 	index = models.IntegerField()
 	dj_paragraph_id = models.ForeignKey(DjParagraph, on_delete=models.CASCADE)
+
+class DjParagraphDelimiter(models.Models):
+	id = models.AutoField(primary_key=True)
+	char = models.CharField(unique=True)

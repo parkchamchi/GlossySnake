@@ -1,117 +1,47 @@
-import warnings
+from django.db import models
 
-class dj_serializables:
-	def __repr__(self):
-		return f"<{type(self).__name__} {str(self)}>"
+class DjToken(models.Model):
+	class Meta:
+		unique_together = (("txt", "gloss", "is_delimiter"), )
+
+	id = models.AutoField(primary_key=True)
+
+	txt = models.TextField()
+	gloss = models.TextField()
+	is_delimiter = models.BooleanField()
+
+class DjParagraph(models.Model):
+	id = models.AutoField(primary_key=True)
 	
-	@staticmethod
-	def fromdict(d):
-		raise NotImplementedError("Use the subclasses")
+	pstate = models.TextField()
+	is_delimiter = models.BooleanField()
+	token_delimiters = models.TextField()
+	annotator_info = models.TextField()
+	original_text = models.TextField()
 
-	def todict(self):
-		raise NotImplementedError("Use the subclasses")
+class DjCorpus(models.Model):
+	id = models.AutoField(primary_key=True)
 
-class DjToken(dj_serializables):
-	def __init__(self, txt: str, gloss: str, is_delimiter: bool):
-		self.txt = txt
-		self.is_delimiter = is_delimiter
-		self.gloss = gloss
+	paragraph_delimiters = models.TextField()
+	original_text = models.TextField()
+	p_div_locs = models.TextField()	
 
-	def __str__(self):
-		if self.is_delimiter:
-			l, r = '$', '$'
-		else:
-			l, r = '<', '>'
+class DjTokenParagraphPair(models.Model):
+	class Meta:
+		unique_together = (("dj_paragraph_id", "index", "dj_token_id"), )
 
-		out = f"{repr(self.txt)[1:-1]}"
-		if self.gloss is not None:
-			out += f", {repr(self.gloss)[1:-1]}"
-		return f"{l}{out}{r}"
+	id = models.AutoField(primary_key=True)
 	
-	def todict(self):
-		return self.__dict__.copy()
+	dj_paragraph_id = models.ForeignKey(DjParagraph, on_delete=models.CASCADE)
+	index = models.IntegerField()
+	dj_token_id = models.ForeignKey(DjToken, on_delete=models.CASCADE)
 
-	@staticmethod
-	def fromdict(d):
-		toret = DjToken(None, None, None)
-		toret.__dict__ = d
-		return toret
+class DjCorpusParagraphPair(models.Model):
+	class Meta:
+		unique_together = (("dj_corpus_id", "index", "dj_paragraph_id"), )
 
-ALLOWED_PSTATES = ["PLAIN", "DIVIDED", "PARSED", "ANNOTATED"]
+	id = models.AutoField(primary_key=True)
 
-class DjParagraph(dj_serializables):
-	def __init__(self, id: int, pstate: str, tokens: list[DjToken], is_delimiter: bool, token_delimiters: str, annotator_info: str, original_text: str):
-		#Check if `pstate` is valid
-		if pstate not in ALLOWED_PSTATES:
-			fallback = "ANNOTATED"
-			warnings.warn(f"Paragraph.__init__(): Got unknown `pstate` '{pstate}`. Falling back to '{fallback}'.")
-			assert fallback in ALLOWED_PSTATES
-			pstate = fallback
-		self.id = id
-		self.pstate = pstate
-
-		self.tokens = tokens
-		self.is_delimiter = is_delimiter
-		self.token_delimiters = token_delimiters
-
-		self.annotator_info = annotator_info
-		self.original_text = original_text
-		
-	def __str__(self):
-		if self.is_delimiter:
-			l, r = '&', '&'
-		else:
-			l, r = '[', ']'
-
-		tokens_str = ', '.join([str(t) for t in self.tokens])
-		return f"{l}{tokens_str}{r}"
-	
-	def todict(self):
-		d =  self.__dict__.copy()
-		d["tokens"] = [t.todict() for t in self.tokens]
-		return d
-
-	@staticmethod
-	def fromdict(d):
-		toret = DjParagraph("PLAIN", [], True, "", "", "")
-		dcopy = d.copy()
-		dcopy["tokens"] = [DjToken.fromdict(tokend) for tokend in dcopy["tokens"]]
-		toret.__dict__ = dcopy
-		return toret
-
-class DjCorpus(dj_serializables):
-	def __init__(self,
-		id: int, paragraph_delimiters: list[str],
-		original_text: str, p_div_locs: list[int], task_ids: list[str]):
-
-		self.id = id
-		self.paragraph_delimiters = paragraph_delimiters
-		self.original_text = original_text
-		self.p_div_locs = p_div_locs
-		self.task_ids = task_ids
-		
-	def __str__(self):
-		return ', '.join([str(p) for p in self.paragraphs])
-	
-	@staticmethod
-	def init_with_txt(original_text):
-		return DjCorpus(
-			id = None,
-			paragraph_delimiters=None,
-			original_text=original_text,
-			p_div_locs=[],
-			task_ids=[],
-		)
-	
-	@staticmethod
-	def fromdict(d):
-		toret = DjCorpus.init_with_txt(None)
-		dcopy = d.copy()
-		dcopy["paragraphs"] = [DjParagraph.fromdict(pd) for pd in dcopy["paragraphs"]]
-		toret.__dict__ = dcopy
-		return toret
-	
-	def todict(self):
-		d = self.__dict__.copy()
-		d["paragraphs"] = [p.todict() for p in self.paragraphs]
-		return d
+	dj_corpus_id = models.ForeignKey(DjCorpus, on_delete=models.CASCADE)
+	index = models.IntegerField()
+	dj_paragraph_id = models.ForeignKey(DjParagraph, on_delete=models.CASCADE)

@@ -17,14 +17,14 @@ entity DjParagraph {
 	original_text
 }
 
-interface DjTokenParagraphPair {
+interface DjTokensInParagraph {
 	* //DjParagraph.id//
 	* index
 	* //DjToken.id//
 	--
 }
-DjToken ||-right-|{ DjTokenParagraphPair
-DjTokenParagraphPair }o-right-|| DjParagraph
+DjToken ||-right-|{ DjTokensInParagraph
+DjTokensInParagraph }o-right-|| DjParagraph
 
 entity DjCorpus {
 	* id
@@ -33,14 +33,14 @@ entity DjCorpus {
 	p_div_locs
 }
 
-interface DjCorpusParagraphPair {
+interface DjParagraphsInCorpus {
 	* //DjCorpus.id//
 	* index
 	* //DjParagraph.id//
 	--
 }
-DjParagraph ||-right-|{ DjCorpusParagraphPair
-DjCorpusParagraphPair }o-right-|| DjCorpus
+DjParagraph ||-right-|{ DjParagraphsInCorpus
+DjParagraphsInCorpus }o-right-|| DjCorpus
 
 entity DjParagraphDelimiter {
 	* id
@@ -51,8 +51,22 @@ interface DjParagraphDelimitersInCorpus {
 	* //DjCorpus.id//
 	* //DjParagraphDelimiter.id//
 }
-DjCorpus ||--o{ DjParagraphDelimitersInCorpus
-DjParagraphDelimitersInCorpus ||--o{ DjParagraphDelimiter
+DjCorpus ||-up-o{ DjParagraphDelimitersInCorpus
+DjParagraphDelimitersInCorpus }o-up-|| DjParagraphDelimiter
+
+entity CorpusHeader {
+	* id
+	---
+	current_task
+}
+
+interface CorpusHeaderDjCorpusPair {
+	* //CorpusHeader.id//
+	* //DjCorpus.id//
+}
+CorpusHeader ||-up-o{ CorpusHeaderDjCorpusPair
+CorpusHeaderDjCorpusPair }o-up-|| DjCorpus
+
 
 
 @enduml

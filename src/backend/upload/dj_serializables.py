@@ -31,7 +31,7 @@ class DjCorpus(models.Model):
 	original_text = models.TextField()
 	p_div_locs = models.TextField()	
 
-class DjTokenParagraphPair(models.Model):
+class DjTokensInParagraph(models.Model):
 	class Meta:
 		unique_together = (("dj_paragraph_id", "index", "dj_token_id"), )
 
@@ -41,7 +41,7 @@ class DjTokenParagraphPair(models.Model):
 	index = models.IntegerField()
 	dj_token_id = models.ForeignKey(DjToken, on_delete=models.CASCADE)
 
-class DjCorpusParagraphPair(models.Model):
+class DjParagraphsInCorpus(models.Model):
 	class Meta:
 		unique_together = (("dj_corpus_id", "index", "dj_paragraph_id"), )
 
@@ -51,6 +51,19 @@ class DjCorpusParagraphPair(models.Model):
 	index = models.IntegerField()
 	dj_paragraph_id = models.ForeignKey(DjParagraph, on_delete=models.CASCADE)
 
-class DjParagraphDelimiter(models.Models):
+class DjParagraphDelimiter(models.Model):
 	id = models.AutoField(primary_key=True)
 	char = models.CharField(unique=True)
+
+class DjParagraphDelimitersInCorpus(models.Models):
+	class Meta:
+		unique_together = (("dj_corpus_id", "dj_paragraph_delimiter_id"), )
+
+	dj_corpus_id = models.ForeignKey(DjCorpus, on_delete=models.CASCADE)
+	dj_paragraph_delimiter_id = models.ForeignKey(DjParagraphDelimiter, on_delete=models.CASCADE)
+
+class CorpusHeader(models.Model):
+	id = models.AutoField(primary_key=True)
+
+	current_task = models.IntegerField()
+	

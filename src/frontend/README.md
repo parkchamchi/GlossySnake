@@ -74,3 +74,46 @@
 * /Upload 통신 구현 완료 시 바로 디자인 및 레이아웃 변경
 * 입력 => 출력과 같은, 왼쪽에서 오른쪽으로 가는 형태로 변경
 * 통신 구현 완료로 출력값 나올 시, 토큰 기능 함수를 삽입해 구현이 되는지 확인
+
+15/16 WEEK 
+---------
+* 기말고사
+
+SEMESTER BREAK 1WEEK
+---------
+* 'originalSelect & glossSelect' select에 "chinese"와 "spanish"를 삭제함.
+* 'originalSelect & glossSelect' select에 "Deutsch"와 "French"를 새롭게 추가함.
+* New resultbox div = 백엔드로부터 제공받은 토큰를 유저가 최종적으로 선택하면 그 결과값을 표시하는 박스.
+
+**Error**
+* input-text 박스에 enter키를 사용하면 resultbox에서 "Input TEXT:"가 맨 아래에 표기되는 오류 발생.
+* section, textarea 박스가 웹페이지의 크기를 줄일 때 다른 박스와는 달리 자동적으로 크기가 변경되지 않음.
+
+**차주 목표**
+* 상기된 오류 수정.
+* resultbox에서 각 div들의 섹터 나누기.
+* 토큰 기능 조작 추가.
+* main color Select하기.
+
+SEMESTER BREAK 2WEEK
+--------
+* 입력칸을 작게 만들고 출력칸을 크게 수정함.
+  * 기존 textarea div를 각각 input-textarea와 output-textarea로 분할.
+  * 각 textarea의 height를 auto;로 설정하여 웹페이지 크기 축소시 자동으로 반응하는 반응형 박스가 되도록 수정함.
+  * output-textarea의 경우 min-height를 147px로 설정하여 왼쪽 section과 총 크기를 맞추도록 함.
+  * otheroption의 display를 none에서 노출되도록 변경.
+* resultbox에서 각 입력창들의 선택/입력/결과값(Input Text제외)를 볼드체로 표기하여 직관성을 강조함.
+
+**error**
+* input-text 박스에 enter키를 사용하면 resultbox에서 "Input TEXT:"가 맨 아래에 표기되는 오류 발생.
+* input-textarea와 output-textarea의 오른쪽 끝 마감이 위 아래와 일정하지 않음. 각각 위 아래 속성들과 일치하게 수정이 필요.
+* arrow box의 위치 수정 필요
+
+**차주 목표**
+* 상기된 오류 수정.
+* resultbox에서 각 div들의 섹터 나누기.
+* 토큰 기능 조작 추가.
+* main color Select하기.
+
+SEMESTER BREAK 3WEEK
+--------

@@ -1,9 +1,11 @@
 @startuml
 
 entity DjToken {
-	* txt
-	* gloss
-	* is_delimiter
+	* id
+	--
+	txt
+	gloss
+	is_delimiter
 	--
 }
 
@@ -23,7 +25,7 @@ interface DjTokensInParagraph {
 	* //DjToken.id//
 	--
 }
-DjToken ||-right-|{ DjTokensInParagraph
+DjToken ||-right-|| DjTokensInParagraph
 DjTokensInParagraph }o-right-|| DjParagraph
 
 entity DjCorpus {
@@ -39,12 +41,12 @@ interface DjParagraphsInCorpus {
 	* //DjParagraph.id//
 	--
 }
-DjParagraph ||-right-|{ DjParagraphsInCorpus
+DjParagraph ||-right-|| DjParagraphsInCorpus
 DjParagraphsInCorpus }o-right-|| DjCorpus
 
 entity DjParagraphDelimiter {
 	* id
-	char
+	str //unique//
 }
 
 interface DjParagraphDelimitersInCorpus {
@@ -60,13 +62,26 @@ entity CorpusHeader {
 	current_task
 }
 
-interface CorpusHeaderDjCorpusPair {
-	* //CorpusHeader.id//
+interface DjCorpusInCorpusInfo {
 	* //DjCorpus.id//
+	* index
+	* //CorpusHeader.id//
 }
-CorpusHeader ||-up-o{ CorpusHeaderDjCorpusPair
-CorpusHeaderDjCorpusPair }o-up-|| DjCorpus
+DjCorpus ||-down-|| DjCorpusInCorpusInfo
+DjCorpusInCorpusInfo }|-down-|| CorpusHeader
 
+entity TaskInfo {
+	* id
+	--
+	timestamp
+	status
+}
 
+interface TaskTargetCorpus {
+	* //TaskInfo.id//
+	* //CorpusHeader.id//
+}
+CorpusHeader ||-left-o| TaskTargetCorpus
+TaskTargetCorpus ||-left-|| TaskInfo
 
 @enduml

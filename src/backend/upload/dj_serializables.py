@@ -1,27 +1,99 @@
 from django.db import models
 
-import serializables
+from .serializables import Corpus, Paragraph, Token, ALLOWED_PSTATES
+
+import warnings
+import traceback
+from typing import List
+
+class TaskStatus(models.TextChoices):
+	READY = "READY"
+	RUNNING = "RUNNING"
+
+	FINISHED = "FINISHED"
+
+	ERROR = "ERROR"
+	ABORTED = "ABORTED"
 
 class CorpusHeader(models.Model):
 	id = models.AutoField(primary_key=True)
 
-	current_task = models.IntegerField()
+	def add_corpus(self, corpus_obj: Corpus):
+		# Set the corpus as a child of this object.
+		if type(corpus_obj) == dict:
+			corpus_obj = Corpus.fromdict(corpus_obj)
+
+		#First check the index of this
+		cur_len = DjCorpus.objects.filter(corpus_header_id=self.id).count()
+
+		#First create the DjCorpusObject
+		dj_corpus = DjCorpus.objects.create(
+			original_text=corpus_obj.original_text,
+			p_div_locs=corpus_obj.p_div_locs,
+
+			corpus_header_id=self,
+			index=cur_len+1,
+		)
+		dj_corpus.save()
+
+	def get_corpuses(self):
+		return DjCorpus.objects.filter(corpus_header_id=self.id).order_by("index")
+
+	@property
+	def current_task(self):
+		res = list(TaskInfo.objects.filter(target_corpus_header_id=self.id)
+			.exclude(status__in=[TaskStatus.FINISHED, TaskStatus.ABORTED, TaskStatus.ERROR]))
+		if not res:
+			res = None
+		return res
+	
+	@property
+	def corpuses_history(self):
+		return [
+			e.to_serializable().todict() 
+			for e 
+			in self.get_corpuses()
+		]
+	
+	def get_last_corpus(self):
+		return self.corpuses_history[-1]
 
 class DjCorpus(models.Model):
+	class Meta:
+		unique_together = (("corpus_header_id", "index"), )
+
 	id = models.AutoField(primary_key=True)
 
 	original_text = models.TextField()
 	p_div_locs = models.TextField()
 
-	corpus_header_info = models.ForeignKey(CorpusHeader, on_delete=models.CASCADE)
+	corpus_header_id = models.ForeignKey(CorpusHeader, on_delete=models.CASCADE)
 	index = models.IntegerField()
 
+	def get_paragraphs(self):
+		return DjParagraph.objects.filter(corpus_id=self.id).order_by("index")
+
+	def to_serializable(self):
+		return Corpus(
+			paragraphs=[e.to_serializable() for e in self.get_paragraphs()],
+			paragraph_delimiters=None,
+			original_text=self.original_text,
+			p_div_locs=self.p_div_locs,
+		)
+
 class DjParagraph(models.Model):
+	class Meta:
+		unique_together = (("corpus_id", "index"), )
+
 	id = models.AutoField(primary_key=True)
 	
 	pstate = models.CharField(
 		max_length=16,
-		choices=serializables.ALLOWED_PSTATES,
+		choices=[
+			(e, e)
+			for e
+			in ALLOWED_PSTATES
+		],
 	)
 
 	is_delimiter = models.BooleanField()
@@ -32,29 +104,109 @@ class DjParagraph(models.Model):
 	corpus_id = models.ForeignKey(DjCorpus, on_delete=models.CASCADE)
 	index = models.IntegerField()
 
+	def get_tokens(self):
+		return DjToken.objects.filter(paragraph_id=self.id).order_by("index")
+
+	def to_serializable(self):
+		return Paragraph(
+			pstate=self.pstate,
+			tokens=[e.to_serializable() for e in self.get_tokens()],
+			is_delimiter=self.is_delimiter,
+			token_delimiters=self.token_delimiters,
+			annotater_into=self.annotator_into,
+			original_text=self.original_text,
+		)
+
 class DjToken(models.Model):
+	class Meta:
+		unique_together = (("paragraph_id", "index"), )
+
 	id = models.AutoField(primary_key=True)
 
 	txt = models.TextField()
 	gloss = models.TextField()
 	is_delimiter = models.BooleanField()
 
-	token_id = models.ForeignKey(DjParagraph, on_delete=models.CASCADE)
+	paragraph_id = models.ForeignKey(DjParagraph, on_delete=models.CASCADE)
 	index = models.IntegerField()
+
+	def to_serializable(self):
+		return Token(
+			txt=self.txt,
+			gloss=self.gloss,
+			is_delimiter=self.is_delimiter,
+		)
 
 class DjParagraphDelimiter(models.Model):
 	id = models.AutoField(primary_key=True)
-	char = models.CharField(unique=True)
+	char = models.TextField(unique=True)
 
-class DjParagraphDelimitersInCorpus(models.Models):
+class DjParagraphDelimitersInCorpus(models.Model):
 	class Meta:
 		unique_together = (("corpus_id", "paragraph_delimiter_id"), )
 
 	corpus_id = models.ForeignKey(DjCorpus, on_delete=models.CASCADE)
 	paragraph_delimiter_id = models.ForeignKey(DjParagraphDelimiter, on_delete=models.CASCADE)
 
-class TaskInfo(models.Models):
+class TaskInfo(models.Model):
 	id = models.AutoField(primary_key=True)
 
 	timestamp = models.DateTimeField(auto_now_add=True)
-	target_corpus_id = models.ForeignKey(CorpusHeader, on_delete=models.CASCADE)
+	target_corpus_header_id = models.ForeignKey(CorpusHeader, on_delete=models.CASCADE)
+
+	status = models.CharField(max_length=16, choices=TaskStatus.choices, default=TaskStatus.READY)
+	
+	def abort(self):
+		#raise NotImplementedError()
+		warnings.warn("Not implemented.")
+
+	def get_logs(self):
+		warnings.warn("Not implemented.")
+
+	def run(self, func, data, use_threading=False):
+		self.status = TaskStatus.RUNNING
+		self.save()
+
+		if not use_threading:
+			self.run_inner(func, data)
+		
+		else:
+			#TODO: unstable
+			import threading
+
+			th = threading.Thread(target=self.run_inner, args=(func, data))
+			th.start()
+
+	def run_inner(self, func, data):
+		#print("run_inner() started")
+
+		#self.status = self.TaskStatus.RUNNING #Redundant
+		#self.save()
+
+		uploaded_corpus = CorpusHeader.objects.get(id=self.target_corpus_header_id.id)
+		#uploaded_corpus.current_task = self.task_id
+		#uploaded_corpus.save()
+
+		exc_to_rethrow = None
+
+		try:
+			func(uploaded_corpus, data) #TODO: aynch-ize this
+		except Exception as exc:
+			#TODO: set task status
+			exc_to_rethrow = exc
+			print(traceback.format_exc())
+			
+		#uploaded_corpus.current_task = None
+		#uploaded_corpus.save()
+
+		if exc_to_rethrow:
+			self.status = TaskStatus.ERROR
+			self.save()
+			raise exc_to_rethrow
+		self.status = TaskStatus.FINISHED
+		self.save()
+		
+		#print("run_inner() terminated")
+	
+	def __repr__(self):
+		return f"<TaskInfo: {self.id}, {self.status}>"

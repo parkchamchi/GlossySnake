@@ -6,7 +6,7 @@ import warnings
 import traceback
 
 # Create your models here.
-	
+
 class UploadedCorpus(models.Model):
 	corpus_id = models.BigAutoField(primary_key=True)
  

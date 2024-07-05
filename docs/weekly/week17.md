@@ -3,7 +3,7 @@ Design of iter-3
 
 ## 백엔드
 
-![../design/images/er_dj_serializables.png](../design/images/er_dj_serializables.png)
+![images/week17_er_dj_serializables.png](images/week17_er_dj_serializables.png)
 
 - 1학기간 완성된 시제품을 개선하기 위해 새로운 모델 구상 요.
 - 현재 작성된 Token 등의 모델이 Django를 고려하지 않은 class로 작성되어 DB에서 무결성 등의 제한조건을 검사하기 어려움.

@@ -18,15 +18,15 @@
                 WARNING: The backend returned an error(Only shown when an event occurs.)
                 <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
             </div>
-             <div class="shown3box" , id="shown3message">
+            <div class="shown3box" , id="shown3message">
                 -A message: These can be shown at most 3 at the same time
-                <span onclick="this.parentElement.style.display='none'" class="close">✖</span>        
+                <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
             </div>
             <div class="scrollbox" , id="scrollmessage">
                 and more messages should be accessed via the scroll
                 <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
             </div>
-            </div>
+        </div>
         <div class="main-content">
             <div class="section">
                 <div class="input-group">
@@ -38,12 +38,12 @@
                         <option value="korean">Korean</option>
                     </select>
                 </div>
-                <textarea class="textarea" id="input-text" placeholder="The corpus insert textarea"></textarea>
+                <textarea class="input-textarea" id="input-text" placeholder="The corpus insert textarea"></textarea>
                 <div class="button-group">
                     Other Options
                     <button onclick="OpenOtherOption()">∇</button>
                 </div>
-                <div class="otheroption" id="otheroption" style="display:none">
+                <div class="otheroption" id="otheroption">
                     <div class="input-group">
                         <label for="endpoint">Endpoint</label>
                         <input type="text" id="endpoint" value="http://127.0.0.1:56122">
@@ -72,7 +72,7 @@
                         <option value="korean">Korean</option>
                     </select>
                 </div>
-                <textarea class="textarea" readonly id="output"></textarea>
+                <textarea class="output-textarea" readonly id="output"></textarea>
                 <div class="tokenoperate">
                     <div onclick="selecttoken()">Select</div>
                     <div onclick="edittoken()">Edit</div>
@@ -80,7 +80,7 @@
                 </div>
             </div>
         </div>
-        <br/>
+        <br />
         <div class="resultbox">
             Endpoint: <div class="endpointResult" id="endpointResult" style="display: inline-block"></div> /
             Delimeter: <div class="delimeterResult" id="delimeterResult" style="display: inline-block"></div> /
@@ -157,7 +157,7 @@
             }
 
             let delimeterValue = document.getElementById('delimeter').value;
-            
+
             if (delimeterValue == null) {
                 console.log("delimeterValue가 null상태입니다");
             }
@@ -258,6 +258,7 @@
         margin-bottom: 20px;
         font-weight: bold;
     }
+
     .warningbox {
         width: 600px;
         padding: 1px;
@@ -309,7 +310,6 @@
     .input-group input,
     .input-group select,
     .input-group textarea {
-        /* endpoint design */
         flex: 2;
         padding: 8px;
         border: 1px solid #ccc;
@@ -327,9 +327,16 @@
 
     }
 
-    .textarea {
-        height: 200px;
-        width: 530px;
+    .input-textarea {
+        height: auto;
+        width: 100%;
+        resize: none;
+    }
+
+    .output-textarea {
+        height: auto;
+        min-height: 147px;
+        width: 100%;
         resize: none;
     }
 
@@ -420,6 +427,7 @@
         transform: translate(-50%, 0%);
         border-radius: 3px;
     }
+
     .resultbox {
         background-color: rgb(199, 199, 199);
         width: 80%;
@@ -427,5 +435,18 @@
         margin: auto;
         text-align: left;
     }
+    .endpointResult {
+        font-weight: bold;
+    }
+    .delimeterResult {
+        font-weight: bold;
+    }
+    .originalResult {
+        font-weight: bold;
+    }
+    .glossResult {
+        font-weight: bold;
+    }
 </style>
+
 </html>

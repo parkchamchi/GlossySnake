@@ -9,8 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-#from .models import UploadedCorpus, Task
-from .dj_serializables import *
+from .models import UploadedCorpus, Task
 
 from .parser import Parser
 from .annotator import Annotator
@@ -38,10 +37,10 @@ class UploadAPIView(APIView):
 			elif original_text is not None:
 				corpus_data = Corpus(paragraphs=[], paragraph_delimiters=[], original_text=original_text, p_div_locs=[])
 			
-			uc = CorpusHeader.objects.create()
-			uc.add_corpus(corpus_data) #see model.py
+			uc = UploadedCorpus.objects.create()
+			uc.corpus_init(corpus_data) #see model.py
 			uc.save()
-			corpus_id = uc.id
+			corpus_id = uc.corpus_id
 
 			return Response(
 				{
@@ -62,7 +61,7 @@ class ManipulatorAPIView(APIView):
 	parser_classes = [JSONParser]
 	permission_classes = (AllowAny, )
 
-	def __init__(self, taskfunc: Callable[[CorpusHeader, dict], None], query_list: dict):
+	def __init__(self, taskfunc: Callable[[UploadedCorpus, dict], None], query_list: dict):
 		super().__init__()
 
 		self.taskfunc = taskfunc
@@ -78,12 +77,12 @@ class ManipulatorAPIView(APIView):
 				data[query] = request.data.get(query) #Sets `None` when it does not exist
 
 			#Get the corpus
-			uc = CorpusHeader.objects.get(id=corpus_id) #TODO: on fail
+			uc = UploadedCorpus.objects.get(corpus_id=corpus_id) #TODO: on fail
 			if uc.current_task is not None:
 				raise ValueError(f"The corpus is already being processed by another task: {uc.current_task}")
 			
-			task = TaskInfo.objects.create(target_corpus_header_id=uc)
-			task_id = task.id
+			task = Task.objects.create(target_corpus_id=corpus_id)
+			task_id = task.task_id
 			task.run(self.taskfunc, data) #will save uc
 			
 			return Response(
@@ -100,8 +99,7 @@ class ManipulatorAPIView(APIView):
 				{"error": str(e)},
 				status=status.HTTP_400_BAD_REQUEST
 			)
-
-#TODO: Divide not working
+		
 class ParserDivideAPIView(ManipulatorAPIView):
 	def __init__(self):
 		def divide_task(uc, data):
@@ -115,7 +113,7 @@ class ParserDivideAPIView(ManipulatorAPIView):
 			parser = Parser()
 			
 			#print("On divide_task()")
-			corpus = uc.get_last_corpus()
+			corpus = uc.corpuses_history["corpuses_history"][-1]
 			corpus = Corpus.fromdict(corpus)
 			parser.divide_into_paragraphs(corpus, paragraph_delimiters=p_delims)
 			uc.add_corpus(corpus)
@@ -136,7 +134,7 @@ class ParserParserAPIView(ManipulatorAPIView):
 			parser = Parser()
 			
 			#print("On parse_task()")
-			corpus = uc.get_last_corpus()
+			corpus = uc.corpuses_history["corpuses_history"][-1] #TODO: Does the former corpus here change in the DB? (should not)
 			corpus = Corpus.fromdict(corpus)
 
 			for p in corpus.paragraphs:
@@ -179,7 +177,8 @@ class AnnotatorAnnotateAPIView(ManipulatorAPIView):
 				annotator.annotate(p, lang_from, lang_to)
 
 				#Apply to DB
-				uc.add_corpus(corpus)
+				#Now this is why the model has to be changed to the Django model... (TODO)
+				uc.edit_last_corpus(corpus)
 				uc.save()
 
 			uc.save()
@@ -193,7 +192,7 @@ class CorpusesAPIView(APIView):
 	def get(self, request, *args, **kwargs):
 		try:
 			corpus_id = self.kwargs.get("pk")
-			uc = CorpusHeader.objects.get(id=corpus_id) #TODO: on fail
+			uc = UploadedCorpus.objects.get(corpus_id=corpus_id) #TODO: on fail
 			corpuses_history = uc.corpuses_history
 			corpuses_history = corpuses_history["corpuses_history"]
 			
@@ -218,9 +217,9 @@ class CorpusesListAPIView(APIView):
 	def get(self, request, *args, **kwargs):
 		try:
 			toret= [
-				{"corpus_id": uc.id, "corpuses_history": uc.corpuses_history}
+				{"corpus_id": uc.corpus_id, "corpuses_history": uc.corpuses_history["corpuses_history"]}
 				for uc
-				in CorpusHeader.objects.all()
+				in UploadedCorpus.objects.all()
 			]
 			
 			return Response(
@@ -241,7 +240,7 @@ class TasksAPIView(APIView):
 	def get(self, request, *args, **kwargs):
 		try:
 			task_id = self.kwargs.get("pk")
-			task = TaskInfo.objects.get(task=task_id) #TODO: on fail
+			task = Task.objects.get(task_id=task_id) #TODO: on fail
 			
 			return Response(
 				{
@@ -264,11 +263,11 @@ class TasksListAPIView(APIView):
 
 	def get(self, request, *args, **kwargs):
 		try:
-			tasks = TaskInfo.objects.all()
+			tasks = Task.objects.all()
 			toret = [
 				{
 					"timestamp": task.timestamp,
-					"target_corpus_id": str(task.target_corpus_header_id.id),
+					"target_corpus_id": str(task.target_corpus_id),
 					"status": task.status
 				}
 				for task

@@ -61,6 +61,7 @@ class CorpusHeader(models.Model):
 					paragraph_id=dj_p,
 					index=t_idx,
 				)
+				dj_t.save()
 
 	def get_corpuses(self):
 		return DjCorpus.objects.filter(corpus_header_id=self.id).order_by("index")

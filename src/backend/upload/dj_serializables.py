@@ -25,16 +25,42 @@ class CorpusHeader(models.Model):
 
 		#First check the index of this
 		cur_len = DjCorpus.objects.filter(corpus_header_id=self.id).count()
+		corpus_id = cur_len + 1
 
-		#First create the DjCorpusObject
+		#Create the DjCorpusObject
 		dj_corpus = DjCorpus.objects.create(
 			original_text=corpus_obj.original_text,
 			p_div_locs=corpus_obj.p_div_locs,
 
 			corpus_header_id=self,
-			index=cur_len+1,
+			index=corpus_id,
 		)
 		dj_corpus.save()
+
+		#Then create the paragraphs
+		for p_idx, p_obj in enumerate(corpus_obj.paragraphs):
+			dj_p = DjParagraph.objects.create(
+				pstate=p_obj.pstate,
+				is_delimiter=p_obj.is_delimiter,
+				token_delimiters=p_obj.token_delimiters,
+				annotator_info=p_obj.annotator_info,
+				original_text=p_obj.original_text,
+
+				corpus_id=dj_corpus,
+				index=p_idx,
+			)
+			dj_p.save()
+
+			#Create the tokens
+			for t_idx, t_obj in enumerate(p_obj.tokens):
+				dj_t = DjToken.objects.create(
+					txt=t_obj.txt,
+					gloss=t_obj.gloss,
+					is_delimiter=t_obj.is_delimiter,
+
+					paragraph_id=dj_p,
+					index=t_idx,
+				)
 
 	def get_corpuses(self):
 		return DjCorpus.objects.filter(corpus_header_id=self.id).order_by("index")
@@ -113,7 +139,7 @@ class DjParagraph(models.Model):
 			tokens=[e.to_serializable() for e in self.get_tokens()],
 			is_delimiter=self.is_delimiter,
 			token_delimiters=self.token_delimiters,
-			annotater_into=self.annotator_into,
+			annotator_info=self.annotator_info,
 			original_text=self.original_text,
 		)
 
@@ -124,7 +150,7 @@ class DjToken(models.Model):
 	id = models.AutoField(primary_key=True)
 
 	txt = models.TextField()
-	gloss = models.TextField()
+	gloss = models.TextField(null=True)
 	is_delimiter = models.BooleanField()
 
 	paragraph_id = models.ForeignKey(DjParagraph, on_delete=models.CASCADE)

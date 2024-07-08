@@ -179,8 +179,7 @@ class AnnotatorAnnotateAPIView(ManipulatorAPIView):
 				annotator.annotate(p, lang_from, lang_to)
 
 				#Apply to DB
-				#Now this is why the model has to be changed to the Django model... (TODO)
-				uc.edit_last_corpus(corpus)
+				uc.add_corpus(corpus)
 				uc.save()
 
 			uc.save()

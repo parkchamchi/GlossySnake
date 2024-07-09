@@ -4,7 +4,7 @@ from .serializables import Corpus, Paragraph, Token, ALLOWED_PSTATES
 
 import warnings
 import traceback
-from typing import List
+from typing import List, Dict
 
 class TaskStatus(models.TextChoices):
 	READY = "READY"
@@ -75,15 +75,29 @@ class CorpusHeader(models.Model):
 		return res
 	
 	@property
-	def corpuses_history(self):
+	def corpuses_history(self) -> List[Dict]:
 		return [
 			e.to_serializable().todict() 
 			for e 
 			in self.get_corpuses()
 		]
 	
-	def get_last_corpus(self):
+	def get_last_corpus(self) -> Dict:
 		return self.corpuses_history[-1]
+
+	def edit_last_corpus(self, corpus: Corpus):
+		if type(corpus) == dict:
+			corpus = Corpus.fromdict(corpus)
+
+		#TODO: not a good behavior
+
+		todel = self.get_last_corpus()
+		self.get_corpuses().last().delete()
+
+		try:
+			self.add_corpus(corpus)
+		except:
+			self.add_corpus(todel)
 
 class DjCorpus(models.Model):
 	class Meta:

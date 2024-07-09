@@ -179,7 +179,7 @@ class AnnotatorAnnotateAPIViewV3(ManipulatorAPIViewV3):
 				annotator.annotate(p, lang_from, lang_to)
 
 				#Apply to DB
-				uc.add_corpus(corpus)
+				uc.edit_last_corpus(corpus)
 				uc.save()
 
 			uc.save()
@@ -195,7 +195,7 @@ class CorpusesAPIViewV3(APIView):
 			corpus_id = self.kwargs.get("pk")
 			uc = CorpusHeader.objects.get(id=corpus_id) #TODO: on fail
 			corpuses_history = uc.corpuses_history
-			corpuses_history = corpuses_history["corpuses_history"]
+			corpuses_history = corpuses_history
 			
 			return Response(
 				{
@@ -241,12 +241,12 @@ class TasksAPIViewV3(APIView):
 	def get(self, request, *args, **kwargs):
 		try:
 			task_id = self.kwargs.get("pk")
-			task = TaskInfo.objects.get(task=task_id) #TODO: on fail
+			task = TaskInfo.objects.get(id=task_id) #TODO: on fail
 			
 			return Response(
 				{
 					"timestamp": task.timestamp,
-					"target_corpus_id": str(task.target_corpus_id),
+					"target_corpus_id": str(task.target_corpus_header_id.id),
 					"status": task.status
 				},
 				status=status.HTTP_200_OK
@@ -267,6 +267,7 @@ class TasksListAPIViewV3(APIView):
 			tasks = TaskInfo.objects.all()
 			toret = [
 				{
+					"task_id": task.id,
 					"timestamp": task.timestamp,
 					"target_corpus_id": str(task.target_corpus_header_id.id),
 					"status": task.status

@@ -63,6 +63,20 @@ class CorpusHeader(models.Model):
 				)
 				dj_t.save()
 
+		#Finally set the p_delims
+		if corpus_obj.paragraph_delimiters:
+			for p_delim in corpus_obj.paragraph_delimiters:
+				#is p_delim already in `DjParagraphDelimiter`?
+				dj_p_delim = DjParagraphDelimiter.objects.filter(char=p_delim)
+				if not dj_p_delim:
+					#Create one
+					dj_p_delim = DjParagraphDelimiter.objects.create(char=p_delim)
+				else:
+					dj_p_delim = dj_p_delim[0]
+
+				#Set the pair
+				DjParagraphDelimitersInCorpus.objects.create(corpus_id=dj_corpus, paragraph_delimiter_id=dj_p_delim)
+
 	def get_corpuses(self):
 		return DjCorpus.objects.filter(corpus_header_id=self.id).order_by("index")
 
@@ -117,10 +131,18 @@ class DjCorpus(models.Model):
 	def to_serializable(self):
 		return Corpus(
 			paragraphs=[e.to_serializable() for e in self.get_paragraphs()],
-			paragraph_delimiters=None,
+			paragraph_delimiters=[e.char for e in self.paragraph_delimiters],
 			original_text=self.original_text,
 			p_div_locs=self.p_div_locs,
 		)
+	
+	@property
+	def paragraph_delimiters(self):
+		return [
+			DjParagraphDelimiter.objects.filter(id=pair.paragraph_delimiter_id.id)[0]
+			for pair
+			in DjParagraphDelimitersInCorpus.objects.filter(corpus_id=self)
+		]
 
 class DjParagraph(models.Model):
 	class Meta:

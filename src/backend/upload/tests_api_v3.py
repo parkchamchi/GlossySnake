@@ -216,7 +216,7 @@ class ParserTestCase(APITransactionTestCase):
 		timeout = 4
 		start = time.time()
 		while True:
-			task = TaskInfo.objects.get(task_id=task_id)
+			task = TaskInfo.objects.get(id=task_id)
 			task_status = task.status
 			if task_status == "FINISHED":
 				break
@@ -227,7 +227,7 @@ class ParserTestCase(APITransactionTestCase):
 				raise RuntimeError("test_divide_parse: timeout")
 			
 		#Check if the CorpusHeader is updated
-		uc = CorpusHeader.objects.get(corpus_id=corpus_id)
+		uc = CorpusHeader.objects.get(id=corpus_id)
 		self.assertIs(uc.current_task, None)
 		corpuses_history = uc.corpuses_history
 		self.assertEqual(len(corpuses_history), 3)
@@ -263,7 +263,7 @@ class ParserTestCase(APITransactionTestCase):
 		timeout = 4
 		start = time.time()
 		while True:
-			task = TaskInfo.objects.get(task_id=task_id)
+			task = TaskInfo.objects.get(id=task_id)
 			task_status = task.status
 			if task_status == "FINISHED":
 				break
@@ -274,7 +274,7 @@ class ParserTestCase(APITransactionTestCase):
 				raise RuntimeError("test_divide_parse: timeout")
 			
 		#Check if the CorpusHeader is updated
-		uc = CorpusHeader.objects.get(corpus_id=corpus_id)
+		uc = CorpusHeader.objects.get(id=corpus_id)
 		self.assertIs(uc.current_task, None)
 		corpuses_history = uc.corpuses_history
 		self.assertEqual(len(corpuses_history), 4)

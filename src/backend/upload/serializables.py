@@ -88,13 +88,12 @@ class Paragraph(Serializable):
 class Corpus(Serializable):
 	def __init__(self,
 		paragraphs: list[Paragraph], paragraph_delimiters: list[str],
-		original_text: str, p_div_locs: list[int], task_ids: list[str]):
+		original_text: str, p_div_locs: list[int]):
 
 		self.paragraphs = paragraphs
 		self.paragraph_delimiters = paragraph_delimiters
 		self.original_text = original_text
 		self.p_div_locs = p_div_locs
-		self.task_ids = task_ids
 		
 	def __str__(self):
 		return ', '.join([str(p) for p in self.paragraphs])
@@ -106,7 +105,6 @@ class Corpus(Serializable):
 			paragraph_delimiters=None,
 			original_text=original_text,
 			p_div_locs=[],
-			task_ids=[],
 		)
 	
 	@staticmethod

@@ -22,7 +22,6 @@ class UploadedCorpusTests(TestCase):
                             "paragraph_delimiters": [],
                             "original_text": "Les champs n'étaient point noirs, les cieux n'étaient pas mornes.\nNon, le jour rayonnait dans un azur sans bornes\nSur la terre étendu,\nL'air était plein d'encens et les prés de verdures\nQuand il revit ces lieux où par tant de blessures\nSon coeur s'est répandu !\n\nL'automne souriait ; les coteaux vers la plaine\nPenchaient leurs bois charmants qui jaunissaient à peine ;\nLe ciel était doré ;\nEt les oiseaux, tournés vers celui que tout nomme,\nDisant peut-être à Dieu quelque chose de l'homme,\nChantaient leur chant sacré !",
                             "p_div_locs": [],
-                            "task_ids": []
                         }
                     ]
                 }
@@ -46,7 +45,6 @@ class UploadedCorpusTests(TestCase):
                             "paragraph_delimiters": [],
                             "original_text": "Les champs n'étaient point noirs, les cieux n'étaient pas mornes.\nNon, le jour rayonnait dans un azur sans bornes\nSur la terre étendu,\nL'air était plein d'encens et les prés de verdures\nQuand il revit ces lieux où par tant de blessures\nSon coeur s'est répandu !\n\nL'automne souriait ; les coteaux vers la plaine\nPenchaient leurs bois charmants qui jaunissaient à peine ;\nLe ciel était doré ;\nEt les oiseaux, tournés vers celui que tout nomme,\nDisant peut-être à Dieu quelque chose de l'homme,\nChantaient leur chant sacré !",
                             "p_div_locs": [],
-                            "task_ids": []
                         }
                     ]
                 }
@@ -66,7 +64,6 @@ class UploadedCorpusTests(TestCase):
             "paragraph_delimiters": [],
             "original_text": "Sample text",
             "p_div_locs": [],
-            "task_ids": []
         }
         self.uc.corpus_init(sample_corpus)
         self.assertEqual(self.uc.corpuses_history, {"corpuses_history": [sample_corpus]})
@@ -77,7 +74,6 @@ class UploadedCorpusTests(TestCase):
             "paragraph_delimiters": [],
              "original_text": "Sample text",
              "p_div_locs": [],
-             "task_ids": []
         }
         self.uc.corpuses_history = {"corpuses_history": []}
         self.uc.add_corpus(add_corpus)
@@ -93,9 +89,8 @@ class ParserTests(TestCase):
         paragraph_delimiters = ["\n"]
         original_text = text
         p_div_locs = [0, 18, len(text)]
-        task_ids =  ["task_id_1"]
         paragraphs = []     
-        corpus = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs, task_ids)
+        corpus = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs)
         self.parser.divide_into_paragraphs(corpus)
         self.assertEqual(len(corpus.paragraphs), 7)
         #print("Number of paragraphs:", len(corpus.paragraphs))
@@ -107,9 +102,8 @@ class ParserTests(TestCase):
         paragraph_delimiters = ["\n"]
         original_text = text
         p_div_locs = [0, 4, 5, 8, len(text)]
-        task_ids =  ["task_id_2"]
         paragraphs = []
-        corpus = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs, task_ids)
+        corpus = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs)
         self.parser.divide_into_paragraphs(corpus)
         self.assertEqual(len(corpus.paragraphs), 7)
         #for idx, paragraph in enumerate(corpus.paragraphs):
@@ -139,9 +133,8 @@ class UploadedCorpusHistoryTest(TestCase):
         paragraph_delimiters = ["\n"]
         original_text = text
         p_div_locs = [0, 4, 5, 8, len(text)]
-        task_ids =  ["task_id_2"]
         paragraphs = []
-        corpus1 = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs, task_ids)
+        corpus1 = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs)
         self.parser.divide_into_paragraphs(corpus1)
         self.uc.corpus_init(corpus1)
         
@@ -149,9 +142,8 @@ class UploadedCorpusHistoryTest(TestCase):
         paragraph_delimiters = ["\n"]
         original_text = text
         p_div_locs = [0, 4, 5, 8, len(text)]
-        task_ids =  ["task_id_2"]
         paragraphs = []
-        corpus2 = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs, task_ids)
+        corpus2 = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs)
         self.parser.divide_into_paragraphs(corpus2)
         self.uc.add_corpus(corpus2)
         
@@ -162,8 +154,7 @@ class UploadedCorpusHistoryTest(TestCase):
         paragraph_delimiters=["\n"] 
         original_text=text
         p_div_locs=[0, len(text)]  
-        task_ids=["task_id_3"]
-        corpus3 = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs, task_ids)
+        corpus3 = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs)
         self.uc.add_corpus(corpus3)
 
         text = "My name is junsik"
@@ -173,8 +164,7 @@ class UploadedCorpusHistoryTest(TestCase):
         paragraph_delimiters = ["\n"]
         original_text = text
         p_div_locs = [0, len(text)]
-        task_ids = ["task_id_4"]
-        corpus4 = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs, task_ids)
+        corpus4 = Corpus(paragraphs, paragraph_delimiters, original_text, p_div_locs)
         self.uc.add_corpus(corpus4)
         corpuses_history = self.uc.corpuses_history
 
@@ -190,7 +180,7 @@ class AnnotatorAnnotateTestCase(APITestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        corpusstr = r'{"paragraphs":[{"pstate":"PARSED","tokens":[{"txt":"A","is_delimiter":false,"gloss":"GlossA"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"test","is_delimiter":false,"gloss":"GlossTest"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"string.","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"Second","is_delimiter":false,"gloss":"GlossSecond"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"sentence.","is_delimiter":false,"gloss":"GlossSentence"}],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"A test string. Second sentence."},{"pstate":"PARSED","tokens":[{"txt":"\n","is_delimiter":true,"gloss":null}],"is_delimiter":true,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"\n"},{"pstate":"PARSED","tokens":[{"txt":"Next","is_delimiter":false,"gloss":"GlossNext"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"paragraph.","is_delimiter":false,"gloss":"GlossParagraph"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"Another","is_delimiter":false,"gloss":"GlossAnother"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"one.","is_delimiter":false,"gloss":"GlossOne"}],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"Next paragraph. Another one."},{"pstate":"PARSED","tokens":[{"txt":"\n","is_delimiter":true,"gloss":null}],"is_delimiter":true,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"\n"},{"pstate":"PARSED","tokens":[],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":""},{"pstate":"PARSED","tokens":[{"txt":"\n","is_delimiter":true,"gloss":null}],"is_delimiter":true,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"\n"},{"pstate":"PARSED","tokens":[{"txt":"A","is_delimiter":false,"gloss":"GlossA"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"paragraph","is_delimiter":false,"gloss":"GlossParagraph"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"after","is_delimiter":false,"gloss":"GlossAfter"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"two","is_delimiter":false,"gloss":"GlossTwo"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"newlines.","is_delimiter":false,"gloss":"GlossNewlines"}],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"A paragraph after two newlines."}],"paragraph_delimiters":["\n"],"original_text":"A test string. Second sentence.\nNext paragraph. Another one.\n\nA paragraph after two newlines.","p_div_locs":[31,32,60,61,61,62,93],"task_ids":[]}'
+        corpusstr = r'{"paragraphs":[{"pstate":"PARSED","tokens":[{"txt":"A","is_delimiter":false,"gloss":"GlossA"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"test","is_delimiter":false,"gloss":"GlossTest"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"string.","is_delimiter":false,"gloss":null},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"Second","is_delimiter":false,"gloss":"GlossSecond"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"sentence.","is_delimiter":false,"gloss":"GlossSentence"}],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"A test string. Second sentence."},{"pstate":"PARSED","tokens":[{"txt":"\n","is_delimiter":true,"gloss":null}],"is_delimiter":true,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"\n"},{"pstate":"PARSED","tokens":[{"txt":"Next","is_delimiter":false,"gloss":"GlossNext"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"paragraph.","is_delimiter":false,"gloss":"GlossParagraph"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"Another","is_delimiter":false,"gloss":"GlossAnother"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"one.","is_delimiter":false,"gloss":"GlossOne"}],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"Next paragraph. Another one."},{"pstate":"PARSED","tokens":[{"txt":"\n","is_delimiter":true,"gloss":null}],"is_delimiter":true,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"\n"},{"pstate":"PARSED","tokens":[],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":""},{"pstate":"PARSED","tokens":[{"txt":"\n","is_delimiter":true,"gloss":null}],"is_delimiter":true,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"\n"},{"pstate":"PARSED","tokens":[{"txt":"A","is_delimiter":false,"gloss":"GlossA"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"paragraph","is_delimiter":false,"gloss":"GlossParagraph"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"after","is_delimiter":false,"gloss":"GlossAfter"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"two","is_delimiter":false,"gloss":"GlossTwo"},{"txt":" ","is_delimiter":true,"gloss":null},{"txt":"newlines.","is_delimiter":false,"gloss":"GlossNewlines"}],"is_delimiter":false,"token_delimiters":" \t\n\r\u000b\f","annotator_info":"","original_text":"A paragraph after two newlines."}],"paragraph_delimiters":["\n"],"original_text":"A test string. Second sentence.\nNext paragraph. Another one.\n\nA paragraph after two newlines.","p_div_locs":[31,32,60,61,61,62,93]}'
         corpus = Corpus.fromdict(json.loads(corpusstr))
         cls.uc = UploadedCorpus.objects.create(corpus_id=cls.corpus_id)
         cls.uc.corpus_init(corpus)
@@ -225,8 +215,8 @@ class AnnotatorAnnotateTestCase(APITestCase):
         
         self.uc.refresh_from_db() 
         gloss_values_no_annotator = self.extract_gloss_values()
-        print("A")
-        print("Gloss values with no annotator_name:", gloss_values_no_annotator)
+        #print("A")
+        #print("Gloss values with no annotator_name:", gloss_values_no_annotator)
 
         annotate_options_with_annotator = {
             "lang_from": "English",
@@ -241,5 +231,5 @@ class AnnotatorAnnotateTestCase(APITestCase):
         
         self.uc.refresh_from_db()  
         gloss_values_with_annotator = self.extract_gloss_values()
-        print("B")
-        print("Gloss values with annotator_name 'test_annotator':", gloss_values_with_annotator)
+        #print("B")
+        #print("Gloss values with annotator_name 'test_annotator':", gloss_values_with_annotator)

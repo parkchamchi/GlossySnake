@@ -25,5 +25,5 @@ urlpatterns = [
 
 	# Both `glosses` and `upload` are minomers.
 	path("v1/glosses/", include("glosses.urls")),
-	path("api/v2/", include('upload.urls')), #cf. design doc
+	path("api/", include('upload.urls')), #cf. design doc
 ]

@@ -35,7 +35,7 @@ class UploadAPIView(APIView):
 			elif corpus_data is not None and original_text is not None:
 				raise ValueError("Only one of `corpus` and `origianl_text` should be provided.")
 			elif original_text is not None:
-				corpus_data = Corpus(paragraphs=[], paragraph_delimiters=[], original_text=original_text, p_div_locs=[], task_ids=[])
+				corpus_data = Corpus(paragraphs=[], paragraph_delimiters=[], original_text=original_text, p_div_locs=[])
 			
 			uc = UploadedCorpus.objects.create()
 			uc.corpus_init(corpus_data) #see model.py

@@ -59,7 +59,6 @@ DjParagraphDelimitersInCorpus }o-up-|| DjParagraphDelimiter
 entity CorpusHeader {
 	* id
 	---
-	current_task
 }
 
 interface DjCorpusInCorpusInfo {

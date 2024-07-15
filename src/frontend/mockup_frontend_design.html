@@ -72,7 +72,7 @@
                         <option value="korean">Korean</option>
                     </select>
                 </div>
-                <textarea class="output-textarea" readonly id="output"></textarea>
+                <textarea id="output" class="output-textarea" readonly></textarea>
                 <div class="tokenoperate">
                     <div onclick="selecttoken()">Select</div>
                     <div onclick="edittoken()">Edit</div>
@@ -82,12 +82,17 @@
         </div>
         <br />
         <div class="resultbox">
-            Endpoint: <div class="endpointResult" id="endpointResult" style="display: inline-block"></div> /
-            Delimeter: <div class="delimeterResult" id="delimeterResult" style="display: inline-block"></div> /
-            Original Language: <div class="originalResult" id="originalResult" style="display: inline-block"></div> /
-            Gloss Language: <div class="glossResult" id="glossResult" style="display: inline-block"></div>
-            Input Text: <div class="inputtextResult" id="inputtextResult" style="display: inline-block"></div>
-            <!-- Result: <br/><div class="finaloutputResult" id="finaloutputResult"></div> -->
+            <div class="option_div" style="font-size: 80%;">
+                Endpoint: <div class="endpointResult" id="endpointResult" style="display: inline-block;">N/A</div> /
+                Delimiter: <div class="delimeterResult" id="delimeterResult" style="display: inline-block;">N/A</div> /
+                Original_Language: <div class="originalResult" id="originalResult" style="display: inline-block;">N/A</div> /
+                Gloss_Language: <div class="glossResult" id="glossResult" style="display: inline-block;">N/A</div>
+            </div>
+            <div>Input Text: <div class="inputtextResult" id="inputtextResult">N/A</div>
+            </div>
+            <div>Result: <br/>
+                <div class="finaloutputResult" id="finaloutputResult">N/A</div>
+            </div>
         </div>
     </div>
     <script src="http://code.jquery.com/jquery-latest.js"></script>
@@ -109,25 +114,6 @@
                 editToken();
             } else if (selectedValue === 'delete') {
                 deleteToken();
-            }
-        }
-
-        function editToken() {
-            alert('수정 액션을 수행합니다.');
-        }
-
-        function deleteToken() {
-            alert('삭제 액션을 수행합니다.');
-        }
-        function toggleToken() {
-            var token = document.querySelector('.token');
-            if (token.textContent == '선택됨') {
-                token.textContent = '비선택됨';
-                token.style.backgroundColor = 'lightcoral';
-            }
-            else {
-                token.textContent = '선택됨';
-                token.style.backgroundColor = 'lightgray';
             }
         }
         function sendRequest() {
@@ -211,11 +197,6 @@
                     document.getElementById("warningmessage").style.display = "block";
                 });
         }
-        function OpenOtherOption() {
-            const ooo = document.getElementById('otheroption');
-            ooo.style.display = ooo.style.display === 'block' ? 'none' : 'block';
-        }
-
         function printResult() {
             let endpoint = document.getElementById('endpoint').value;
             let delimeterValue = document.getElementById('delimeter').value;
@@ -229,6 +210,42 @@
             document.getElementById("glossResult").innerText = glossValue;
             document.getElementById("inputtextResult").innerText = inputText;
             // document.getElementById("finaloutputReuslt").innerText = finaloutput;
+        }
+        function selecttoken() {
+            const userConfirmed = confirm("want to choice? Edit is impossible.");
+
+            if (userConfirmed) {
+                const textContent = document.getElementById('output').value;
+
+                document.getElementById('finaloutputResult').textContent = textContext;
+            } else {
+                alert("You Canceled.");
+            }
+        }
+
+        function editToken() {
+            const textarea = document.getElementById('output')
+
+            textarea.removeAttribute('readonly');
+        }
+
+        function deleteToken() {
+            alert('삭제 액션을 수행합니다.');
+        }
+        //function toggleToken() {
+        //    var token = document.querySelector('.token');
+        //    if (token.textContent == '선택됨') {
+        //        token.textContent = '비선택됨';
+        //        token.style.backgroundColor = 'lightcoral';
+        //    }
+        //    else {
+        //        token.textContent = '선택됨';
+        //        token.style.backgroundColor = 'lightgray';
+        //    }
+        //}            
+        function OpenOtherOption() {
+            const ooo = document.getElementById('otheroption');
+            ooo.style.display = ooo.style.display === 'block' ? 'none' : 'block';
         }
     </script>
 </body>
@@ -434,16 +451,25 @@
         border-radius: 5px;
         margin: auto;
         text-align: left;
+        padding: 10px;
     }
-    .endpointResult {
-        font-weight: bold;
+
+    .option_div {
+        display: flex;
+        gap: 10px;
+        text-align: center;
     }
-    .delimeterResult {
-        font-weight: bold;
+
+    .resultbox>div {
+        border: none;
+        margin: 1px 0;
+        padding: 0px;
+        border-radius: 5px;
     }
-    .originalResult {
-        font-weight: bold;
-    }
+
+    .endpointResult,
+    .delimeterResult,
+    .originalResult,
     .glossResult {
         font-weight: bold;
     }

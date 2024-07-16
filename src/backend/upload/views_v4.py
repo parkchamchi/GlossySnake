@@ -179,6 +179,8 @@ class AnnotatorAnnotateAPIViewV4(ManipulatorAPIViewV4):
 			uc.add_corpus(corpus)
 
 			for p in corpus.paragraphs:
+				if p.tokens == []:
+					continue
 				annotator.annotate(p, lang_from, lang_to)
 
 				#Apply to DB

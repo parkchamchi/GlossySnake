@@ -72,7 +72,7 @@ class Paragraph(Serializable):
 			l, r = '[', ']'
 
 		tokens_str = ', '.join([str(t) for t in self.tokens])
-		return f"{l}{tokens_str}{r}"
+		return f"<P {l}{tokens_str}{r}>"
 	
 	def todict(self):
 		d =  self.__dict__.copy()

@@ -5,6 +5,10 @@ from .dj_serializables_v3 import (
     TaskStatusV3 as TaskStatus,
     CorpusHeaderV3 as CorpusHeader,
     DjCorpusV3 as DjCorpus,
+    DjParagraphV3 as DjParagraph,
+    DjTokenV3 as DjToken,
+    DjParagraphDelimiterV3 as DjParagraphDelimiter,
+    DjParagraphDelimitersInCorpusV3 as DjParagraphDelimitersInCorpus,
     TaskInfoV3 as TaskInfo,
 )
 from .serializables import Corpus, Paragraph, Token, ALLOWED_PSTATES 

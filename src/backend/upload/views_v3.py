@@ -10,7 +10,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 #from .models import UploadedCorpus, Task
-from .dj_serializables import *
+from .dj_serializables_v3 import (
+	CorpusHeaderV3 as CorpusHeader,
+	TaskInfoV3 as TaskInfo,
+)
 
 from .parser import Parser
 from .annotator import Annotator

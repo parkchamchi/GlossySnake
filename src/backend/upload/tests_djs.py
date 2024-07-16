@@ -1,7 +1,12 @@
 import json
 
 from django.test import TestCase
-from .dj_serializables import *
+from .dj_serializables_v3 import (
+    TaskStatusV3 as TaskStatus,
+    CorpusHeaderV3 as CorpusHeader,
+    DjCorpusV3 as DjCorpus,
+    TaskInfoV3 as TaskInfo,
+)
 from .serializables import Corpus, Paragraph, Token, ALLOWED_PSTATES 
 
 

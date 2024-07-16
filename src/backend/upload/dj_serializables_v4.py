@@ -4,9 +4,9 @@ from .serializables import Corpus, Paragraph, Token, ALLOWED_PSTATES
 
 import warnings
 import traceback
-from typing import List, Dict
+from typing import List, Dict, Iterable
 
-class TaskStatus(models.TextChoices):
+class TaskStatusV4(models.TextChoices):
 	READY = "READY"
 	RUNNING = "RUNNING"
 
@@ -15,7 +15,7 @@ class TaskStatus(models.TextChoices):
 	ERROR = "ERROR"
 	ABORTED = "ABORTED"
 
-class CorpusHeader(models.Model):
+class CorpusHeaderV4(models.Model):
 	id = models.AutoField(primary_key=True)
 
 	def add_corpus(self, corpus_obj: Corpus):
@@ -24,11 +24,11 @@ class CorpusHeader(models.Model):
 			corpus_obj = Corpus.fromdict(corpus_obj)
 
 		#First check the index of this
-		cur_len = DjCorpus.objects.filter(corpus_header_id=self.id).count()
+		cur_len = DjCorpusV4.objects.filter(corpus_header_id=self.id).count()
 		corpus_id = cur_len + 1
 
-		#Create the DjCorpusObject
-		dj_corpus = DjCorpus.objects.create(
+		#Create the DjCorpusV4Object
+		dj_corpus = DjCorpusV4.objects.create(
 			original_text=corpus_obj.original_text,
 			p_div_locs=corpus_obj.p_div_locs,
 
@@ -39,7 +39,9 @@ class CorpusHeader(models.Model):
 
 		#Then create the paragraphs
 		for p_idx, p_obj in enumerate(corpus_obj.paragraphs):
-			dj_p = DjParagraph.objects.create(
+			dj_p = DjParagraphV4.objects.create(
+				tokens=p_obj.tokens,
+
 				pstate=p_obj.pstate,
 				is_delimiter=p_obj.is_delimiter,
 				token_delimiters=p_obj.token_delimiters,
@@ -51,39 +53,27 @@ class CorpusHeader(models.Model):
 			)
 			dj_p.save()
 
-			#Create the tokens
-			for t_idx, t_obj in enumerate(p_obj.tokens):
-				dj_t = DjToken.objects.create(
-					txt=t_obj.txt,
-					gloss=t_obj.gloss,
-					is_delimiter=t_obj.is_delimiter,
-
-					paragraph_id=dj_p,
-					index=t_idx,
-				)
-				dj_t.save()
-
 		#Finally set the p_delims
 		if corpus_obj.paragraph_delimiters:
 			for p_delim in corpus_obj.paragraph_delimiters:
-				#is p_delim already in `DjParagraphDelimiter`?
-				dj_p_delim = DjParagraphDelimiter.objects.filter(char=p_delim)
+				#is p_delim already in `DjParagraphDelimiterV4`?
+				dj_p_delim = DjParagraphDelimiterV4.objects.filter(char=p_delim)
 				if not dj_p_delim:
 					#Create one
-					dj_p_delim = DjParagraphDelimiter.objects.create(char=p_delim)
+					dj_p_delim = DjParagraphDelimiterV4.objects.create(char=p_delim)
 				else:
 					dj_p_delim = dj_p_delim[0]
 
 				#Set the pair
-				DjParagraphDelimitersInCorpus.objects.create(corpus_id=dj_corpus, paragraph_delimiter_id=dj_p_delim)
+				DjParagraphDelimitersInCorpusV4.objects.create(corpus_id=dj_corpus, paragraph_delimiter_id=dj_p_delim)
 
 	def get_corpuses(self):
-		return DjCorpus.objects.filter(corpus_header_id=self.id).order_by("index")
+		return DjCorpusV4.objects.filter(corpus_header_id=self.id).order_by("index")
 
 	@property
 	def current_task(self):
-		res = list(TaskInfo.objects.filter(target_corpus_header_id=self.id)
-			.exclude(status__in=[TaskStatus.FINISHED, TaskStatus.ABORTED, TaskStatus.ERROR]))
+		res = list(TaskInfoV4.objects.filter(target_corpus_header_id=self.id)
+			.exclude(status__in=[TaskStatusV4.FINISHED, TaskStatusV4.ABORTED, TaskStatusV4.ERROR]))
 		if not res:
 			res = None
 		return res
@@ -113,7 +103,7 @@ class CorpusHeader(models.Model):
 		except:
 			self.add_corpus(todel)
 
-class DjCorpus(models.Model):
+class DjCorpusV4(models.Model):
 	class Meta:
 		unique_together = (("corpus_header_id", "index"), )
 
@@ -122,11 +112,11 @@ class DjCorpus(models.Model):
 	original_text = models.TextField()
 	p_div_locs = models.TextField()
 
-	corpus_header_id = models.ForeignKey(CorpusHeader, on_delete=models.CASCADE)
+	corpus_header_id = models.ForeignKey(CorpusHeaderV4, on_delete=models.CASCADE)
 	index = models.IntegerField()
 
 	def get_paragraphs(self):
-		return DjParagraph.objects.filter(corpus_id=self.id).order_by("index")
+		return DjParagraphV4.objects.filter(corpus_id=self.id).order_by("index")
 
 	def to_serializable(self):
 		return Corpus(
@@ -139,16 +129,18 @@ class DjCorpus(models.Model):
 	@property
 	def paragraph_delimiters(self):
 		return [
-			DjParagraphDelimiter.objects.filter(id=pair.paragraph_delimiter_id.id)[0]
+			DjParagraphDelimiterV4.objects.filter(id=pair.paragraph_delimiter_id.id)[0]
 			for pair
-			in DjParagraphDelimitersInCorpus.objects.filter(corpus_id=self)
+			in DjParagraphDelimitersInCorpusV4.objects.filter(corpus_id=self)
 		]
 
-class DjParagraph(models.Model):
+class DjParagraphV4(models.Model):
 	class Meta:
 		unique_together = (("corpus_id", "index"), )
 
 	id = models.AutoField(primary_key=True)
+
+	tokens_json = models.JSONField(null=True) #{"tokens": []}
 	
 	pstate = models.CharField(
 		max_length=16,
@@ -164,60 +156,59 @@ class DjParagraph(models.Model):
 	annotator_info = models.TextField()
 	original_text = models.TextField()
 
-	corpus_id = models.ForeignKey(DjCorpus, on_delete=models.CASCADE)
+	corpus_id = models.ForeignKey(DjCorpusV4, on_delete=models.CASCADE)
 	index = models.IntegerField()
 
-	def get_tokens(self):
-		return DjToken.objects.filter(paragraph_id=self.id).order_by("index")
+	@property
+	def tokens(self):
+		tokens = self.tokens_json
+		if tokens is None:
+			return []
+		
+		tokens = tokens["tokens"]
+		return [Token(**e) for e in tokens]
+	
+	@tokens.setter
+	def tokens(self, t: Iterable):
+		if type(t) == Paragraph:
+			t = t.tokens
+
+		l = []
+		for e in t:
+			if type(e) == Token:
+				e = e.todict()
+			l.append(e)
+
+		self.tokens_json = {"tokens": l}
 
 	def to_serializable(self):
 		return Paragraph(
 			pstate=self.pstate,
-			tokens=[e.to_serializable() for e in self.get_tokens()],
+			tokens=self.tokens,
 			is_delimiter=self.is_delimiter,
 			token_delimiters=self.token_delimiters,
 			annotator_info=self.annotator_info,
 			original_text=self.original_text,
 		)
 
-class DjToken(models.Model):
-	class Meta:
-		unique_together = (("paragraph_id", "index"), )
-
-	id = models.AutoField(primary_key=True)
-
-	txt = models.TextField()
-	gloss = models.TextField(null=True)
-	is_delimiter = models.BooleanField()
-
-	paragraph_id = models.ForeignKey(DjParagraph, on_delete=models.CASCADE)
-	index = models.IntegerField()
-
-	def to_serializable(self):
-		return Token(
-			txt=self.txt,
-			gloss=self.gloss,
-			is_delimiter=self.is_delimiter,
-		)
-
-class DjParagraphDelimiter(models.Model):
+class DjParagraphDelimiterV4(models.Model):
 	id = models.AutoField(primary_key=True)
 	char = models.TextField(unique=True)
 
-class DjParagraphDelimitersInCorpus(models.Model):
+class DjParagraphDelimitersInCorpusV4(models.Model):
 	class Meta:
 		unique_together = (("corpus_id", "paragraph_delimiter_id"), )
 
-	corpus_id = models.ForeignKey(DjCorpus, on_delete=models.CASCADE)
-	paragraph_delimiter_id = models.ForeignKey(DjParagraphDelimiter, on_delete=models.CASCADE)
+	corpus_id = models.ForeignKey(DjCorpusV4, on_delete=models.CASCADE)
+	paragraph_delimiter_id = models.ForeignKey(DjParagraphDelimiterV4, on_delete=models.CASCADE)
 
-class TaskInfo(models.Model):
+class TaskInfoV4(models.Model):
 	id = models.AutoField(primary_key=True)
 
 	timestamp = models.DateTimeField(auto_now_add=True)
-	target_corpus_header_id = models.ForeignKey(CorpusHeader, on_delete=models.CASCADE)
+	target_corpus_header_id = models.ForeignKey(CorpusHeaderV4, on_delete=models.CASCADE)
 
-	status = models.CharField(max_length=16, choices=TaskStatus.choices, default=TaskStatus.READY)
+	status = models.CharField(max_length=16, choices=TaskStatusV4.choices, default=TaskStatusV4.READY)
 	
 	def abort(self):
 		#raise NotImplementedError()
@@ -227,7 +218,7 @@ class TaskInfo(models.Model):
 		warnings.warn("Not implemented.")
 
 	def run(self, func, data, use_threading=False):
-		self.status = TaskStatus.RUNNING
+		self.status = TaskStatusV4.RUNNING
 		self.save()
 
 		if not use_threading:
@@ -243,10 +234,10 @@ class TaskInfo(models.Model):
 	def run_inner(self, func, data):
 		#print("run_inner() started")
 
-		#self.status = self.TaskStatus.RUNNING #Redundant
+		#self.status = self.TaskStatusV4.RUNNING #Redundant
 		#self.save()
 
-		uploaded_corpus = CorpusHeader.objects.get(id=self.target_corpus_header_id.id)
+		uploaded_corpus = CorpusHeaderV4.objects.get(id=self.target_corpus_header_id.id)
 		#uploaded_corpus.current_task = self.task_id
 		#uploaded_corpus.save()
 
@@ -263,13 +254,13 @@ class TaskInfo(models.Model):
 		#uploaded_corpus.save()
 
 		if exc_to_rethrow:
-			self.status = TaskStatus.ERROR
+			self.status = TaskStatusV4.ERROR
 			self.save()
 			raise exc_to_rethrow
-		self.status = TaskStatus.FINISHED
+		self.status = TaskStatusV4.FINISHED
 		self.save()
 		
 		#print("run_inner() terminated")
 	
 	def __repr__(self):
-		return f"<TaskInfo: {self.id}, {self.status}>"
+		return f"<TaskInfoV4: {self.id}, {self.status}>"

@@ -56,6 +56,8 @@ class Paragraph(Serializable):
 			pstate = fallback
 		self.pstate = pstate
 
+		if tokens is None:
+			tokens = []
 		self.tokens = tokens
 		self.is_delimiter = is_delimiter
 		self.token_delimiters = token_delimiters

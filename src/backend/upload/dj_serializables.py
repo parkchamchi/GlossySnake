@@ -165,7 +165,7 @@ class DjParagraph(models.Model):
 	original_text = models.TextField()
 
 	corpus_id = models.ForeignKey(DjCorpus, on_delete=models.CASCADE)
-	index = models.IntegerField()
+	index = models.IntegerField()	
 
 	def get_tokens(self):
 		return DjToken.objects.filter(paragraph_id=self.id).order_by("index")

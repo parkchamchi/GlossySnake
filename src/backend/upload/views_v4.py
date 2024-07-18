@@ -292,3 +292,32 @@ class TasksListAPIViewV4(APIView):
 				status=status.HTTP_400_BAD_REQUEST
 			)
 		
+class TasksAbortViewV4(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (AllowAny, )
+
+	def get(self, request, *args, **kwargs):
+		try:
+			task_id = self.kwargs.get("pk")
+			task = TaskInfo.objects.get(id=task_id) #TODO: on fail
+
+			if not task.is_valid_to_abort():
+				raise ValueError("Invalid abort")
+
+			task.abort()
+			
+			return Response(
+				{
+					"success": True
+				},
+				status=status.HTTP_200_OK
+			)
+	
+		except Exception as e:
+			return Response(
+				{
+					"success": False,
+					"error": str(e)
+				},
+				status=status.HTTP_400_BAD_REQUEST
+			)

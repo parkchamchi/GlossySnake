@@ -40,6 +40,10 @@
 					Upload
 				</button>
 			</div>
+			<hr>
+
+			<div id="frontend_tasks_div">
+			</div>
 		</div>
 
 		<div id="api_test_div">
@@ -75,7 +79,7 @@
 				<input type="text" name="route" placeholder="route" value="http://127.0.0.1:56123" id="route_input"><br>
 
 				<label for="api_uri">API URI</label>
-				<input type="text" name="api_uri" placeholder="/api/v2" value="/api/v2" id="api_uri_input"><br>
+				<input type="text" name="api_uri" placeholder="/api/v4" value="/api/v4" id="api_uri_input"><br>
 
 				<div id="divide_options">
 					
@@ -194,6 +198,7 @@
 		window.onload = function () {
 			onEndpointChanged();
 			setCorpusesDiv();
+			setTasksDiv();
 		}
 
 		function onEndpointChanged() {
@@ -218,6 +223,15 @@
 			let route = document.getElementById("route_input").value;
 			uri = route + version + resource;
 			document.getElementById("uri_input").value = uri;
+		}
+
+		function getUri() {
+			return document.getElementById("uri_input").value;
+		}
+
+		function appendUri(toadd) {
+			const uri_input = document.getElementById("uri_input");
+			uri_input.value += toadd;
 		}
 
 		function setQuery(obj) { 
@@ -274,6 +288,19 @@
 			setQuery(query);
 		}
 
+		async function jsonHelper(target) {
+			try {
+				let json = await target.json();
+				return json;
+			}
+			catch (error) {
+				console.log(error);
+				return {
+					"error": JSON.parse(JSON.stringify(error, Object.getOwnPropertyNames(error)))
+				};
+			}
+		}
+
 		function submit() {
 			let uri = document.getElementById("uri_input").value;
 			let query = document.getElementById("query_textarea").value;
@@ -294,7 +321,7 @@
 				let status_pre = document.getElementById("status_pre");
 				status_pre.innerText = res.status + " " + res.statusText;
 			
-				let json = res.json();
+				let json = jsonHelper(res);
 
 				if (res.ok) {
 					let event = new CustomEvent("response_event", {
@@ -452,6 +479,49 @@
 			setField("corpus_id", corpus_id);
 		}
 
+		function tasksToHtml(arr) {
+			let out = "";
+
+			for (const el of arr) {
+				if (!el.hasOwnProperty("task_id")) continue;
+
+				out += "<div class='task_wrapper'><hr>"
+					const task_id = el["task_id"]
+
+					out += `
+						Task: ${task_id}
+					`
+					if (shouldShowTaskAbortButton(el.status))
+						out += `
+							<button class="task_button btn btn-light" onclick="onTaskAbortButtonClicked(${task_id})">Abort</button>
+						`
+						
+					out += `
+						for corpus: ${el.target_corpus_id}
+						(${el.status})
+						</p>
+					`;
+					out += `<p hidden class="task_id_hidden_p">${task_id}</p>`
+				out += "</div>"
+			}
+
+			return out;
+		}
+
+		/*
+		function onTaskHeadClicked(el) {
+			const target = el.parentNode.getElementsByClassName("task")[0];
+			target.hidden = !target.hidden;
+
+			//const task_id = el.parentNode.getElementsByClassName("task_id_hidden_p")[0].innerText;
+		}
+		*/
+
+		function shouldShowTaskAbortButton(taskStatus) {
+			const effectiveStatus = ["READY", "RUNNING"];
+			return effectiveStatus.includes(taskStatus);
+		}
+
 		function selectEndpoint(endpoint) {
 				const select = document.getElementById("endpoint_select");
 				const options = Array.from(select.querySelectorAll("option"));
@@ -486,6 +556,13 @@
 			submit();
 		}
 
+		function setTasksDiv() {
+			selectEndpoint("/tasks/");
+			makeQuery();
+
+			submit();
+		}
+
 		async function onCorpusesResponse(event) {
 			//Check url
 			if (!event.detail.url.endsWith("/corpuses/"))
@@ -498,8 +575,22 @@
 		}
 		document.addEventListener("response_event", onCorpusesResponse);
 
+		async function onTasksResponse(event) {
+			//Check url
+			if (!event.detail.url.endsWith("/tasks/"))
+				return;
+
+			const json = await event.detail.json;
+
+			let tasks_div = document.getElementById("frontend_tasks_div");
+			tasks_div.innerHTML = tasksToHtml(json, collapsed=true);
+		}
+		document.addEventListener("response_event", onTasksResponse);
+
 		async function onAnyOtherResponse(event) {
-			if (event.detail.url.endsWith("/corpuses/"))
+			if (event.detail.url.endsWith("/corpuses/")) //TODO: map
+				return;
+			if (event.detail.url.endsWith("/tasks/"))
 				return;
 
 			//Check the option
@@ -508,6 +599,7 @@
 				return;
 
 			setCorpusesDiv();
+			setTasksDiv();
 		}
 		document.addEventListener("response_event", onAnyOtherResponse);
 
@@ -552,6 +644,15 @@
 			setField("annotate_options", annotate_options);
 
 			makeQuery();
+			submit();
+		}
+
+		function onTaskAbortButtonClicked(task_id) {
+			selectEndpoint("/tasks/");
+			makeQuery();
+
+			appendUri(task_id + "/abort")
+
 			submit();
 		}
 	</script>

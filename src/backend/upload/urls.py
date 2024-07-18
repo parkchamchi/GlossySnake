@@ -46,5 +46,6 @@ urlpatterns = [
 	path("v4/corpuses/<int:pk>", CorpusesAPIViewV4.as_view(), name="api-v4-corpuses-pk"),
 	path("v4/corpuses/", CorpusesListAPIViewV4.as_view(), name="api-v4-corpuses"),
 	path("v4/tasks/<int:pk>", TasksAPIViewV4.as_view(), name="api-v4-tasks-pk"),
+	path("v4/tasks/<int:pk>/abort", TasksAbortViewV4.as_view(), name="api-v4-tasks-pk-abort"),
 	path("v4/tasks/", TasksListAPIViewV4.as_view(), name="api-v4-tasks"),
 ]

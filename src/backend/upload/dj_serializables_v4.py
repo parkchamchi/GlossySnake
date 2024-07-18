@@ -211,8 +211,16 @@ class TaskInfoV4(models.Model):
 	status = models.CharField(max_length=16, choices=TaskStatusV4.choices, default=TaskStatusV4.READY)
 	
 	def abort(self):
-		#raise NotImplementedError()
-		warnings.warn("Not implemented.")
+		#The current impl. does not signal the ongoing subroutine
+		if not self.is_valid_to_abort():
+			warnings.warn("Invalid abort()")
+			return
+
+		self.status = TaskStatusV4.ABORTED
+		self.save()
+
+	def is_valid_to_abort(self):
+		return self.status not in [TaskStatusV4.READY, TaskStatusV4.RUNNING]
 
 	def get_logs(self):
 		warnings.warn("Not implemented.")

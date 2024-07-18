@@ -42,6 +42,8 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 - `GET /tasks/<id>`
   - Res: `"status"`, `"target_corpus_id"`
 - `GET /tasks/<id>/abort`
+  - Res: `"success": true`
+  - Note: Only effective when task.status is in [`READY`, `RUNNING`]
 
 - `GET /corpuses/<id>`
   - Res: `"corpuses_history"`
@@ -95,6 +97,8 @@ class Annotator:
 
 ## ER
 ![images/er_dj_serializables.png](images/er_dj_serializables.png)
+
+`TaskInfo.status` is in [`READY`, `RUNNING`, `FINISHED`, `ERROR`, `ABORTED`]
 
 ## Deprecated
 

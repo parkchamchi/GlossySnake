@@ -53,14 +53,14 @@
 			<div id="urls">
 				<a href="admin/">admin/</a>
 				<br>
-				<a href="api/v2/upload">api/v2/upload</a> |
-				<a href="api/v2/corpuses/">api/v2/corpuses/</a> |
-				<a href="api/v2/tasks/">api/v2/tasks/</a>
+				<a href="api/v4/upload">api/v4/upload</a> |
+				<a href="api/v4/corpuses/">api/v4/corpuses/</a> |
+				<a href="api/v4/tasks/">api/v4/tasks/</a>
 				<br>
-				<a href="api/v2/parser/divide">api/v2/parser/divide</a> |
-				<a href="api/v2/parser/parse">api/v2/parser/parse</a>
+				<a href="api/v4/parser/divide">api/v4/parser/divide</a> |
+				<a href="api/v4/parser/parse">api/v4/parser/parse</a>
 				<br>
-				<a href="api/v2/annotator/annotate">api/v2/annotator/annotate</a>
+				<a href="api/v4/annotator/annotate">api/v4/annotator/annotate</a>
 			</div>
 			
 			<br>
@@ -343,10 +343,11 @@
 				let res_json_pre = document.getElementById("res_json_pre");
 				res_json_pre.innerText = JSON.stringify(json, null, '\t');
 
-				visualizeRes(json);
+				//visualizeRes(json);
 			});
 		}
 
+		/*
 		function visualizeRes(obj) {
 			const target = document.getElementById("corpus_inner");
 			
@@ -359,6 +360,7 @@
 			else
 				target.innerText = "";
 		}
+		*/
 
 		function corpusToHtml(corpus) {
 			let copy = structuredClone(corpus);
@@ -711,6 +713,8 @@
 
 		#res_json_pre {
 			text-align: left;
+			overflow: scroll;
+			max-height: 64em;
 		}
 
 		input.field_input {

@@ -163,6 +163,7 @@ class AnnotatorAnnotateAPIViewV4(ManipulatorAPIViewV4):
 			lang_to = annotate_options["lang_to"]
 
 			annotator_name = annotate_options.get("annotator_name")
+			target_paragraphs = annotate_options.get("target_paragraphs")
 			
 			#Annotate
 			if annotator_name == "chatgpt_ft0":
@@ -178,12 +179,18 @@ class AnnotatorAnnotateAPIViewV4(ManipulatorAPIViewV4):
 			#To be edited.
 			uc.add_corpus(corpus)
 
-			for p in corpus.paragraphs:
-				if p.tokens == []:
-					continue
+			if target_paragraphs:
+				assert all([type(tp) == int for tp in target_paragraphs])
+
+			for i, p in enumerate(corpus.paragraphs):
+				if target_paragraphs:
+					if i not in target_paragraphs:
+						continue
+
 				annotator.annotate(p, lang_from, lang_to)
 
 				#Apply to DB
+				#Now this is why the model has to be changed to the Django model... (TODO)
 				uc.edit_last_corpus(corpus)
 				uc.save()
 

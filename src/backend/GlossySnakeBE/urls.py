@@ -17,13 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from .views import IndexPageView
+from .views import IndexPageView, AnnotateAPIViewV1
 
 urlpatterns = [
 	path("", IndexPageView.as_view()),
 	path("admin/", admin.site.urls),
 
-	# Both `glosses` and `upload` are minomers.
-	path("v1/glosses/", include("glosses.urls")),
+	path("v1/glosses/annotate", AnnotateAPIViewV1.as_view()), #deprecated dummy
 	path("api/", include('upload.urls')), #cf. design doc
 ]

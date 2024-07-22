@@ -443,6 +443,9 @@
 						out += "<div class='corpus' " + (collapsed ? "hidden" : "" ) + ">";
 							out += `
 								<span class="corpus_buttons_span">
+									<button class="corpus_button btn btn-light" onclick="onCorpusDownloadButtonClicked(${corpus_id})">Download</button>
+									<br>
+
 									<button class="corpus_button btn btn-light" onclick="onCorpusDivideButtonClicked(${corpus_id})">Divide</button>
 									<button class="corpus_button btn btn-light" onclick="onCorpusDivideButtonClicked(${corpus_id}, '\\n\\n')">Divide (for poems, \\n\\n)</button>
 									<br>
@@ -479,6 +482,18 @@
 
 			const corpus_id = el.parentNode.getElementsByClassName("corpus_id_hidden_p")[0].innerText;
 			setField("corpus_id", corpus_id);
+		}
+
+		function onCorpusDownloadButtonClicked(corpus_id) {
+			let json = getCorpusJson(corpus_id);
+			json = JSON.stringify(json);
+			console.log("Downloading...");
+
+			let a = document.createElement("a"); //dummy a
+			let file = new Blob([json], {type: "text/plain"});
+			a.download = corpus_id + ".corpus.json";
+			a.href = URL.createObjectURL(file);
+			a.click();
 		}
 
 		function tasksToHtml(arr) {
@@ -574,6 +589,8 @@
 
 			let corpuses_div = document.getElementById("frontend_corpuses_div");
 			corpuses_div.innerHTML = corpusesToHtml(json, collapsed=true);
+
+			setCorpusJsons(json);
 		}
 		document.addEventListener("response_event", onCorpusesResponse);
 
@@ -656,6 +673,14 @@
 			appendUri(task_id + "/abort")
 
 			submit();
+		}
+
+		function getCorpusJson(corpus_id) {
+			return getCorpusJson.jsons.filter((j) => j.corpus_id == corpus_id).pop()["corpuses_history"].pop();
+		}
+
+		function setCorpusJsons(jsons) {
+			getCorpusJson.jsons = jsons;
 		}
 	</script>
 

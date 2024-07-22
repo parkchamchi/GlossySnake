@@ -379,7 +379,7 @@
 				let copy = structuredClone(p);
 				delete copy.tokens;
 
-				if (hasId) {
+				if (hasId && !p.is_delimiter && p.tokens && p.tokens.length > 0) {
 					str += `
 						<span>
 							<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus.id}, 'lang_from', 'lang_to', null, [${i}])">

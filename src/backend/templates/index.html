@@ -341,7 +341,7 @@
 			})
 			.then((json) => {
 				let res_json_pre = document.getElementById("res_json_pre");
-				res_json_pre.innerText = JSON.stringify(json, null, '\t');
+				res_json_pre.innerText = JSON.stringify(json, null, 2);
 
 				//visualizeRes(json);
 			});
@@ -680,8 +680,11 @@
 			justify-content: center;
 		}
 
-		#frontend_test_div, #api_test_div {
-			width: 40%;
+		#frontend_test_div {
+			width: 60%;
+		}
+		#api_test_div {
+			width: 20%
 		}
 
 		/* Imported from the PoC */

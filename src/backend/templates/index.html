@@ -39,6 +39,14 @@
 					onclick="onFrontendUploadButtonClicked()">
 					Upload
 				</button>
+				<br>
+
+				<p>...or the JSON file</p>
+				<p>TODO: this does not work. The script itself has to read the JSON file and format it (a la `onFrontendUploadButtonClicked()`)</p>
+				<form action="." method="POST" enctype="multipart/form-data">
+					<input type="file" name="json_file">
+					<input type="submit" name="json_submit">
+				</form>
 			</div>
 			<hr>
 

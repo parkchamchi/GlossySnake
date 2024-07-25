@@ -43,10 +43,12 @@
 
 				<p>...or the JSON file</p>
 				<p>TODO: this does not work. The script itself has to read the JSON file and format it (a la `onFrontendUploadButtonClicked()`)</p>
-				<form action="." method="POST" enctype="multipart/form-data">
-					<input type="file" name="json_file">
-					<input type="submit" name="json_submit">
+				<form id="uploadForm" action="." method="POST" enctype="multipart/form-data">
+					<input type="file" name="json_file" accept=".json" onchange="loadFile(this)">
+					<input type="submit" id="jsonSubmit" name="json_submit" >
+					<p id="fileName"></p>
 				</form>
+				<div id="json-show" style="white-space: pre-wrap; border: 1px solid ccc; padding: 30px;"></div>
 			</div>
 			<hr>
 
@@ -690,6 +692,38 @@
 		function setCorpusJsons(jsons) {
 			getCorpusJson.jsons = jsons;
 		}
+
+		function loadFile(input) {
+            var file = input.files[0]; 
+            if (file.type && file.type !== 'application/json') {
+                alert('Please select a valid JSON file.');
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                var jsonContent = event.target.result;
+                var container = document.getElementById('json-show');
+                container.textContent = jsonContent;
+                console.log(jsonContent);
+            };
+
+            reader.readAsText(file); 
+        }
+
+        function handleFormSubmit(event) {
+            var file = document.getElementById('jsonFile').files[0];
+            if (!file) {
+                event.preventDefault(); 
+                alert('Please select a file before submitting.');
+            } else {
+                if (!confirm('Are you sure you want to upload this file?')) {
+                    event.preventDefault(); 
+                }
+            }
+        }
+
+        document.getElementById('uploadForm').addEventListener('submit', handleFormSubmit);
 	</script>
 
 	<style>

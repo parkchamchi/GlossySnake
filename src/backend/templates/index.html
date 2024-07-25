@@ -43,10 +43,7 @@
 
 				<p>...or the JSON file</p>
 				<p>TODO: this does not work. The script itself has to read the JSON file and format it (a la `onFrontendUploadButtonClicked()`)</p>
-				<form action="." method="POST" enctype="multipart/form-data">
-					<input type="file" name="json_file">
-					<input type="submit" name="json_submit">
-				</form>
+				<input type="file" id="json_file_input" onchange="onJsonFileInput(this.files)">
 			</div>
 			<hr>
 
@@ -474,8 +471,13 @@
 								<br>
 							`;
 							let corpus = el["corpuses_history"].at(-1);
-							corpus.id = corpus_id;
-							out += corpusToHtml(corpus);
+							if (corpus) {
+								corpus.id = corpus_id;
+								out += corpusToHtml(corpus);
+							}
+							else {
+								console.log("Error: !corpus");
+							}
 						out += "</div>"
 					}
 				out += "</div>"
@@ -689,6 +691,22 @@
 
 		function setCorpusJsons(jsons) {
 			getCorpusJson.jsons = jsons;
+		}
+
+		async function onJsonFileInput(files) {
+			let file = files[0];
+			let content = await file.text();
+			content = JSON.parse(content);
+
+			selectEndpoint("/upload");
+			//setField("original_text", text);
+			makeQuery();
+
+			setQuery({
+				"corpus": content
+			});
+
+			submit();
 		}
 	</script>
 

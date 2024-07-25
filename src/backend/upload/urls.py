@@ -42,6 +42,7 @@ urlpatterns = [
 	path("v4/parser/parse", ParserParserAPIViewV4.as_view(), name="api-v4-parser-parse"),
 
 	path("v4/annotator/annotate", AnnotatorAnnotateAPIViewV4.as_view(), name="api-v4-annotator-annotate"),
+	path("v4/annotator/reannotate", AnnotatorReannotateAPIViewV4.as_view(), name="api-v4-annotator-reannotate"),
 
 	path("v4/corpuses/<int:pk>", CorpusesAPIViewV4.as_view(), name="api-v4-corpuses-pk"),
 	path("v4/corpuses/", CorpusesListAPIViewV4.as_view(), name="api-v4-corpuses"),

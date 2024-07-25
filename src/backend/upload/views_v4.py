@@ -172,7 +172,6 @@ class AnnotatorAnnotateAPIViewV4(ManipulatorAPIViewV4):
 			else:
 				annotator = Annotator()
 
-			#print("On parse_task()")
 			corpus = uc.get_last_corpus()
 			corpus = Corpus.fromdict(corpus)
 
@@ -197,6 +196,47 @@ class AnnotatorAnnotateAPIViewV4(ManipulatorAPIViewV4):
 			uc.save()
 
 		super().__init__(annotate_task, ["annotate_options"])
+
+class AnnotatorReannotateAPIViewV4(ManipulatorAPIViewV4):
+	def __init__(self):
+		def reannotate_task(uc, data):
+			#Parse `annotate_options`
+			if data["annotate_options"] is None:
+				raise ValueError("`annotate_options` is required.")
+			if type(data["annotate_options"]) is str:
+				data["annotate_options"] = json.loads(data["annotate_options"])
+			annotate_options = data["annotate_options"]
+			lang_from = annotate_options["lang_from"]
+			lang_to = annotate_options["lang_to"]
+
+			annotator_name = annotate_options.get("annotator_name")
+			target_paragraphs = annotate_options.get("target_paragraphs")
+
+			#Parse `reannotate_options`
+			if data["reannotate_options"] is None:
+				raise ValueError("`reannotate_options` is required.")
+			if type(data["reannotate_options"]) is str:
+				data["reannotate_options"] = json.loads(data["reannotate_options"])
+			reannotate_options = data["reannotate_options"]
+
+			target_tokens = reannotate_options["target_tokens"]
+			
+			#Annotate
+			if annotator_name == "chatgpt_ft0":
+				from .chatgpt_annotator import ChatgptAnnotator #TODO: try?
+				annotator = ChatgptAnnotator()
+			else:
+				annotator = Annotator()
+
+			corpus = uc.get_last_corpus()
+			corpus = Corpus.fromdict(corpus)
+
+			#To be edited.
+			#uc.add_corpus(corpus)
+
+			#Should be against a paragraph, not a corpus
+
+		super().__init__(reannotate_task, ["annotate_options", "reannotate_options"])
 		
 class CorpusesAPIViewV4(APIView):
 	parser_classes = [JSONParser]

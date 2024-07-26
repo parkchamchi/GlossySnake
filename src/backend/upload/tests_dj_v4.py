@@ -1,15 +1,14 @@
 import json
 
 from django.test import TestCase
-from .dj_serializables_v3 import (
-    TaskStatusV3 as TaskStatus,
-    CorpusHeaderV3 as CorpusHeader,
-    DjCorpusV3 as DjCorpus,
-    DjParagraphV3 as DjParagraph,
-    DjTokenV3 as DjToken,
-    DjParagraphDelimiterV3 as DjParagraphDelimiter,
-    DjParagraphDelimitersInCorpusV3 as DjParagraphDelimitersInCorpus,
-    TaskInfoV3 as TaskInfo,
+from .dj_serializables_v4 import (
+    TaskStatusV4 as TaskStatus,
+    CorpusHeaderV4 as CorpusHeader,
+    DjCorpusV4 as DjCorpus,
+    DjParagraphV4 as DjParagraph,
+    DjParagraphDelimiterV4 as DjParagraphDelimiter,
+    DjParagraphDelimitersInCorpusV4 as DjParagraphDelimitersInCorpus,
+    TaskInfoV4 as TaskInfo,
 )
 from .serializables import Corpus, Paragraph, Token, ALLOWED_PSTATES 
 
@@ -234,27 +233,34 @@ class DjParagraphTestCase(TestCase):
             annotator_info="Example annotator info",
             original_text="Example original text",
             corpus_id=self.dj_corpus,
-            index=1
+            index=1,
+            tokens_json={"tokens": [{"txt": "Example token text", "gloss": "Example token gloss", "is_delimiter": False}]}
         )
 
-   
-        self.dj_token = DjToken.objects.create(
-            txt="Example token text",
-            gloss="Example token gloss",
-            is_delimiter=False,
-            paragraph_id=self.dj_paragraph,
-            index=1
-        )
-    
-    def test_get_tokens(self):
-        tokens = self.dj_paragraph.get_tokens()
+    def test_tokens_getter(self):
+        tokens = self.dj_paragraph.tokens
+        self.assertEqual(len(tokens), 1)
+        self.assertEqual(tokens[0].txt, "Example token text")
+        self.assertEqual(tokens[0].gloss, "Example token gloss")
+        self.assertEqual(tokens[0].is_delimiter, False)
 
-        self.assertEqual(tokens.count(), 1)
+    def test_tokens_setter(self):
+        new_tokens = [
+            Token(txt="New token text 1", gloss="New gloss 1", is_delimiter=False),
+            Token(txt="New token text 2", gloss="New gloss 2", is_delimiter=True)
+        ]
 
-        token = tokens.first()
-        self.assertEqual(token.txt, "Example token text")
-        self.assertEqual(token.gloss, "Example token gloss")
-        self.assertEqual(token.is_delimiter, False)
+        self.dj_paragraph.tokens = new_tokens
+        self.dj_paragraph.save()
+
+        tokens = self.dj_paragraph.tokens
+        self.assertEqual(len(tokens), 2)
+        self.assertEqual(tokens[0].txt, "New token text 1")
+        self.assertEqual(tokens[0].gloss, "New gloss 1")
+        self.assertEqual(tokens[0].is_delimiter, False)
+        self.assertEqual(tokens[1].txt, "New token text 2")
+        self.assertEqual(tokens[1].gloss, "New gloss 2")
+        self.assertEqual(tokens[1].is_delimiter, True)
 
     def test_to_serializable(self):
         self.dj_paragraph.pstate = "ANNOTATED" 
@@ -267,50 +273,12 @@ class DjParagraphTestCase(TestCase):
         self.assertEqual(serialized_paragraph.annotator_info, "Example annotator info")
         self.assertEqual(serialized_paragraph.original_text, "Example original text")
 
-        self.assertEqual(len(serialized_paragraph.tokens), 1)
-        self.assertEqual(serialized_paragraph.tokens[0].txt, "Example token text")
-        self.assertEqual(serialized_paragraph.tokens[0].gloss, "Example token gloss")
-        self.assertEqual(serialized_paragraph.tokens[0].is_delimiter, False)
+        self.assertEqual(len(serialized_paragraph.tokens), 1)  
 
-class DjTokenTestCase(TestCase):
-    def setUp(self):
-        self.corpus_header = CorpusHeader.objects.create()
-
-        self.dj_corpus = DjCorpus.objects.create(
-            original_text="Example corpus text",
-            p_div_locs="Example p_div_locs",
-            corpus_header_id=self.corpus_header,
-            index=1
-        )
-
-        self.dj_paragraph = DjParagraph.objects.create(
-            pstate="test_state", 
-            is_delimiter=False,
-            token_delimiters="Example token delimiters",
-            annotator_info="Example annotator info",
-            original_text="Example original text",
-            corpus_id=self.dj_corpus,
-            index=1
-        )
-
-        self.dj_token = DjToken.objects.create(
-            txt="Example token text",
-            gloss="Example token gloss",
-            is_delimiter=False,
-            paragraph_id=self.dj_paragraph,
-            index=1
-        )
-
-    def test_to_serializable(self):
-        self.assertIsNotNone(self.dj_corpus)
-        self.assertIsNotNone(self.dj_paragraph)
-        self.assertIsNotNone(self.dj_token)
-
-        serialized_token = self.dj_token.to_serializable()
-
-        self.assertEqual(serialized_token.txt, "Example token text")
-        self.assertEqual(serialized_token.gloss, "Example token gloss")
-        self.assertEqual(serialized_token.is_delimiter, False)
+        if serialized_paragraph.tokens:
+            self.assertEqual(serialized_paragraph.tokens[0].txt, "Example token text")
+            self.assertEqual(serialized_paragraph.tokens[0].gloss, "Example token gloss")
+            self.assertEqual(serialized_paragraph.tokens[0].is_delimiter, False)
 
 class DjParagraphDelimiterTestCase(TestCase):
     def setUp(self):

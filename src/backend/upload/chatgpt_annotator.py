@@ -95,7 +95,11 @@ class ChatgptAnnotator(Annotator):
 				
 			end_sents.append(target)
 
-		end_sents = end_sents[1:] + [len(token_strs)-1]
+		end_sents = end_sents[1:]
+		the_last = len(token_strs)-1
+		if the_last not in end_sents:
+			end_sents.append(the_last)
+
 		return end_sents
 	
 class GlossFetcher:

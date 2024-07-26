@@ -42,6 +42,8 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 - `GET /tasks/<id>`
   - Res: `"status"`, `"target_corpus_id"`
 - `GET /tasks/<id>/abort`
+  - Res: `"success": true`
+  - Note: Only effective when task.status is in [`READY`, `RUNNING`]
 
 - `GET /corpuses/<id>`
   - Res: `"corpuses_history"`
@@ -89,8 +91,24 @@ class Annotator:
 		p.annotator_info = ...
 ```
 
-### Backend
-![images/class_backend.png](images/class_backend.png)
+
+## Seq.
+![images/seq_general.png](images/seq_general.png)
+
+## ER
+![images/er_dj_serializables.png](images/er_dj_serializables.png)
+
+`TaskInfo.status` is in [`READY`, `RUNNING`, `FINISHED`, `ERROR`, `ABORTED`]
+
+## Deprecated
+
+### v3
+#### ER
+![images/v3_er_dj_serializables.png](images/v3_er_dj_serializables.png)
+
+### v2
+#### Backend
+![images/v2_class_backend.png](images/v2_class_backend.png)
 
 ```python
 class Task:
@@ -111,19 +129,13 @@ class Task:
 ```
 - **TODO**: Change the model and seperate the array fields (in the next iteration)
 
-## Seq.
-![images/seq_general.png](images/seq_general.png)
-
-## ER
-![images/er_dj_serializables.png](images/er_dj_serializables.png)
-
-## Deprecated
-### Endpoints
+### v1
+#### Endpoints
 - `POST /v1/glosses/annotate`
   - ![images/v1_reqjson.png](images/v1_reqjson.png)
   - Returns the "Result JSON" below
 
-### Result JSON
+#### Result JSON
 
 ![images/v1_resjson.png](images/v1_resjson.png)
 

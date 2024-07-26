@@ -13,7 +13,8 @@ class Annotator:
 		self.lang_to = lang_to
 
 		if not p.is_delimiter:
-			self.put_gloss(p)
+			if p.tokens != []:
+				self.put_gloss(p)
 			p.pstate = "ANNOTATED"
 		
 	def put_gloss(self, p: Paragraph):

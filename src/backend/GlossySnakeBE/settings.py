@@ -42,7 +42,6 @@ INSTALLED_APPS = [
 	"corsheaders", #cf. CORS
 
 	#Local
-	"glosses.apps.GlossesConfig",
 	'upload.apps.UploadConfig',
 ]
 

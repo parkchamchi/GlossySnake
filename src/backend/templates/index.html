@@ -39,6 +39,15 @@
 					onclick="onFrontendUploadButtonClicked()">
 					Upload
 				</button>
+				<br>
+
+				<p>...or the JSON file</p>
+				<p>TODO: this does not work. The script itself has to read the JSON file and format it (a la `onFrontendUploadButtonClicked()`)</p>
+				<input type="file" id="json_file_input" onchange="onJsonFileInput(this.files)">
+			</div>
+			<hr>
+
+			<div id="frontend_tasks_div">
 			</div>
 		</div>
 
@@ -49,14 +58,14 @@
 			<div id="urls">
 				<a href="admin/">admin/</a>
 				<br>
-				<a href="api/v2/upload">api/v2/upload</a> |
-				<a href="api/v2/corpuses/">api/v2/corpuses/</a> |
-				<a href="api/v2/tasks/">api/v2/tasks/</a>
+				<a href="api/v4/upload">api/v4/upload</a> |
+				<a href="api/v4/corpuses/">api/v4/corpuses/</a> |
+				<a href="api/v4/tasks/">api/v4/tasks/</a>
 				<br>
-				<a href="api/v2/parser/divide">api/v2/parser/divide</a> |
-				<a href="api/v2/parser/parse">api/v2/parser/parse</a>
+				<a href="api/v4/parser/divide">api/v4/parser/divide</a> |
+				<a href="api/v4/parser/parse">api/v4/parser/parse</a>
 				<br>
-				<a href="api/v2/annotator/annotate">api/v2/annotator/annotate</a>
+				<a href="api/v4/annotator/annotate">api/v4/annotator/annotate</a>
 			</div>
 			
 			<br>
@@ -75,7 +84,7 @@
 				<input type="text" name="route" placeholder="route" value="http://127.0.0.1:56123" id="route_input"><br>
 
 				<label for="api_uri">API URI</label>
-				<input type="text" name="api_uri" placeholder="/api/v2" value="/api/v2" id="api_uri_input"><br>
+				<input type="text" name="api_uri" placeholder="/api/v4" value="/api/v4" id="api_uri_input"><br>
 
 				<div id="divide_options">
 					
@@ -194,6 +203,7 @@
 		window.onload = function () {
 			onEndpointChanged();
 			setCorpusesDiv();
+			setTasksDiv();
 		}
 
 		function onEndpointChanged() {
@@ -218,6 +228,15 @@
 			let route = document.getElementById("route_input").value;
 			uri = route + version + resource;
 			document.getElementById("uri_input").value = uri;
+		}
+
+		function getUri() {
+			return document.getElementById("uri_input").value;
+		}
+
+		function appendUri(toadd) {
+			const uri_input = document.getElementById("uri_input");
+			uri_input.value += toadd;
 		}
 
 		function setQuery(obj) { 
@@ -274,6 +293,19 @@
 			setQuery(query);
 		}
 
+		async function jsonHelper(target) {
+			try {
+				let json = await target.json();
+				return json;
+			}
+			catch (error) {
+				console.log(error);
+				return {
+					"error": JSON.parse(JSON.stringify(error, Object.getOwnPropertyNames(error)))
+				};
+			}
+		}
+
 		function submit() {
 			let uri = document.getElementById("uri_input").value;
 			let query = document.getElementById("query_textarea").value;
@@ -294,7 +326,7 @@
 				let status_pre = document.getElementById("status_pre");
 				status_pre.innerText = res.status + " " + res.statusText;
 			
-				let json = res.json();
+				let json = jsonHelper(res);
 
 				if (res.ok) {
 					let event = new CustomEvent("response_event", {
@@ -314,12 +346,13 @@
 			})
 			.then((json) => {
 				let res_json_pre = document.getElementById("res_json_pre");
-				res_json_pre.innerText = JSON.stringify(json, null, '\t');
+				res_json_pre.innerText = JSON.stringify(json, null, 2);
 
-				visualizeRes(json);
+				//visualizeRes(json);
 			});
 		}
 
+		/*
 		function visualizeRes(obj) {
 			const target = document.getElementById("corpus_inner");
 			
@@ -332,6 +365,7 @@
 			else
 				target.innerText = "";
 		}
+		*/
 
 		function corpusToHtml(corpus) {
 			let copy = structuredClone(corpus);
@@ -350,7 +384,7 @@
 				let copy = structuredClone(p);
 				delete copy.tokens;
 
-				if (hasId) {
+				if (hasId && !p.is_delimiter && p.tokens && p.tokens.length > 0) {
 					str += `
 						<span>
 							<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus.id}, 'lang_from', 'lang_to', null, [${i}])">
@@ -414,6 +448,9 @@
 						out += "<div class='corpus' " + (collapsed ? "hidden" : "" ) + ">";
 							out += `
 								<span class="corpus_buttons_span">
+									<button class="corpus_button btn btn-light" onclick="onCorpusDownloadButtonClicked(${corpus_id})">Download</button>
+									<br>
+
 									<button class="corpus_button btn btn-light" onclick="onCorpusDivideButtonClicked(${corpus_id})">Divide</button>
 									<button class="corpus_button btn btn-light" onclick="onCorpusDivideButtonClicked(${corpus_id}, '\\n\\n')">Divide (for poems, \\n\\n)</button>
 									<br>
@@ -434,8 +471,13 @@
 								<br>
 							`;
 							let corpus = el["corpuses_history"].at(-1);
-							corpus.id = corpus_id;
-							out += corpusToHtml(corpus);
+							if (corpus) {
+								corpus.id = corpus_id;
+								out += corpusToHtml(corpus);
+							}
+							else {
+								console.log("Error: !corpus");
+							}
 						out += "</div>"
 					}
 				out += "</div>"
@@ -450,6 +492,61 @@
 
 			const corpus_id = el.parentNode.getElementsByClassName("corpus_id_hidden_p")[0].innerText;
 			setField("corpus_id", corpus_id);
+		}
+
+		function onCorpusDownloadButtonClicked(corpus_id) {
+			let json = getCorpusJson(corpus_id);
+			json = JSON.stringify(json);
+			console.log("Downloading...");
+
+			let a = document.createElement("a"); //dummy a
+			let file = new Blob([json], {type: "text/plain"});
+			a.download = corpus_id + ".corpus.json";
+			a.href = URL.createObjectURL(file);
+			a.click();
+		}
+
+		function tasksToHtml(arr) {
+			let out = "";
+
+			for (const el of arr) {
+				if (!el.hasOwnProperty("task_id")) continue;
+
+				out += "<div class='task_wrapper'><hr>"
+					const task_id = el["task_id"]
+
+					out += `
+						Task: ${task_id}
+					`
+					if (shouldShowTaskAbortButton(el.status))
+						out += `
+							<button class="task_button btn btn-light" onclick="onTaskAbortButtonClicked(${task_id})">Abort</button>
+						`
+						
+					out += `
+						for corpus: ${el.target_corpus_id}
+						(${el.status})
+						</p>
+					`;
+					out += `<p hidden class="task_id_hidden_p">${task_id}</p>`
+				out += "</div>"
+			}
+
+			return out;
+		}
+
+		/*
+		function onTaskHeadClicked(el) {
+			const target = el.parentNode.getElementsByClassName("task")[0];
+			target.hidden = !target.hidden;
+
+			//const task_id = el.parentNode.getElementsByClassName("task_id_hidden_p")[0].innerText;
+		}
+		*/
+
+		function shouldShowTaskAbortButton(taskStatus) {
+			const effectiveStatus = ["READY", "RUNNING"];
+			return effectiveStatus.includes(taskStatus);
 		}
 
 		function selectEndpoint(endpoint) {
@@ -486,6 +583,13 @@
 			submit();
 		}
 
+		function setTasksDiv() {
+			selectEndpoint("/tasks/");
+			makeQuery();
+
+			submit();
+		}
+
 		async function onCorpusesResponse(event) {
 			//Check url
 			if (!event.detail.url.endsWith("/corpuses/"))
@@ -495,11 +599,27 @@
 
 			let corpuses_div = document.getElementById("frontend_corpuses_div");
 			corpuses_div.innerHTML = corpusesToHtml(json, collapsed=true);
+
+			setCorpusJsons(json);
 		}
 		document.addEventListener("response_event", onCorpusesResponse);
 
+		async function onTasksResponse(event) {
+			//Check url
+			if (!event.detail.url.endsWith("/tasks/"))
+				return;
+
+			const json = await event.detail.json;
+
+			let tasks_div = document.getElementById("frontend_tasks_div");
+			tasks_div.innerHTML = tasksToHtml(json, collapsed=true);
+		}
+		document.addEventListener("response_event", onTasksResponse);
+
 		async function onAnyOtherResponse(event) {
-			if (event.detail.url.endsWith("/corpuses/"))
+			if (event.detail.url.endsWith("/corpuses/")) //TODO: map
+				return;
+			if (event.detail.url.endsWith("/tasks/"))
 				return;
 
 			//Check the option
@@ -508,6 +628,7 @@
 				return;
 
 			setCorpusesDiv();
+			setTasksDiv();
 		}
 		document.addEventListener("response_event", onAnyOtherResponse);
 
@@ -554,6 +675,39 @@
 			makeQuery();
 			submit();
 		}
+
+		function onTaskAbortButtonClicked(task_id) {
+			selectEndpoint("/tasks/");
+			makeQuery();
+
+			appendUri(task_id + "/abort")
+
+			submit();
+		}
+
+		function getCorpusJson(corpus_id) {
+			return getCorpusJson.jsons.filter((j) => j.corpus_id == corpus_id).pop()["corpuses_history"].pop();
+		}
+
+		function setCorpusJsons(jsons) {
+			getCorpusJson.jsons = jsons;
+		}
+
+		async function onJsonFileInput(files) {
+			let file = files[0];
+			let content = await file.text();
+			content = JSON.parse(content);
+
+			selectEndpoint("/upload");
+			//setField("original_text", text);
+			makeQuery();
+
+			setQuery({
+				"corpus": content
+			});
+
+			submit();
+		}
 	</script>
 
 	<style>
@@ -577,8 +731,11 @@
 			justify-content: center;
 		}
 
-		#frontend_test_div, #api_test_div {
-			width: 40%;
+		#frontend_test_div {
+			width: 60%;
+		}
+		#api_test_div {
+			width: 20%
 		}
 
 		/* Imported from the PoC */
@@ -610,6 +767,8 @@
 
 		#res_json_pre {
 			text-align: left;
+			overflow: scroll;
+			max-height: 64em;
 		}
 
 		input.field_input {

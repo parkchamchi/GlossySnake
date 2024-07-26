@@ -59,7 +59,7 @@
             <div class="arrowbox">
                 <br /><br /><br /><br /><br /><br />
                 <div class="previewbox" onclick="errormsg()"></div>
-                <br /><br /><br /><br /><br /><br />
+                <br /><br /><br /><br />
                 <div class="requestbox" onclick="sendRequest(); printResult(); texttoarray();"></div>
             </div>
             <div class="section">
@@ -81,18 +81,17 @@
             </div>
         </div>
         <br />
-        <p> Input_Text의 테스트 박스입니다! <span id="arrayoutput"></span></p>
+        <p> Input_Text의 테스트 박스입니다! <span id= "arrayoutput"></span></p>
         <div class="resultbox">
             <div class="option_div" style="font-size: 80%;">
                 Endpoint: <div class="endpointResult" id="endpointResult" style="display: inline-block;">N/A</div> /
                 Delimiter: <div class="delimeterResult" id="delimeterResult" style="display: inline-block;">N/A</div> /
-                Original_Language: <div class="originalResult" id="originalResult" style="display: inline-block;">N/A
-                </div> /
+                Original_Language: <div class="originalResult" id="originalResult" style="display: inline-block;">N/A</div> /
                 Gloss_Language: <div class="glossResult" id="glossResult" style="display: inline-block;">N/A</div>
             </div>
             <div>Input Text: <div class="inputtextResult" id="inputtextResult">N/A</div>
             </div>
-            <div>Result: <br />
+            <div>Result: <br/>
                 <div class="finaloutputResult" id="finaloutputResult">N/A</div>
             </div>
         </div>
@@ -373,6 +372,8 @@
         height: auto;
         width: 100%;
         resize: none;
+        border: 1px solid #ccc;
+        border-radius: 4px;
     }
 
     .output-textarea {
@@ -380,6 +381,8 @@
         min-height: 147px;
         width: 100%;
         resize: none;
+        border: 1px solid #ccc;
+        border-radius: 4px;  
     }
 
     .button-group {
@@ -482,7 +485,6 @@
     .option_div {
         display: flex;
         gap: 10px;
-        text-align: center;
     }
 
     .resultbox>div {

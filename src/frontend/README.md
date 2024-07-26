@@ -136,11 +136,10 @@ Week19(SEMESTER BREAK 3WEEK -> Week19)
 
 Week20
 -----------
-* iter-2 양식에 맞춰 SEMESTER BREAK로 표현하던 README.md의 소제 양식을 Week00으로 표현하였음.
 * 사용자가 입력한 input-textarea의 말뭉치를 띄어쓰기를 기준으로 배열화 하였음.
 * deletetoken()기능 추가.
 
-**error**.
+**error**
 * input-textarea와 output-textarea의 오른쪽 끝 마감이 위 아래와 일정하지 않음. 각각 위 아래 속성들과 일치하게 수정이 필요.
 * arrow box의 위치 수정 필요.
 * option_div에 text-align:center;가 적용되지 않는 오류 발생. 수정 필요.
@@ -149,4 +148,17 @@ Week20
 **차주 목표**
 * 상기된 오류 수정.
 * 선택/수정/삭제 기능 수정
+* main color Select하기.
+
+Week21
+--------------
+* arrow box 등 일부 디자인 수정
+
+**error**
+* input-textarea와 output-textarea의 오른쪽 끝 마감이 위 아래와 일정하지 않음. 각각 위 아래 속성들과 일치하게 수정이 필요.
+* edittoken()을 적용하였으나 edit버튼을 눌러도 output textarea의 readonly 속성이 해제되지 않음.
+
+**차주 목표**
+* 상기된 오류 수정.
+* 선택/수정/삭제 기능 지속적 수정
 * main color Select하기.

@@ -31,6 +31,6 @@ end note
 
 
 class ReannotateOptions <<serializable>> {
-	int[] target_tokens
+	dict target_tokens
 }
 @enduml

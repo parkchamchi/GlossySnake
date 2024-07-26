@@ -59,6 +59,16 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 ### Req. options
 ![images/class_req_options.png](images/class_req_options.png)
 
+```json
+	"reannotate_options": {
+		"target_tokens": {
+			2: [3, 4],
+			4: [0]
+		}
+	}
+```
+For `annotator/reannotate`, `AnnotateOptions.target_paragraphs` is ignored
+
 ### Manipulators
 ![images/class_manipulators.png](images/class_manipulators.png)
 

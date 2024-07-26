@@ -59,8 +59,8 @@
             <div class="arrowbox">
                 <br /><br /><br /><br /><br /><br />
                 <div class="previewbox" onclick="errormsg()"></div>
-                <br /><br /><br /><br /><br /><br />
-                <div class="requestbox" onclick="sendRequest(); printResult();"></div>
+                <br /><br /><br /><br />
+                <div class="requestbox" onclick="sendRequest(); printResult(); texttoarray();"></div>
             </div>
             <div class="section">
                 <div class="input-group">
@@ -81,6 +81,7 @@
             </div>
         </div>
         <br />
+        <p> Input_Text의 테스트 박스입니다! <span id= "arrayoutput"></span></p>
         <div class="resultbox">
             <div class="option_div" style="font-size: 80%;">
                 Endpoint: <div class="endpointResult" id="endpointResult" style="display: inline-block;">N/A</div> /
@@ -211,6 +212,14 @@
             document.getElementById("inputtextResult").innerText = inputText;
             // document.getElementById("finaloutputReuslt").innerText = finaloutput;
         }
+        function texttoarray() {
+            const userInput = document.getElementById('input-text').value;
+
+            const textArray = userInput.split(' ');
+
+            //inputtext의 배열화를 시각적으로 확인하기 위해 임시적으로 만든 코드입니다.
+            document.getElementById('arrayoutput').textContent = JSON.stringify(textArray);
+        }
         function selecttoken() {
             const userConfirmed = confirm("want to choice? Edit is impossible.");
 
@@ -228,9 +237,24 @@
 
             textarea.removeAttribute('readonly');
         }
+        function deletetoken() {
+            if (currentIndex < textArray.length) {
+                textArray.splice(currentIndex, 1);
 
-        function deleteToken() {
-            alert('삭제 액션을 수행합니다.');
+                document.getElementById('output').textContent = textArray.join(' ');
+
+                if (currentIndex >= textArray.length) {
+                    currentIndex = textArray.length - 1;
+                }
+
+                if (textArray.length > 0) {
+                    document.getElementById('finaloutputResult').value = textArray[currentIndex];
+                } else {
+                    document.getElementById('finaloutputResult').value = 'No content';
+                }
+            } else {
+                alert("End of array reached.");
+            }
         }
         //function toggleToken() {
         //    var token = document.querySelector('.token');
@@ -348,6 +372,8 @@
         height: auto;
         width: 100%;
         resize: none;
+        border: 1px solid #ccc;
+        border-radius: 4px;
     }
 
     .output-textarea {
@@ -355,6 +381,8 @@
         min-height: 147px;
         width: 100%;
         resize: none;
+        border: 1px solid #ccc;
+        border-radius: 4px;  
     }
 
     .button-group {
@@ -457,7 +485,6 @@
     .option_div {
         display: flex;
         gap: 10px;
-        text-align: center;
     }
 
     .resultbox>div {

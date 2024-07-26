@@ -79,7 +79,7 @@
 ---------
 * 기말고사
 
-SEMESTER BREAK 1WEEK
+Week17(SEMESTER BREAK 1WEEK -> Week17)
 ---------
 * 'originalSelect & glossSelect' select에 "chinese"와 "spanish"를 삭제함.
 * 'originalSelect & glossSelect' select에 "Deutsch"와 "French"를 새롭게 추가함.
@@ -95,7 +95,7 @@ SEMESTER BREAK 1WEEK
 * 토큰 기능 조작 추가.
 * main color Select하기.
 
-SEMESTER BREAK 2WEEK
+Week18(SEMESTER BREAK 2WEEK -> Week18)
 --------
 * 입력칸을 작게 만들고 출력칸을 크게 수정함.
   * 기존 textarea div를 각각 input-textarea와 output-textarea로 분할.
@@ -115,5 +115,50 @@ SEMESTER BREAK 2WEEK
 * 토큰 기능 조작 추가.
 * main color Select하기.
 
-SEMESTER BREAK 3WEEK
---------
+Week19(SEMESTER BREAK 3WEEK -> Week19)
+---------
+* 토큰을 SELECT하면 아래 Resultbox에 최종 결과값을 표출하게 해주는 selecttoken()함수를 생성함. 사용자가 select버튼을 누른 뒤 alert로 최종적으로 선택할 것인지에 대해 묻는 기능을 넣음.
+* 토큰을 EDIT하면 아래 Resultbox에 최종 결과값을 표출하게 해주는 edittoken()함수를 생성함. 사용자가 edit버튼을 누르면 readonly mode였던 output box가 readonly모드를 해제하고 "can edit" alert를 생성하며 수정을 가능하게 해줌.
+* resultbox 직관성 추가.
+* toggletoken() 주석화
+
+**error**.
+* input-textarea와 output-textarea의 오른쪽 끝 마감이 위 아래와 일정하지 않음. 각각 위 아래 속성들과 일치하게 수정이 필요.
+* arrow box의 위치 수정 필요.
+* option_div에 text-align:center;가 적용되지 않는 오류 발생. 수정 필요.
+* edittoken()을 적용하였으나 edit버튼을 눌러도 output textarea의 readonly 속성이 해제되지 않음.
+
+**차주 목표**
+* 상기된 오류 수정.
+* 토큰 삭제 기능 추가 및 선택/수정 기능 수정
+* main color Select하기.
+* 사용자가 입력한 input-textarea의 말뭉치를 띄어쓰기 혹은 특수문자를 기준으로 배열화하기.
+
+Week20
+-----------
+* 사용자가 입력한 input-textarea의 말뭉치를 띄어쓰기를 기준으로 배열화 하였음.
+* deletetoken()기능 추가.
+
+**error**
+* input-textarea와 output-textarea의 오른쪽 끝 마감이 위 아래와 일정하지 않음. 각각 위 아래 속성들과 일치하게 수정이 필요.
+* arrow box의 위치 수정 필요.
+* option_div에 text-align:center;가 적용되지 않는 오류 발생. 수정 필요.
+* edittoken()을 적용하였으나 edit버튼을 눌러도 output textarea의 readonly 속성이 해제되지 않음.
+
+**차주 목표**
+* 상기된 오류 수정.
+* 선택/수정/삭제 기능 수정
+* main color Select하기.
+
+Week21
+--------------
+* arrow box 등 일부 디자인 수정
+
+**error**
+* input-textarea와 output-textarea의 오른쪽 끝 마감이 위 아래와 일정하지 않음. 각각 위 아래 속성들과 일치하게 수정이 필요.
+* edittoken()을 적용하였으나 edit버튼을 눌러도 output textarea의 readonly 속성이 해제되지 않음.
+
+**차주 목표**
+* 상기된 오류 수정.
+* 선택/수정/삭제 기능 지속적 수정
+* main color Select하기.

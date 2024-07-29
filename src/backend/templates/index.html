@@ -42,7 +42,6 @@
 				<br>
 
 				<p>...or the JSON file</p>
-				<p>TODO: this does not work. The script itself has to read the JSON file and format it (a la `onFrontendUploadButtonClicked()`)</p>
 				<input type="file" id="json_file_input" onchange="onJsonFileInput(this.files)">
 			</div>
 			<hr>
@@ -379,21 +378,21 @@
 
 			let hasId = ("id" in corpus);
 
-			for (const i in corpus.paragraphs) { //enumerate
-				const p = corpus.paragraphs[i];
+			for (const p_idx in corpus.paragraphs) { //enumerate
+				const p = corpus.paragraphs[p_idx];
 				let copy = structuredClone(p);
 				delete copy.tokens;
 
 				if (hasId && !p.is_delimiter && p.tokens && p.tokens.length > 0) {
 					str += `
 						<span>
-							<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus.id}, 'lang_from', 'lang_to', null, [${i}])">
+							<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus.id}, 'lang_from', 'lang_to', null, [${p_idx}])">
 								Annotate (dummy)
 							</button>
-							<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus.id}, 'French', 'English', 'chatgpt_ft0', [${i}])">
+							<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus.id}, 'French', 'English', 'chatgpt_ft0', [${p_idx}])">
 								Annotate (chatgpt_ft0, from French)
 							</button>
-							<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus.id}, 'German', 'French', 'chatgpt_ft0', [${i}])">
+							<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus.id}, 'German', 'French', 'chatgpt_ft0', [${p_idx}])">
 								Annotate (chatgpt_ft0, from German)
 							</button>
 						</span>
@@ -401,7 +400,7 @@
 				}
 				str += `<pre>${JSON.stringify(copy)}</pre>`;
 
-				for (const t of p.tokens) {
+				for (const [t_idx, t] of p.tokens.entries()) {
 					//txt, gloss, is_delimiter
 
 					t_str = "";
@@ -409,13 +408,12 @@
 						t_str = `<span>${t.txt}</span>`;
 					}
 					else {
-						
 						let gloss = t.gloss;
 						if (gloss == "!UNKNOWN")
 							gloss = "-";
 							
 						t_str += `
-							<div class="card bg-black" style="display: inline-block; margin-right: 1px;">
+							<div class="card bg-black" style="display: inline-block; margin-right: 1px;" onclick="onTokenClicked(${corpus.id}, ${p_idx}, ${t_idx})">
 								<ul class="list-group list-group-flush">
 									<li class="list-group-item token_txt bg-black text-white">${ t.txt }</li>
 									<li class="list-group-item gloss bg-black text-white">${ gloss }</li>
@@ -674,6 +672,10 @@
 
 			makeQuery();
 			submit();
+		}
+
+		function onTokenClicked(corpus_id, p_idx, t_idx) {
+			console.log(corpus_id, p_idx, t_idx);
 		}
 
 		function onTaskAbortButtonClicked(task_id) {

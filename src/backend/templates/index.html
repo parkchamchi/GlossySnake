@@ -702,7 +702,14 @@
 				}
 			}
 
-			console.log(selecteds);
+			console.log(selecteds);	
+		}
+
+		function visualizeSelectedTokens() {
+			selecteds = onTokenClicked.selecteds; //shallow
+			if (!selecteds) return;
+
+			console.log("TODO: implement this");
 		}
 
 		function onReannotate(corpus_id, target_tokens, annotate_options=null) {

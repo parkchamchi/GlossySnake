@@ -59,6 +59,10 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 ### Req. options
 ![images/class_req_options.png](images/class_req_options.png)
 
+- On `/annotator/reannotate`, the fields of `AnnotateOptions`:
+  - `target_paragraphs` is ignored
+  - The other fields can be null can be null (will use the previous one)
+
 ```json
 	"reannotate_options": {
 		"target_tokens": {

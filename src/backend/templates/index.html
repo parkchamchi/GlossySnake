@@ -674,8 +674,50 @@
 			submit();
 		}
 
-		function onTokenClicked(corpus_id, p_idx, t_idx) {
-			console.log(corpus_id, p_idx, t_idx);
+		function onTokenClicked(corpus_id, p_idx, t_idx, target_tokens, annotate_options=null) {
+			//Get the collection
+			if (typeof onTokenClicked.selecteds == "undefined")
+				onTokenClicked.selecteds = {}
+			selecteds = onTokenClicked.selecteds; //shallow
+
+			if (!selecteds.hasOwnProperty(corpus_id)) {
+				selecteds[corpus_id] = {[p_idx]: [t_idx]};
+			}
+			else {
+				//Has the corpus
+				corpus_set = selecteds[corpus_id];
+				if (!corpus_set.hasOwnProperty(p_idx)) {
+					corpus_set[p_idx] = [t_idx];
+				}
+				else {
+					//Check if it has t_idx
+					p_set = corpus_set[p_idx];
+					if (!(p_set.includes(4))) {
+						p_set.push(t_idx);
+					}
+					else {
+						//Remove
+						p_set.pop(t_idx);
+					}
+				}
+			}
+
+			console.log(selecteds);
+		}
+
+		function onReannotate(corpus_id, target_tokens, annotate_options=null) {
+			selectEndpoint("/annotator/reannotate");
+			setField("corpus_id", corpus_id);
+
+			let reannotate_options = {"target_tokens": target_tokens};
+			reannotate_options = JSON.stringify(reannotate_options);
+			annotate_options = JSON.stringify(annotate_options);
+
+			setField("reannotate_options", reannotate_options);
+			setField("annotate_options", annotate_options);
+
+			makeQuery();
+			submit();
 		}
 
 		function onTaskAbortButtonClicked(task_id) {

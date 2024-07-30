@@ -383,6 +383,8 @@
 				let copy = structuredClone(p);
 				delete copy.tokens;
 
+				str += "<div class='paragraph_wrapper'>";
+
 				if (hasId && !p.is_delimiter && p.tokens && p.tokens.length > 0) {
 					str += `
 						<span>
@@ -425,7 +427,8 @@
 					str += t_str;
 				}
 
-				str += "<br><hr>";
+				str += "</div>";
+				str += "<hr>";
 			}
 
 			return str;
@@ -674,12 +677,10 @@
 			submit();
 		}
 
-		function onTokenClicked(corpus_id, p_idx, t_idx, target_tokens, annotate_options=null) {
-			//Get the collection
-			if (typeof onTokenClicked.selecteds == "undefined")
-				onTokenClicked.selecteds = {}
-			selecteds = onTokenClicked.selecteds; //shallow
-
+		let SelectedTokens = {};
+		function toggleSelectedToken(corpus_id, p_idx, t_idx) {
+			let selecteds = SelectedTokens;
+			
 			if (!selecteds.hasOwnProperty(corpus_id)) {
 				selecteds[corpus_id] = {[p_idx]: [t_idx]};
 			}
@@ -702,14 +703,33 @@
 				}
 			}
 
-			console.log(selecteds);	
+			visualizeSelectedTokens();
+		}
+
+		function onTokenClicked(corpus_id, p_idx, t_idx) {
+			toggleSelectedToken(corpus_id, p_idx, t_idx);
+
+			//...
 		}
 
 		function visualizeSelectedTokens() {
-			selecteds = onTokenClicked.selecteds; //shallow
-			if (!selecteds) return;
-
+			console.log(SelectedTokens);
 			console.log("TODO: implement this");
+
+			//First locate the tokens
+			//This approach is not straightforward... But it works
+			let corpuses_div = document.getElementById("frontend_corpuses_div");
+			for (const corpus_wrapper of corpuses_div.getElementsByClassName("corpus_wrapper")) {
+				const corpus_id_hidden_p = corpus_wrapper.getElementsByClassName("corpus_id_hidden_p")[0];
+				if (!corpus_id_hidden_p) continue; //Whence?
+				const corpus_id = corpus_id_hidden_p.innerText;
+
+				console.log(corpus_id);
+				const corpus = corpus_wrapper.getElementsByClassName("corpus")[0];
+				for (const paragraph_wrapper in corpus.getElementsByClassName("paragraph_wrapper")) {
+					//
+				}
+			}
 		}
 
 		function onReannotate(corpus_id, target_tokens, annotate_options=null) {

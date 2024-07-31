@@ -60,18 +60,8 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 ![images/class_req_options.png](images/class_req_options.png)
 
 - On `/annotator/reannotate`, the fields of `AnnotateOptions`:
-  - `target_paragraphs` is ignored
+  - `.target_paragraphs`: only the first element is used.
   - The other fields can be null can be null (will use the previous one)
-
-```json
-	"reannotate_options": {
-		"target_tokens": {
-			2: [3, 4],
-			4: [0]
-		}
-	}
-```
-For `annotator/reannotate`, `AnnotateOptions.target_paragraphs` is ignored
 
 ### Manipulators
 ![images/class_manipulators.png](images/class_manipulators.png)

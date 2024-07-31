@@ -206,12 +206,15 @@ class AnnotatorReannotateAPIViewV4(ManipulatorAPIViewV4):
 			if type(data["annotate_options"]) is str:
 				data["annotate_options"] = json.loads(data["annotate_options"])
 			annotate_options = data["annotate_options"]
-			lang_from = annotate_options["lang_from"]
-			lang_to = annotate_options["lang_to"]
 
+			#Req.
+			target_paragraph_idx = annotate_options("target_paragraphs")[0]
+
+			#These 3 can be null ()
 			annotator_name = annotate_options.get("annotator_name")
-			target_paragraphs = annotate_options.get("target_paragraphs")
-
+			lang_from = annotate_options.get("lang_from")
+			lang_to = annotate_options.get("lang_to")
+			
 			#Parse `reannotate_options`
 			if data["reannotate_options"] is None:
 				raise ValueError("`reannotate_options` is required.")
@@ -222,7 +225,8 @@ class AnnotatorReannotateAPIViewV4(ManipulatorAPIViewV4):
 			target_tokens = reannotate_options["target_tokens"]
 			
 			#Annotate
-			if annotator_name == "chatgpt_ft0":
+			#if annotator_name == "chatgpt_ft0":
+			if False:
 				from .chatgpt_annotator import ChatgptAnnotator #TODO: try?
 				annotator = ChatgptAnnotator()
 			else:
@@ -232,9 +236,16 @@ class AnnotatorReannotateAPIViewV4(ManipulatorAPIViewV4):
 			corpus = Corpus.fromdict(corpus)
 
 			#To be edited.
-			#uc.add_corpus(corpus)
+			uc.add_corpus(corpus)
 
 			#Should be against a paragraph, not a corpus
+			target_p = corpus.paragraphs[target_paragraph_idx]
+			annotator.reannotate(target_p, lang_from, lang_to, target_tokens)
+
+			#Apply to DB
+			#Now this is why the model has to be changed to the Django model... (TODO)
+			uc.edit_last_corpus(corpus)
+			uc.save()
 
 		super().__init__(reannotate_task, ["annotate_options", "reannotate_options"])
 		

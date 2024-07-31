@@ -384,6 +384,7 @@
 				delete copy.tokens;
 
 				str += "<div class='paragraph_wrapper'>";
+				str += `<p class='paragraph_idx_hidden_p' hidden>${p_idx}</p>`
 
 				if (hasId && !p.is_delimiter && p.tokens && p.tokens.length > 0) {
 					str += `
@@ -415,11 +416,13 @@
 							gloss = "-";
 							
 						t_str += `
-							<div class="card bg-black" style="display: inline-block; margin-right: 1px;" onclick="onTokenClicked(${corpus.id}, ${p_idx}, ${t_idx})">
+							<div class="token_wrapper card bg-black" style="display: inline-block; margin-right: 1px;" onclick="onTokenClicked(${corpus.id}, ${p_idx}, ${t_idx})">
 								<ul class="list-group list-group-flush">
 									<li class="list-group-item token_txt bg-black text-white">${ t.txt }</li>
 									<li class="list-group-item gloss bg-black text-white">${ gloss }</li>
 								</ul>
+
+								<p class='token_idx_hidden_p' hidden>${t_idx}</p>
 							</div>
 						`
 					}
@@ -686,14 +689,14 @@
 			}
 			else {
 				//Has the corpus
-				corpus_set = selecteds[corpus_id];
+				let corpus_set = selecteds[corpus_id];
 				if (!corpus_set.hasOwnProperty(p_idx)) {
 					corpus_set[p_idx] = [t_idx];
 				}
 				else {
 					//Check if it has t_idx
 					p_set = corpus_set[p_idx];
-					if (!(p_set.includes(4))) {
+					if (!(p_set.includes(t_idx))) {
 						p_set.push(t_idx);
 					}
 					else {
@@ -705,6 +708,22 @@
 
 			visualizeSelectedTokens();
 		}
+		function isTokenSelected(corpus_id, p_idx, t_idx, verbose=false) {
+			let selecteds = SelectedTokens;
+
+			if (!selecteds.hasOwnProperty(corpus_id))
+				return false;
+
+			let corpus_set = selecteds[corpus_id];
+			if (!corpus_set.hasOwnProperty(p_idx))
+				return false;
+
+			let p_set = corpus_set[p_idx];
+			if (!(p_set.includes(t_idx))) 
+				return false;
+
+			return true;
+		}
 
 		function onTokenClicked(corpus_id, p_idx, t_idx) {
 			toggleSelectedToken(corpus_id, p_idx, t_idx);
@@ -713,9 +732,6 @@
 		}
 
 		function visualizeSelectedTokens() {
-			console.log(SelectedTokens);
-			console.log("TODO: implement this");
-
 			//First locate the tokens
 			//This approach is not straightforward... But it works
 			let corpuses_div = document.getElementById("frontend_corpuses_div");
@@ -724,10 +740,29 @@
 				if (!corpus_id_hidden_p) continue; //Whence?
 				const corpus_id = corpus_id_hidden_p.innerText;
 
-				console.log(corpus_id);
 				const corpus = corpus_wrapper.getElementsByClassName("corpus")[0];
-				for (const paragraph_wrapper in corpus.getElementsByClassName("paragraph_wrapper")) {
-					//
+				for (const paragraph_wrapper of corpus.getElementsByClassName("paragraph_wrapper")) {
+					const paragraph_idx_hidden_p = paragraph_wrapper.getElementsByClassName("paragraph_idx_hidden_p")[0];
+					if (!paragraph_idx_hidden_p) continue; //Not seen
+					const p_idx = paragraph_idx_hidden_p.innerText;
+
+					for (const token_wrapper of paragraph_wrapper.getElementsByClassName("token_wrapper")) {
+						const token_idx_hidden_p = token_wrapper.getElementsByClassName("token_idx_hidden_p")[0];
+						if (!token_idx_hidden_p) continue; //Not seen
+
+						let t_idx = token_idx_hidden_p.innerText;
+						t_idx = parseInt(t_idx);
+
+						//Vis.
+						if (isTokenSelected(corpus_id, p_idx, t_idx)) {
+							token_wrapper.classList.remove("not-selected-token");
+							token_wrapper.classList.add("selected-token");
+						}
+						else {
+							token_wrapper.classList.remove("selected-token");
+							token_wrapper.classList.add("not-selected-token");
+						}
+					}
 				}
 			}
 		}
@@ -844,6 +879,10 @@
 
 		input.field_input {
 			width: 70%;
+		}
+
+		.selected-token {
+			border: 1px white solid;
 		}
 	</style>
 </body>

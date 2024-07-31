@@ -28,7 +28,7 @@ class Annotator:
 			if i not in target_tokens:
 				continue
 
-			t.gloss = "reannotated_`{self.lang_from}`_`{self.lang_to}"
+			t.gloss = f"reannotated_`{self.lang_from}`_`{self.lang_to}`"
 		
 	def put_gloss(self, p: Paragraph):
 		for token in p.tokens:

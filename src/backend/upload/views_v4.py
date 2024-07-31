@@ -208,7 +208,7 @@ class AnnotatorReannotateAPIViewV4(ManipulatorAPIViewV4):
 			annotate_options = data["annotate_options"]
 
 			#Req.
-			target_paragraph_idx = annotate_options("target_paragraphs")[0]
+			target_paragraph_idx = annotate_options["target_paragraphs"][0]
 
 			#These 3 can be null ()
 			annotator_name = annotate_options.get("annotator_name")

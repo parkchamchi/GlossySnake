@@ -223,15 +223,8 @@ class AnnotatorReannotateAPIViewV4(ManipulatorAPIViewV4):
 			reannotate_options = data["reannotate_options"]
 
 			target_tokens = reannotate_options["target_tokens"]
-			
-			#Annotate
-			#if annotator_name == "chatgpt_ft0":
-			if False:
-				from .chatgpt_annotator import ChatgptAnnotator #TODO: try?
-				annotator = ChatgptAnnotator()
-			else:
-				annotator = Annotator()
 
+			#Get the corpus
 			corpus = uc.get_last_corpus()
 			corpus = Corpus.fromdict(corpus)
 
@@ -240,8 +233,20 @@ class AnnotatorReannotateAPIViewV4(ManipulatorAPIViewV4):
 
 			#Should be against a paragraph, not a corpus
 			target_p = corpus.paragraphs[target_paragraph_idx]
-			annotator.reannotate(target_p, lang_from, lang_to, target_tokens)
+			if annotator_name is None: annotator_name = target_p.annotator_info_obj.annotator_name
+			if lang_from is None: lang_from = target_p.annotator_info_obj.lang_from
+			if lang_to is None: lang_to = target_p.annotator_info_obj.lang_to
 
+			#Annotate
+			#if annotator_name == "chatgpt_ft0":
+			if False:
+				from .chatgpt_annotator import ChatgptAnnotator #TODO: try?
+				annotator = ChatgptAnnotator()
+			else:
+				annotator = Annotator()
+
+			annotator.reannotate(target_p, lang_from, lang_to, target_tokens)
+			
 			#Apply to DB
 			#Now this is why the model has to be changed to the Django model... (TODO)
 			uc.edit_last_corpus(corpus)

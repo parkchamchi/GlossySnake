@@ -8,9 +8,18 @@ entity DjParagraph {
 	pstate
 	is_delimiter
 	token_delimiters
-	annotator_info
+	<strike>annotator_info</strike>
 	original_text
 }
+
+interface DjAnnotatorInfo {
+	*DjParagraph.id
+	--
+	lang_from
+	lang_to
+	annotator_name
+}
+DjParagraph ||-up-|| DjAnnotatorInfo
 
 entity DjCorpus {
 	* id

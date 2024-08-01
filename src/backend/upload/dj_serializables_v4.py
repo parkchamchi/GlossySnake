@@ -153,11 +153,15 @@ class DjParagraphV4(models.Model):
 
 	is_delimiter = models.BooleanField()
 	token_delimiters = models.TextField()
-	annotator_info = models.TextField()
+	annotator_info = models.TextField() #obsolete
 	original_text = models.TextField()
 
 	corpus_id = models.ForeignKey(DjCorpusV4, on_delete=models.CASCADE)
 	index = models.IntegerField()
+
+	lang_from = models.TextField()
+	lang_to = models.TextField()
+	annotator_name = models.TextField()
 
 	@property
 	def tokens(self):

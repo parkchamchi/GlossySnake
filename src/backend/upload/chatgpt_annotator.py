@@ -39,6 +39,7 @@ class InitialLineNotFoundException(ChatgptGlossFetcherException):
 #Following PoC.
 class ChatgptAnnotator(Annotator):
 	def __init__(self):
+		self.annotator_name = "chatgpt_ft0"
 		self.gloss_fetcher = ChatgptGlossFetcher()
 
 	def put_gloss(self, p: Paragraph):
@@ -65,6 +66,9 @@ class ChatgptAnnotator(Annotator):
 			token.gloss = gloss
 
 		p.annotator_info = f"ChatGptAnnotator_`{self.lang_from}`_`{self.lang_to}`"
+
+	def reput_gloss(self, p: Paragraph, target_tokens: List[str]):
+		raise NotImplementedError("TODO: implement this")
 
 	def chunckize(self, token_strs, maxgloss=80):
 		#Returns the end indices

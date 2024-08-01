@@ -20,6 +20,10 @@ class Annotator:
 				self.put_gloss(p)
 			p.pstate = "ANNOTATED"
 
+			p.annotator_info_obj.lang_from = self.lang_from
+			p.annotator_info_obj.lang_to = self.lang_to
+			p.annotator_info_obj.annotator_name = self.annotator_name
+
 	def reannotate(self, p: Paragraph, lang_from: str, lang_to: str, target_tokens: List[str], **kwargs):
 		self.lang_from = lang_from
 		self.lang_to = lang_to
@@ -27,11 +31,7 @@ class Annotator:
 		if p.is_delimiter:
 			return
 		
-		for i, t in enumerate(p.tokens):
-			if i not in target_tokens:
-				continue
-
-			t.gloss = f"{self.annotator_name}_reannotated_`{self.lang_from}`_`{self.lang_to}`"
+		self.reput_gloss(p, target_tokens)
 		
 	def put_gloss(self, p: Paragraph):
 		for token in p.tokens:
@@ -40,7 +40,10 @@ class Annotator:
 			token.gloss = f"{self.annotator_name}({token.txt})"
 
 		p.annotator_info = f"dummy_`{self.lang_from}`_`{self.lang_to}`" #obsolete
-		p.annotator_info_obj.lang_from = self.lang_from
-		p.annotator_info_obj.lang_to = self.lang_to
-		p.annotator_info_obj.annotator_name = self.annotator_name
+		
+	def reput_gloss(self, p: Paragraph, target_tokens: List[str]):
+		for i, t in enumerate(p.tokens):
+			if i not in target_tokens:
+				continue
 
+			t.gloss = f"{self.annotator_name}_reannotated_`{self.lang_from}`_`{self.lang_to}`"

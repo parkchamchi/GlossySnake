@@ -238,8 +238,7 @@ class AnnotatorReannotateAPIViewV4(ManipulatorAPIViewV4):
 			if lang_to is None: lang_to = target_p.annotator_info_obj.lang_to
 
 			#Annotate
-			#if annotator_name == "chatgpt_ft0":
-			if False:
+			if annotator_name == "chatgpt_ft0":
 				from .chatgpt_annotator import ChatgptAnnotator #TODO: try?
 				annotator = ChatgptAnnotator()
 			else:

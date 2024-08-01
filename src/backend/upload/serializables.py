@@ -46,8 +46,23 @@ class Pstate(Enum):
 """
 ALLOWED_PSTATES = ["PLAIN", "DIVIDED", "PARSED", "ANNOTATED"]
 
+class AnnotatorInfo(Serializable):
+	def __init__(self, annotator_name=None, lang_from=None, lang_to=None):
+		self.annotator_name = annotator_name
+		self.lang_from = lang_from
+		self.lang_to = lang_to
+
+	def todict(self):
+		return self.__dict__.copy()
+
+	@staticmethod
+	def fromdict(d):
+		toret = AnnotatorInfo(None, None, None)
+		toret.__dict__ = d
+		return toret
+
 class Paragraph(Serializable):
-	def __init__(self, pstate: str, tokens: list[Token], is_delimiter: bool, token_delimiters: str, annotator_info: str, original_text: str):
+	def __init__(self, pstate: str, tokens: list[Token], is_delimiter: bool, token_delimiters: str, annotator_info: str, original_text: str, annotator_info_obj: AnnotatorInfo=AnnotatorInfo()):
 		#Check if `pstate` is valid
 		if pstate not in ALLOWED_PSTATES:
 			fallback = "ANNOTATED"
@@ -62,8 +77,10 @@ class Paragraph(Serializable):
 		self.is_delimiter = is_delimiter
 		self.token_delimiters = token_delimiters
 
-		self.annotator_info = annotator_info
+		self.annotator_info = annotator_info #obsolete
 		self.original_text = original_text
+
+		self.annotator_info_obj = annotator_info_obj
 		
 	def __str__(self):
 		if self.is_delimiter:
@@ -77,6 +94,8 @@ class Paragraph(Serializable):
 	def todict(self):
 		d =  self.__dict__.copy()
 		d["tokens"] = [t.todict() for t in self.tokens]
+		if d["annotator_info_obj"]:
+			d["annotator_info_obj"] = self.annotator_info_obj.todict()
 		return d
 
 	@staticmethod
@@ -84,6 +103,8 @@ class Paragraph(Serializable):
 		toret = Paragraph("PLAIN", [], True, "", "", "")
 		dcopy = d.copy()
 		dcopy["tokens"] = [Token.fromdict(tokend) for tokend in dcopy["tokens"]]
+		if dcopy["annotator_info_obj"]:
+			dcopy["annotator_info_obj"] = AnnotatorInfo.fromdict(dcopy["annotator_info_obj"])
 		toret.__dict__ = dcopy
 		return toret
 

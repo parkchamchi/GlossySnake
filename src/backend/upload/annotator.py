@@ -8,6 +8,9 @@ from typing import List, Tuple
 TOKEN_UNKNOWN = "!UNKNOWN"
 
 class Annotator:
+	def __init__(self):
+		self.annotator_name = "DUMMYGLOSS"
+
 	def annotate(self, p: Paragraph, lang_from: str, lang_to: str, **kwargs):
 		self.lang_from = lang_from
 		self.lang_to = lang_to
@@ -28,12 +31,16 @@ class Annotator:
 			if i not in target_tokens:
 				continue
 
-			t.gloss = f"reannotated_`{self.lang_from}`_`{self.lang_to}`"
+			t.gloss = f"{self.annotator_name}_reannotated_`{self.lang_from}`_`{self.lang_to}`"
 		
 	def put_gloss(self, p: Paragraph):
 		for token in p.tokens:
 			if token.is_delimiter:
 				continue
-			token.gloss = f"dummygloss({token.txt})"
+			token.gloss = f"{self.annotator_name}({token.txt})"
 
-		p.annotator_info = f"dummy_`{self.lang_from}`_`{self.lang_to}`"
+		p.annotator_info = f"dummy_`{self.lang_from}`_`{self.lang_to}`" #obsolete
+		p.annotator_info_obj.lang_from = self.lang_from
+		p.annotator_info_obj.lang_to = self.lang_to
+		p.annotator_info_obj.annotator_name = self.annotator_name
+

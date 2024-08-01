@@ -13,8 +13,10 @@ class Paragraph <<serializable>> {
 	bool is_delimiter
 	char[] token_delimiters
 
-	string annotator_info
+	<strike>string annotator_info</strike>
 	string original_text
+
+	AnnotatorInfo annotator_info_obj
 }
 Paragraph o-left- Token
 
@@ -38,5 +40,12 @@ Paragraph *-- pstate
 note right of pstate::"ANNOTATED"
 	default fallback
 end note
+
+class AnnotatorInfo <<serializable>> {
+	string annotator_name
+	string lang_from
+	string lang_to
+}
+Paragraph *-- AnnotatorInfo
 
 @enduml

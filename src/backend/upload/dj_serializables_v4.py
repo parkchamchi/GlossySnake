@@ -1,6 +1,6 @@
 from django.db import models
 
-from .serializables import Corpus, Paragraph, Token, ALLOWED_PSTATES
+from .serializables import Corpus, Paragraph, Token, ALLOWED_PSTATES, AnnotatorInfo
 
 import warnings
 import traceback
@@ -50,6 +50,10 @@ class CorpusHeaderV4(models.Model):
 
 				corpus_id=dj_corpus,
 				index=p_idx,
+
+				lang_from=p_obj.annotator_info_obj.lang_from,
+				lang_to=p_obj.annotator_info_obj.lang_to,
+				annotator_name=p_obj.annotator_info_obj.annotator_name,
 			)
 			dj_p.save()
 
@@ -159,9 +163,9 @@ class DjParagraphV4(models.Model):
 	corpus_id = models.ForeignKey(DjCorpusV4, on_delete=models.CASCADE)
 	index = models.IntegerField()
 
-	lang_from = models.TextField()
-	lang_to = models.TextField()
-	annotator_name = models.TextField()
+	lang_from = models.TextField(null=True)
+	lang_to = models.TextField(null=True)
+	annotator_name = models.TextField(null=True)
 
 	@property
 	def tokens(self):
@@ -193,6 +197,8 @@ class DjParagraphV4(models.Model):
 			token_delimiters=self.token_delimiters,
 			annotator_info=self.annotator_info,
 			original_text=self.original_text,
+
+			annotator_info_obj=AnnotatorInfo(self.annotator_name, self.lang_from, self.lang_to)
 		)
 
 class DjParagraphDelimiterV4(models.Model):

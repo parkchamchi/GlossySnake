@@ -717,6 +717,8 @@
 
 			makeQuery();
 			submit();
+
+			resetSelectedTokens();
 		}
 
 		let SelectedTokens = {};
@@ -765,6 +767,9 @@
 
 			return true;
 		}
+		function resetSelectedTokens() {
+			SelectedTokens = {};
+		}
 
 		function onTokenClicked(corpus_id, p_idx, t_idx) {
 			toggleSelectedToken(corpus_id, p_idx, t_idx);
@@ -806,6 +811,7 @@
 			}
 		}
 
+		/*
 		function onReannotate(corpus_id, target_tokens, annotate_options=null) {
 			selectEndpoint("/annotator/reannotate");
 			setField("corpus_id", corpus_id);
@@ -820,6 +826,7 @@
 			makeQuery();
 			submit();
 		}
+		*/
 
 		function onTaskAbortButtonClicked(task_id) {
 			selectEndpoint("/tasks/");

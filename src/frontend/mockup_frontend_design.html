@@ -12,7 +12,19 @@
         <div class="header">
             <b>Glossy Snake</b>
         </div>
-        <a href="C:\Users\a3053\OneDrive\바탕 화면\htmltest\loginpage.html">Login</a>
+        <button class="LoginButton" onclick="openLoginPopup()">Login</button>
+        <div id="LoginPopup" class="popup-overlay">
+            <div class="popup-content">
+                <span class="close-btn" onclick="closeLoginPopup()">&times;</span>
+                <h2>Login</h2>
+                <form>
+                    <input type="ID" placeholder="ID">
+                    <input type="password" placeholder="Password">
+                    <input readonly type="Submit" value="Login">
+                    <input readonly onclick="openSignUp()" type="SignUp" value="Sign Up">
+                </form>
+            </div>
+        </div>
         <div>
             <div class="warningbox" , id="warningmessage">
                 WARNING: The backend returned an error(Only shown when an event occurs.)
@@ -81,17 +93,18 @@
             </div>
         </div>
         <br />
-        <p> Input_Text의 테스트 박스입니다! <span id= "arrayoutput"></span></p>
+        <p> Input_Text의 테스트 박스입니다! <span id="arrayoutput"></span></p>
         <div class="resultbox">
             <div class="option_div" style="font-size: 80%;">
                 Endpoint: <div class="endpointResult" id="endpointResult" style="display: inline-block;">N/A</div> /
                 Delimiter: <div class="delimeterResult" id="delimeterResult" style="display: inline-block;">N/A</div> /
-                Original_Language: <div class="originalResult" id="originalResult" style="display: inline-block;">N/A</div> /
+                Original_Language: <div class="originalResult" id="originalResult" style="display: inline-block;">N/A
+                </div> /
                 Gloss_Language: <div class="glossResult" id="glossResult" style="display: inline-block;">N/A</div>
             </div>
             <div>Input Text: <div class="inputtextResult" id="inputtextResult">N/A</div>
             </div>
-            <div>Result: <br/>
+            <div>Result: <br />
                 <div class="finaloutputResult" id="finaloutputResult">N/A</div>
             </div>
         </div>
@@ -108,6 +121,19 @@
         });
         function errormsg() {
             alert('에러가 발생했습니다!');
+        }
+        function openLoginPopup() {
+            var LoginPopup = document.getElementById("LoginPopup");
+            LoginPopup.style.visibility = "visible";
+            LoginPopup.style.opacity = "1";
+        }
+        function closeLoginPopup() {
+            var LoginPopup = document.getElementById("LoginPopup");
+            LoginPopup.style.visibility = "hidden";
+            LoginPopup.style.opacity = "0";
+        }
+        function openSignUp() {
+            alert("회원가입페이지");
         }
         function handleChange(select) {
             var selectedValue = select.value;
@@ -382,7 +408,7 @@
         width: 100%;
         resize: none;
         border: 1px solid #ccc;
-        border-radius: 4px;  
+        border-radius: 4px;
     }
 
     .button-group {
@@ -499,6 +525,85 @@
     .originalResult,
     .glossResult {
         font-weight: bold;
+    }
+
+    .LoginButton {
+        border: none;
+        border-radius: 5px;
+        background-color: #fff;
+        font-size: 15px;
+        color: #1900ff;
+        text-decoration: underline;
+    }
+
+    .popup-overlay {
+        position: relative;
+        z-index: 1;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s, opacity 0.3s ease;
+    }
+
+    .popup-content {
+        width: 400px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .popup-content h2 {
+        text-align: center;
+        margin-top: 0;
+    }
+
+    .popup-content form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .popup-content input[type="Password"],
+    .popup-content input[type="ID"],
+    .popup-content select {
+        margin-bottom: 10px;
+        padding: 8px;
+        border-radius: 3px;
+        border: 1px solid #ccc;
+    }
+
+    .popup-content input[type="Submit"],
+    .popup-content input[type="SignUp"] {
+        margin-bottom: 10px;
+        text-align: center;
+        font-weight: bold;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 3px;
+        background-color: #febe98;
+        color: #000000;
+        cursor: pointer;
+    }
+
+    .popup-content input[type="SubmitTest"]:hover,
+    .popup-content input[type="Submit"]:hover,
+    .popup-content input[type="SignUp"]:hover {
+        background-color: #ffb285;
+    }
+
+    .popup-content .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
     }
 </style>
 

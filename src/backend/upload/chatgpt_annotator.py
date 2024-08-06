@@ -18,6 +18,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 #TODO: This follows the PoC, which can be improved.
 
 GLOSS_DELIMITER = "||"
+TOKEN_TO_REANNOTATE = "!TO_REANNOTATE" #local
 
 class ChatgptGlossFetcherException(RuntimeError):
 	pass
@@ -41,6 +42,8 @@ class ChatgptAnnotator(Annotator):
 	def __init__(self):
 		self.annotator_name = "chatgpt_ft0"
 		self.gloss_fetcher = ChatgptGlossFetcher()
+
+		self.reannotate_window = 8
 
 	def put_gloss(self, p: Paragraph):
 		#First get the token strings. This ignores the delimiters like newlines, which may be negative for the performance. (TODO: check)
@@ -67,7 +70,58 @@ class ChatgptAnnotator(Annotator):
 
 		p.annotator_info = f"ChatGptAnnotator_`{self.lang_from}`_`{self.lang_to}`"
 
-	def reput_gloss(self, p: Paragraph, target_tokens: List[str]):
+	def reput_gloss(self, p: Paragraph, target_tokens: List[int]):
+		# R: Initially taking the `put_gloss` as a backbone... TODO: generalize these
+
+		#First get the token strings. This ignores the delimiters like newlines, which may be negative for the performance. (TODO: check)
+		tokens_wo_delimiters = [t for t in p.tokens if not t.is_delimiter]
+		token_strs = [t.txt for t in tokens_wo_delimiters]
+
+		target_token_idxs = target_tokens.copy(); target_tokens = None # R: unlink
+		# R: keep the track of the target_token_objs
+		target_token_objs = [
+			p.tokens[i]
+			for i in
+			target_token_idxs
+		]
+		for token_obj in target_token_objs:
+			token_obj.gloss = TOKEN_TO_REANNOTATE
+		
+		#Since the Chatgpt has a length limit, chuckize it
+		# R: target-centered chunking
+		chunks_for_reannotation = self.chunckize_for_reannotation(token_strs)
+		# R: ret.s [(p0, e0), ...] for [p0+1:e0+1], ... (to match above)
+		print(f"Chunks_for_reannotation: {chunks_for_reannotation}")
+
+		glosses = []
+		previ = -1
+		for previ, endi in chunks_for_reannotation:
+			print(f"[{previ+1}:{endi+1}] out of {len(token_strs)} (len: {endi-previ})")
+
+			# R: if the target in the chunk? (TODO: now redundant, delete this code later)
+			if not any([
+				idx < endi+1
+				for idx
+				in target_token_idxs
+				if previ+1 <= idx
+			]):
+				print("Skipping this chunk...")
+				previ = endi
+				raise RuntimeError("chunckize_for_reannotation() returned invalid chunks")
+				#continue
+
+			chunk_strs = token_strs[previ+1:endi+1]
+			chunk_glosses = self.gloss_fetcher.try_refetch_gloss(chunk_strs)
+			glosses += chunk_glosses
+
+			previ = endi
+			print(f"Chunk: {chunk_glosses} (len: {len(chunk_glosses)})")
+	
+		#for token, gloss in zip(tokens_wo_delimiters, glosses):
+		#	token.gloss = gloss
+
+		p.annotator_info = f"ChatGptAnnotator_`{self.lang_from}`_`{self.lang_to}`"
+
 		raise NotImplementedError("TODO: implement this")
 
 	def chunckize(self, token_strs, maxgloss=80):

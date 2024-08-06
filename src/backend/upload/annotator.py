@@ -41,7 +41,10 @@ class Annotator:
 
 		p.annotator_info = f"dummy_`{self.lang_from}`_`{self.lang_to}`" #obsolete
 		
-	def reput_gloss(self, p: Paragraph, target_tokens: List[str]):
+	def reput_gloss(self, p: Paragraph, target_tokens: List[int]):
+		if target_tokens is not None and target_tokens != []:
+			assert type(target_tokens[0]) == int #a test code
+
 		for i, t in enumerate(p.tokens):
 			if i not in target_tokens:
 				continue

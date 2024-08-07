@@ -43,8 +43,6 @@ class ChatgptAnnotator(Annotator):
 		self.annotator_name = "chatgpt_ft0"
 		self.gloss_fetcher = ChatgptGlossFetcher()
 
-		self.reannotate_window = 8
-
 	def put_gloss(self, p: Paragraph):
 		#First get the token strings. This ignores the delimiters like newlines, which may be negative for the performance. (TODO: check)
 		tokens_wo_delimiters = [t for t in p.tokens if not t.is_delimiter]
@@ -73,23 +71,26 @@ class ChatgptAnnotator(Annotator):
 	def reput_gloss(self, p: Paragraph, target_tokens: List[int]):
 		# R: Initially taking the `put_gloss` as a backbone... TODO: generalize these
 
-		#First get the token strings. This ignores the delimiters like newlines, which may be negative for the performance. (TODO: check)
-		tokens_wo_delimiters = [t for t in p.tokens if not t.is_delimiter]
-		token_strs = [t.txt for t in tokens_wo_delimiters]
+		#tokens_wo_delimiters = []
+		token_strs = []
+		reannotate_bools = [] #[(str, bool), ...]
+		target_token_idxs = [] #would be redundant
+		for i, t in enumerate(p.tokens):
+			if t.is_delimiter:
+				continue
+			
+			#tokens_wo_delimiters.append(t)
+			token_strs.append(t.txt)
+			should_be_reannotated = i in target_tokens
+			reannotate_bools.append(should_be_reannotated)
 
-		target_token_idxs = target_tokens.copy(); target_tokens = None # R: unlink
-		# R: keep the track of the target_token_objs
-		target_token_objs = [
-			p.tokens[i]
-			for i in
-			target_token_idxs
-		]
-		for token_obj in target_token_objs:
-			token_obj.gloss = TOKEN_TO_REANNOTATE
+			if should_be_reannotated:
+				t.gloss = TOKEN_TO_REANNOTATE
+				target_token_idxs.append(i)
 		
 		#Since the Chatgpt has a length limit, chuckize it
 		# R: target-centered chunking
-		chunks_for_reannotation = self.chunckize_for_reannotation(token_strs)
+		chunks_for_reannotation = self.chunckize_for_reannotation(reannotate_bools)
 		# R: ret.s [(p0, e0), ...] for [p0+1:e0+1], ... (to match above)
 		print(f"Chunks_for_reannotation: {chunks_for_reannotation}")
 
@@ -122,9 +123,9 @@ class ChatgptAnnotator(Annotator):
 
 		p.annotator_info = f"ChatGptAnnotator_`{self.lang_from}`_`{self.lang_to}`"
 
-		raise NotImplementedError("TODO: implement this")
+		#raise NotImplementedError("TODO: implement this")
 
-	def chunckize(self, token_strs, maxgloss=80):
+	def chunckize(self, token_strs, maxgloss=80) -> List[int]:
 		#Returns the end indices
 
 		endchars = ['.', '!', '?']
@@ -159,6 +160,43 @@ class ChatgptAnnotator(Annotator):
 			end_sents.append(the_last)
 
 		return end_sents
+	
+	def chunckize_for_reannotation(self, reannotate_bools: List[bool], margin=16) -> List[Tuple[int, int]]:
+		# R: ret.s [(p0, e0), ...] for [p0+1:e0+1], ... (see reput_gloss)
+		# TODO: also has to receive which ones are to be reannotated
+
+		chunks = []
+
+		#1. Find the first occurence of `TOKEN_TO_REANNOTATE`
+		for i, should_reannotate in enumerate(reannotate_bools):
+			if not should_reannotate:
+				continue
+
+			#`i` indicates the token to reannotated
+			#Check if `i` is in the previous chunk
+			if chunks != []:
+				lastone = chunks[-1][1]
+				
+				#Take care of the margin; this ensures that the context is included.
+				if i < lastone-margin:
+					#Included in the last chunk; ignore this `i`
+					continue
+
+			#Else: not included, make a new chunk
+			prev_i = i - margin
+			if prev_i < -1:
+				prev_i = -1 #The startpoint
+
+			#Now set the end_i
+			end_i = i + margin
+			#...does it overflow?
+			if (end_i + 1) > len(reannotate_bools): #chunk: [prev_i+1 : end_i + 1]
+				#It overflew; set the end_i to the last one
+				end_i = (len(reannotate_bools) + 1)
+
+			chunks += [(prev_i, end_i)]
+
+		return chunks
 	
 class GlossFetcher:
 	def __init__(self, dummy=False):

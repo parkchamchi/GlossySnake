@@ -8,182 +8,105 @@
 </head>
 
 <body>
-    <div style="font-size: 30px;">
-        <b>Glossy Snake</b>
-    </div>
-    <a href="C:\Users\a3053\OneDrive\바탕 화면\htmltest\loginpage.html">
-        Login
-    </a>
-    <br><br>
-    <div class="requestbox">
-        <div>
-            <div style="font-size:25px;">
-                <b>Request to the server</b>
-            </div>
-            <hr style="float:left; width:200px; height:1px;" /><br />
+    <div class="container">
+        <div class="header">
+            <b>Glossy Snake</b>
         </div>
-        <div style="display:inline;">
-            Endpoint <input style="border:none; position:relative; left:130px;" type="text" id="endpoint"
-                value=" http://127.0.0.1:56123"></input>
-            <br />
-            <hr style="float:left; width:200px; height:1px;" />
+        <button class="login-button" onclick="openloginPopup()">Login</button>
+        <div id="loginPopup" class="popup-overlay">
+            <div class="popup-content">
+                <span class="close-btn" onclick="closeloginPopup()">&times;</span>
+                <h2>Login</h2>
+                <form>
+                    <input type="ID" placeholder="ID">
+                    <input type="password" placeholder="Password">
+                    <input readonly type="Submit" value="Login">
+                    <input readonly onclick="openSignUp()" type="SignUp" value="Sign Up">
+                </form>
+            </div>
         </div>
         <div>
-            <div>
-                <br /><b>Languages</b>
+            <div id="warningMessage" class="warning-box">
+                WARNING: The backend returned an error(Only shown when an event occurs.)
+                <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
             </div>
-            <hr style="float:left; width:200px; height:1px;" /><br />
-            <div style="display:inline;">
-                Original
-                <form style="display:inline; position:relative; left:140px;">
+            <div id="shown3Message" class="shown3-box">
+                -A message: These can be shown at most 3 at the same time
+                <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
+            </div>
+            <div id="scrollMessage" class="scroll-box">
+                and more messages should be accessed via the scroll
+                <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="section">
+                <div class="input-group">
+                    <label for="originalSelect">Original Language</label>
                     <select id="originalSelect" name="Original">
-                        <option value="english" selected>english</option>
-                        <option value="korean">korean</option>
-                        <option value="chinese">chinese</option>
-                        <option value="spanish">spanish</option>
+                        <option value="Deutsch" selected>Deutsch</option>
+                        <option value="French">French</option>
+                        <option value="English">English</option>
+                        <option value="korean">Korean</option>
                     </select>
-                </form>
-            </div><br />
-            <div style="display:inline;">
-                Gloss
-                <form style="display:inline; position:relative; left:158px;">
+                </div>
+                <textarea id="inputText" class="input-textarea" placeholder="The corpus insert textarea"></textarea>
+                <div class="button-group">
+                    Other Options
+                    <button onclick="OpenOtherOption()">∇</button>
+                </div>
+                <div id="otherOption" class="other-option">
+                    <div class="input-group">
+                        <label for="endpoint">Endpoint</label>
+                        <input type="text" id="endpoint" value="http://127.0.0.1:56122">
+                    </div>
+                    <div class="input-group">
+                        <select id="delimeter">
+                            <option value="\n" selected>\n</option>
+                            <option value="\\n">\\n</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="arrow-box">
+                <br /><br /><br /><br /><br /><br />
+                <div class="preview-box" onclick="errormsg()"></div>
+                <br /><br /><br /><br />
+                <div class="request-box" onclick="sendRequest(); printResult(); texttoarray();"></div>
+            </div>
+            <div class="section">
+                <div class="input-group">
+                    <label for="glossSelect">Gloss Language</label>
                     <select id="glossSelect" name="Gloss">
-                        <option value="english">english</option>
-                        <option value="korean" selected>korean</option>
-                        <option value="chinese">chinese</option>
-                        <option value="spanish">spanish</option>
+                        <option value="Deutsch">Deutsch</option>
+                        <option value="French">French</option>
+                        <option value="English" selected>English</option>
+                        <option value="korean">Korean</option>
                     </select>
-                </form>
-            </div>
-            <br />
-            <hr style="float:left; width:200px; height:1px;" />
-        </div>
-        <div>
-            <div>
-                <br /><b>Other Options</b>
-            </div>
-            <hr style="float:left; width:200px; height:1px;" /><br />
-            <div style="display:inline;">
-                P. delimeter
-                <form id="delimeter" style="display:inline; position: relative; left: 110px">
-                    <input type="radio" name="delimeter" checked="checked" /> <span class="up">\n</span>
-                    <input type="radio" name="delimeter" /> <span class="up">\\n</span>
-                </form>
-            </div>
-            <br />
-            <hr style="float:left; width:200px; height:1px;" />
-        </div>
-        <div>
-            <br /> corpus
-            <form style="display:inline">
-                <textarea id="input-text" style="width: 300px; height: 50px; position: relative; left: 150px"
-                    type="text" placeholder="The corpus insert textarea"></textarea>
-            </form>
-        </div>
-        <div>
-            <br />
-            <button type="button" onclick="errormsg()">Preview</button>
-        </div>
-        <div>
-            <button type="button" onclick="sendRequest()">Request</button>
-        </div>
-    </div>
-    <br />
-    <div class="jsonbox">
-        <div style="font-size:25px;">
-            <b>Upload a processed JSON</b>
-        </div>
-        <form action="" method="post" enctype="multipart/form-data">
-            <input type="file" name="fileToUpload" id="fileToUpload">
-            <input type="submit" value="업로드">
-        </form>
-    </div>
-    <br />
-    <div>
-        <div class="warningbox" , id="warningmessage">
-            WARNING: The backend returned an error(Only shown when an event occurs.)
-            <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
-
-        </div>
-        <div class="shown3box" , id="shown3message">
-            -A message: These can be shown at most 3 at the same time
-            <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
-
-        </div>
-        <div class="scrollbox" , id="scrollmessage">
-            and more messages should be accessed via the scroll
-            <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
-
-        </div>
-    </div>
-    <br />
-    <div class="outputbox">
-        <div style="font-size:25px;">
-            <b>Output</b>
-        </div>
-        <div>
-            <div style="display: inline">
-                <input type="button" value="Resend request" />
-            </div>
-            <div style="display: inline; position:relative; left:90px;">
-                <input type="button" value="save" />
-            </div>
-            <div style="display: inline; position:relative; left:237px;">
-                <input type="button" value="undo..." />
-            </div>
-        </div>
-        <div>
-            <label><input type="checkbox" name="hidden token" value="hidden token">Show hidden tokens</label>
-            <br />
-            <hr style="float:left; width:200px; height:1px;" /><br />
-        </div>
-        <div>
-
-            <body style="padding:10px;">
-                <div>
-                    <ul class="Token" onclick="toggleToken()">
-                        <li class="li0">Token()
-                            <span style="display: inline;">
-                                <form style="display: inline;">
-                                    <select class="hover" name="hover" onchange="handleChange(this)">
-                                        <option value="▼">▼</option>
-                                        <option value="edit">edit</option>
-                                        <option value="delete">delete</option>
-                                    </select>
-                                </form>
-                            </span>
-                        </li>
-                        <li class="li1">Selected-Token1
-                            <span style="display: inline;">
-                                <form style="display: inline;">
-                                    <select class="hover" name="hover" onchange="handleChange(this)">
-                                        <option value="▼">▼</option>
-                                        <option value="edit">edit</option>
-                                        <option value="delete">delete</option>
-                                    </select>
-                                </form>
-                            </span>
-                        </li>
-                        <li class="li2">Selected-Token2
-                            <span style="display: inline;">
-                                <form style="display: inline;">
-                                    <select class="hover" name="hover" onchange="handleChange(this)">
-                                        <option value="▼">▼</option>
-                                        <option value="edit">edit</option>
-                                        <option value="delete">delete</option>
-                                    </select>
-                                </form>
-                            </span>
-                        </li>
-                    </ul>
                 </div>
-                <div>
-                    <h2>결과:</h2>
-                    <div id="output"></div>
+                <textarea id="output" class="output-textarea" readonly></textarea>
+                <div class="token-operate">
+                    <div onclick="selecttoken()">Select</div>
+                    <div onclick="edittoken()">Edit</div>
+                    <div onclick="deletetoken()">Delete</div>
                 </div>
-                <div>
-                    Tokens are elaborated elsewhere
-                </div>
+            </div>
+        </div>
+        <br />
+        <p> Input_Text의 테스트 박스입니다! <span id="arrayOutput"></span></p>
+        <div class="result-box">
+            <div class="option-div" style="font-size: 80%;">
+                Endpoint: <div id="endpointResult" class="endpoint-result" style="display: inline-block;">N/A</div> /
+                Delimiter: <div id="delimeterResult" class="delimeter-result" style="display: inline-block;">N/A</div> /
+                Original_Language: <div id="originalResult" class="original-result" style="display: inline-block;">N/A
+                </div> /
+                Gloss_Language: <div id="glossResult" class="gloss-result" style="display: inline-block;">N/A</div>
+            </div>
+            <div>Input Text: <div id="inputTextResult" class="input-text-result">N/A</div>
+            </div>
+            <div>Result: <br />
+                <div id="finalOutputResult" class="final-output-result">N/A</div>
+            </div>
         </div>
     </div>
     <script src="http://code.jquery.com/jquery-latest.js"></script>
@@ -199,6 +122,23 @@
         function errormsg() {
             alert('에러가 발생했습니다!');
         }
+
+        function openloginPopup() {
+            var loginPopup = document.getElementById("loginPopup");
+            loginPopup.style.visibility = "visible";
+            loginPopup.style.opacity = "1";
+        }
+
+        function closeloginPopup() {
+            var loginPopup = document.getElementById("loginPopup");
+            loginPopup.style.visibility = "hidden";
+            loginPopup.style.opacity = "0";
+        }
+
+        function openSignUp() {
+            alert("회원가입페이지");
+        }
+
         function handleChange(select) {
             var selectedValue = select.value;
             if (selectedValue === 'edit') {
@@ -208,69 +148,43 @@
             }
         }
 
-        function editToken() {
-            alert('수정 액션을 수행합니다.');
-        }
-
-        function deleteToken() {
-            alert('삭제 액션을 수행합니다.');
-        }
-        function toggleToken() {
-            var token = document.querySelector('.token');
-            if (token.textContent == '선택됨') {
-                token.textContent = '비선택됨';
-                token.style.backgroundColor = 'lightcoral';
-            }
-            else {
-                token.textContent = '선택됨';
-                token.style.backgroundColor = 'lightgray';
-            }
-        }
         function sendRequest() {
 
-            // Gets the text entered by the user.
             let endpoint = document.getElementById('endpoint').value;
 
             let originalValue = document.getElementById('originalSelect').value;
             if (originalValue == null) {
                 console.log("originalValue가 null상태입니다");
-            }
-            else if (originalValue == undefined) {
+            } else if (originalValue == undefined) {
                 console.log("originalValue가 undefined상태입니다");
-            }
-            else {
+            } else {
                 console.log("Selected Original Character: ", originalValue);
             }
 
             let glossValue = document.getElementById('glossSelect').value;
             if (glossValue == null) {
                 console.log("glossValue가 null상태입니다");
-            }
-            else if (glossValue == undefined) {
+            } else if (glossValue == undefined) {
                 console.log("glossValue가 undefined상태입니다");
-            }
-            else {
+            } else {
                 console.log("Selected Gloss Character: ", glossValue);
             }
 
             let delimeterValue = document.getElementById('delimeter').value;
             if (delimeterValue == null) {
                 console.log("delimeterValue가 null상태입니다");
-            }
-            else if (delimeterValue == undefined) {
+            } else if (delimeterValue == undefined) {
                 console.log("delimeterValue가 undefined상태입니다");
-            }
-            else {
+            } else {
                 console.log("Selected Delimeter: ", delimeterValue);
             }
-            let inputText = document.getElementById('input-text').value;
+
+            let inputText = document.getElementById('inputText').value;
             if (inputText == null) {
                 console.log("inputText가 null상태입니다");
-            }
-            else if (inputText == undefined) {
+            } else if (inputText == undefined) {
                 console.log("inputText가 undefined상태입니다");
-            }
-            else {
+            } else {
                 console.log("Input Text: ", inputText);
             }
 
@@ -299,37 +213,111 @@
                 .then(data => {
                     console.log('Success:', data);
                     document.getElementById('output').textContent = JSON.stringify(data);
-                    document.getElementById("shown3message").style.display = "block";
-                    document.getElementById("scrollmessage").style.display = "block";
+                    document.getElementById("shown3Message").style.display = "block";
+                    document.getElementById("scrollMessage").style.display = "block";
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById("warningmessage").style.display = "block";
+                    document.getElementById("warningMessage").style.display = "block";
                 });
+        }
+
+        function printResult() {
+            let endpoint = document.getElementById('endpoint').value;
+            let delimeterValue = document.getElementById('delimeter').value;
+            let originalValue = document.getElementById('originalSelect').value;
+            let glossValue = document.getElementById('glossSelect').value;
+            let inputText = document.getElementById('inputText').value;
+
+            document.getElementById("endpointResult").innerText = endpoint;
+            document.getElementById("delimeterResult").innerText = delimeterValue;
+            document.getElementById("originalResult").innerText = originalValue;
+            document.getElementById("glossResult").innerText = glossValue;
+            document.getElementById("inputtextResult").innerText = inputText;
+            // document.getElementById("finaloutputReuslt").innerText = finaloutput;
+        }
+
+        function texttoarray() {
+            const userInput = document.getElementById('inputText').value;
+
+            const textArray = userInput.split(' ');
+
+            //inputtext의 배열화를 시각적으로 확인하기 위해 임시적으로 만든 코드입니다.
+            document.getElementById('arrayOutput').textContent = JSON.stringify(textArray);
+        }
+
+        function selecttoken() {
+            const userConfirmed = confirm("want to choice? Edit is impossible.");
+
+            if (userConfirmed) {
+                const textContent = document.getElementById('output').value;
+
+                document.getElementById('finalOutputResult').textContent = textContext;
+            } else {
+                alert("You Canceled.");
+            }
+        }
+
+        function editToken() {
+            const textarea = document.getElementById('output')
+
+            textarea.removeAttribute('readonly');
+        }
+
+        function deletetoken() {
+            if (currentIndex < textArray.length) {
+                textArray.splice(currentIndex, 1);
+
+                document.getElementById('output').textContent = textArray.join(' ');
+
+                if (currentIndex >= textArray.length) {
+                    currentIndex = textArray.length - 1;
+                }
+
+                if (textArray.length > 0) {
+                    document.getElementById('finalOutputResult').value = textArray[currentIndex];
+                } else {
+                    document.getElementById('finalOutputResult').value = 'No content';
+                }
+            } else {
+                alert("End of array reached.");
+            }
+        }
+
+        function OpenOtherOption() {
+            const ooo = document.getElementById('otherOption');
+            ooo.style.display = ooo.style.display === 'block' ? 'none' : 'block';
         }
     </script>
 </body>
-
 <style>
-    .requestbox {
-        width: 600px;
-        padding: 1px;
-        border: 1px solid;
-        border: 5px solid;
-        border-color: #febe98;
-        border-radius: 10px;
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
     }
 
-    .jsonbox {
-        width: 350px;
-        padding: 1px;
-        border: 1px solid;
-        border: 5px solid;
-        border-color: #febe98;
-        border-radius: 10px;
+    .container {
+        max-width: 1200px;
+        width: 100%;
+        padding: 20px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
     }
 
-    .warningbox {
+    .header {
+        font-size: 30px;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    .warning-box {
         width: 600px;
         padding: 1px;
         border: 1px solid;
@@ -337,79 +325,276 @@
         display: none;
     }
 
-    .shown3box {
+    .shown3-box {
         width: 500px;
         padding: 1px;
         border: 1px solid;
         display: none;
     }
 
-    .scrollbox {
+    .scroll-box {
         width: 450px;
         padding: 1px;
         border: 1px solid;
         display: none;
     }
 
-    .outputbox {
-        width: 600px;
-        padding: 1px;
-        border: 1px solid;
-        border: 5px solid;
-        border-color: #febe98;
-        border-radius: 10px;
+    .main-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-top: 20px;
     }
 
-    .Token {
-        list-style-type: none;
-
-        div,
-        pre {
-            background: #FFF;
-            padding: 10px;
-            margin: 10px;
-        }
-
-        table {
-            border: 1px solid #AAA;
-        }
-
-        td {
-            border: 1px solid #AAA;
-            width: 25px;
-            height: 25px;
-        }
-
-        .selected {
-            background: red
-        }
+    .section {
+        width: 48%;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #f1f1f1;
     }
 
-    .li0 {
-        display: inline;
-        border-top: none;
-        border-bottom: 1px solid;
-        border-left: none;
-        border-right: none;
-        padding: 3px;
+    .input-group {
+        margin-bottom: 10px;
+        text-align: left;
     }
 
-    .li1 {
-        display: inline;
-        border-top: none;
-        border-bottom: 1px solid;
-        border-left: none;
-        border-right: none;
-        padding: 3px;
+    .input-group label {
+        display: block;
+        font-size: 16px;
+        margin-bottom: 5px;
     }
 
-    .li2 {
-        display: inline;
-        border-top: none;
-        border-bottom: 1px solid;
-        border-left: none;
-        border-right: none;
-        padding: 3px;
+    .input-group input,
+    .input-group select,
+    .input-group textarea {
+        flex: 2;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 15px;
+    }
+
+    .input-group select,
+    .input-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+
+    }
+
+    .input-textarea {
+        height: auto;
+        width: 100%;
+        resize: none;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .output-textarea {
+        height: auto;
+        min-height: 147px;
+        width: 100%;
+        resize: none;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .button-group {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .button-group button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 0 10px;
+    }
+
+    .button-group button.preview {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .button-group button.request {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .token-operate {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+    }
+
+    .token-operate div {
+        flex: 1;
+        text-align: center;
+        border: 1px solid #ccc;
+        padding: 10px;
+        cursor: pointer;
+        background-color: #fff;
+    }
+
+    .arrow-box {
+        float: left;
+        margin-left: 10px;
+    }
+
+    .preview-box {
+        position: relative;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 20px 30px 20px;
+        border-radius: 5px;
+        border-color: transparent transparent #0112ff transparent;
+        transform: rotate(90deg);
+    }
+
+    .preview-box::after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 10px;
+        background-color: #0112ff;
+        top: 29px;
+        transform: translate(-50%, 0%);
+        border-radius: 3px;
+    }
+
+    .request-box {
+        position: relative;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 20px 30px 20px;
+        border-radius: 5px;
+        border-color: transparent transparent #25b800 transparent;
+        transform: rotate(90deg);
+    }
+
+    .request-box::after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 10px;
+        background-color: #25b800;
+        top: 29px;
+        transform: translate(-50%, 0%);
+        border-radius: 3px;
+    }
+
+    .result-box {
+        background-color: rgb(199, 199, 199);
+        width: 80%;
+        border-radius: 5px;
+        margin: auto;
+        text-align: left;
+        padding: 10px;
+    }
+
+    .option-div {
+        display: flex;
+        gap: 10px;
+    }
+
+    .result-box>div {
+        border: none;
+        margin: 1px 0;
+        padding: 0px;
+        border-radius: 5px;
+    }
+
+    .endpoint-result,
+    .delimeter-result,
+    .original-result,
+    .gloss-result {
+        font-weight: bold;
+    }
+
+    .login-button {
+        border: none;
+        border-radius: 5px;
+        background-color: #fff;
+        font-size: 15px;
+        color: #1900ff;
+        text-decoration: underline;
+    }
+
+    .popup-overlay {
+        position: relative;
+        z-index: 1;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s, opacity 0.3s ease;
+    }
+
+    .popup-content {
+        width: 400px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .popup-content h2 {
+        text-align: center;
+        margin-top: 0;
+    }
+
+    .popup-content form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .popup-content input[type="Password"],
+    .popup-content input[type="ID"],
+    .popup-content select {
+        margin-bottom: 10px;
+        padding: 8px;
+        border-radius: 3px;
+        border: 1px solid #ccc;
+    }
+
+    .popup-content input[type="Submit"],
+    .popup-content input[type="SignUp"] {
+        margin-bottom: 10px;
+        text-align: center;
+        font-weight: bold;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 3px;
+        background-color: #febe98;
+        color: #000000;
+        cursor: pointer;
+    }
+
+    .popup-content input[type="SubmitTest"]:hover,
+    .popup-content input[type="Submit"]:hover,
+    .popup-content input[type="SignUp"]:hover {
+        background-color: #ffb285;
+    }
+
+    .popup-content .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
     }
 </style>
 

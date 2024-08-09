@@ -41,7 +41,7 @@ class InitialLineNotFoundException(ChatgptGlossFetcherException):
 class ChatgptAnnotator(Annotator):
 	def __init__(self):
 		self.annotator_name = "chatgpt_ft0"
-		self.gloss_fetcher = ChatgptGlossFetcher()
+		self.gloss_fetcher = ChatgptGlossFetcher() #TODO: pretrained parameter
 
 	def put_gloss(self, p: Paragraph):
 		#First get the token strings. This ignores the delimiters like newlines, which may be negative for the performance. (TODO: check)
@@ -115,7 +115,7 @@ class ChatgptAnnotator(Annotator):
 				#continue
 
 			chunk_strs = token_strs[previ+1:endi+1]
-			chunk_glosses = self.gloss_fetcher.try_refetch_gloss(chunk_strs)
+			chunk_glosses = self.gloss_fetcher.try_fetch_gloss(chunk_strs, reannotation=True)
 			glosses += chunk_glosses
 
 			previ = endi
@@ -222,20 +222,24 @@ class ChatgptGlossFetcher(GlossFetcher):
 
 		#self.use_pretrained_model = use_pretrained_model
 		if use_pretrained_model:
+			print("Using the pretrained model.")
 			self.model = os.getenv("PRETRAINED_MODEL")
 		else:
+			print("Using the general model.")
 			self.model = "gpt-3.5-turbo"
 
 		#For token usage predicting
 		self.model_encoding = tiktoken.encoding_for_model(self.model)
 		self.max_token_ratio = max_token_ratio #Limit the token usage to (question) * this_value
 		
-	def try_fetch_gloss(self, token_strs: List[str], outer_retry=2, inner_retry=3) -> List[List[str]]:
+	def try_fetch_gloss(self, token_strs: List[str], outer_retry=2, inner_retry=3, reannotation=False) -> List[List[str]]:
 		print(f"Trying to fetch {len(token_strs)} glosses")
+		if reannotation:
+			print("Reannotating.")
 
 		query = self.make_query(token_strs)
 		orig_messages=[
-			*self.chatgpt_gloss_options.get_chat(),
+			*self.chatgpt_gloss_options.get_chat(reannotation=reannotation),
 			{"role": "user", "content": query},
 		]
 		self.last_res_text = ""
@@ -247,7 +251,7 @@ class ChatgptGlossFetcher(GlossFetcher):
 			for try_j in range(inner_retry):
 				print(f"----------------------Try B{try_j}.")
 				try:
-					return self.fetch_gloss(token_strs, messages)
+					return self.fetch_gloss(token_strs, messages, reannotation=reannotation)
 				except ChatgptGlossFetcherException as exc:
 					print(f"Exception: {repr(exc)}. Retrying.")
 					print(f"last_res_text: {self.last_res_text}")
@@ -260,8 +264,8 @@ class ChatgptGlossFetcher(GlossFetcher):
 					]
 
 		raise CannotRetryMoreException(f"Failed after {outer_retry}*{inner_retry} retries.")
-
-	def fetch_gloss(self, token_strs: List[str], messages) -> List[List[str]]:
+	
+	def fetch_gloss(self, token_strs: List[str], messages, reannotation=False) -> List[List[str]]:
 		print(f"Fetching {len(token_strs)} glosses")
 
 		max_tokens = 0
@@ -278,6 +282,9 @@ class ChatgptGlossFetcher(GlossFetcher):
 		)
 
 		print("token usage:", list(response["usage"].values()))
+
+		if reannotation:
+			raise NotImplementedError()
 
 		res = response["choices"][0]["message"]["content"]
 		self.last_res_text = res
@@ -380,6 +387,8 @@ class ChatgptGlossFetcher(GlossFetcher):
 			outres.append(g)
 
 		return outres
+	
+	
 
 class ChatgptGlossOptions:
 	def __init__(self, gloss_insts: List[str], example: Tuple[str, str], is_trained):
@@ -388,7 +397,10 @@ class ChatgptGlossOptions:
 		
 		self.get_chat = self.get_chat_trained if is_trained else self.get_chat_untrained
 
-	def get_chat_trained(self):
+	def get_chat_trained(self, reannotation=False):
+		if reannotation:
+			raise NotImplementedError()
+
 		return [
 			{"role": "system", "content": f"""
 				Parse this corpus (Interlinear gloss). 
@@ -396,7 +408,10 @@ class ChatgptGlossOptions:
 			"""}
 		]
 
-	def get_chat_untrained(self):
+	def get_chat_untrained(self, reannotation=False):
+		if reannotation:
+			raise NotImplementedError()
+
 		newline = '\n'
 		len_tokens = len(self.example)
 		return [

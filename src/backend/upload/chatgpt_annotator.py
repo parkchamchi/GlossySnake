@@ -74,7 +74,8 @@ class ChatgptAnnotator(Annotator):
 		#tokens_wo_delimiters = []
 		token_strs = []
 		reannotate_bools = [] #[(str, bool), ...]
-		target_token_idxs = [] #would be redundant
+		target_token_idxs = [] #Not counting the delimiters
+		i_not_delimiter = 0
 		for i, t in enumerate(p.tokens):
 			if t.is_delimiter:
 				continue
@@ -86,7 +87,9 @@ class ChatgptAnnotator(Annotator):
 
 			if should_be_reannotated:
 				t.gloss = TOKEN_TO_REANNOTATE
-				target_token_idxs.append(i)
+				target_token_idxs.append(i_not_delimiter)
+
+			i_not_delimiter += 1
 		
 		#Since the Chatgpt has a length limit, chuckize it
 		# R: target-centered chunking
@@ -191,8 +194,8 @@ class ChatgptAnnotator(Annotator):
 			end_i = i + margin
 			#...does it overflow?
 			if (end_i + 1) > len(reannotate_bools): #chunk: [prev_i+1 : end_i + 1]
-				#It overflew; set the end_i to the last one
-				end_i = (len(reannotate_bools) + 1)
+				#It overflowed; set the end_i to the last one
+				end_i = (len(reannotate_bools) - 1)
 
 			chunks += [(prev_i, end_i)]
 

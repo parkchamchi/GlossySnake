@@ -126,8 +126,6 @@ class ChatgptAnnotator(Annotator):
 
 		p.annotator_info = f"ChatGptAnnotator_`{self.lang_from}`_`{self.lang_to}`"
 
-		#raise NotImplementedError("TODO: implement this")
-
 	def chunckize(self, token_strs, maxgloss=80) -> List[int]:
 		#Returns the end indices
 
@@ -300,7 +298,7 @@ class ChatgptGlossFetcher(GlossFetcher):
 				raise IncompleteResultException(exc_str)
 
 		#Check validity
-		res = self.validate_res(token_strs, res)
+		res = self.validate_res(token_strs, res, reannotation=reannotation)
 
 		return res
 	
@@ -357,7 +355,10 @@ class ChatgptGlossFetcher(GlossFetcher):
 		
 		return res
 	
-	def validate_res(self, token_strs, res) -> List[List[str]]:
+	def validate_res(self, token_strs, res, reannotation=False) -> List[List[str]]:
+		if reannotation:
+			raise NotImplementedError()
+
 		token_strs_idx = 0 #Expected orig_word
 
 		#Pass 1: iter. by res
@@ -369,7 +370,10 @@ class ChatgptGlossFetcher(GlossFetcher):
 				raise UnidentifiableTokenInResException(f"Unidentifiable: `{orig_word_in_res}`. This token was not in the original token list.")
 
 			#Check the len of the glosses
-			if len(glosses) != 1:
+			if len(glosses) == 0:
+				print("TODO: ignore this case")
+				raise IncompleteGlossesPerTokenException(f"Incorrenct number of gloss detected. (There should be one and no gloss shall be empty")
+			elif len(glosses) != 1:
 				raise IncompleteGlossesPerTokenException(f"Incorrenct number of gloss detected. (There should be one and no gloss shall be empty")
 
 			token_strs_idx += 1

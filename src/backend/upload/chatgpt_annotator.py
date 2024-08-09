@@ -39,9 +39,9 @@ class InitialLineNotFoundException(ChatgptGlossFetcherException):
 
 #Following PoC.
 class ChatgptAnnotator(Annotator):
-	def __init__(self):
+	def __init__(self, use_pretrained_model=True):
 		self.annotator_name = "chatgpt_ft0"
-		self.gloss_fetcher = ChatgptGlossFetcher() #TODO: pretrained parameter
+		self.gloss_fetcher = ChatgptGlossFetcher(use_pretrained_model=use_pretrained_model) #TODO: pretrained parameter
 
 	def put_gloss(self, p: Paragraph):
 		#First get the token strings. This ignores the delimiters like newlines, which may be negative for the performance. (TODO: check)

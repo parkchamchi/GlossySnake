@@ -12,16 +12,29 @@
         <div class="header">
             <b>Glossy Snake</b>
         </div>
-        <button class="login-button" onclick="openloginPopup()">Login</button>
+        <button class="login-button" onclick="openLogin()">Login</button>
         <div id="loginPopup" class="popup-overlay">
             <div class="popup-content">
                 <span class="close-btn" onclick="closeloginPopup()">&times;</span>
                 <h2>Login</h2>
                 <form>
                     <input type="ID" placeholder="ID">
-                    <input type="password" placeholder="Password">
+                    <input type="Password" placeholder="Password">
                     <input readonly type="Submit" value="Login">
-                    <input readonly onclick="openSignUp()" type="SignUp" value="Sign Up">
+                    <input readonly onclick="openSignUp()" type="GoSignUp" value="Go Sign Up">
+                </form>
+            </div>
+        </div>
+        <div id="signUpPopup" class="popup-overlay">
+            <div class="popup-content">
+                <span class="close-btn" onclick="closeSignUp()">&times;</span>
+                <h2>Sign Up</h2>
+                <form>
+                    <input type="ID" placeholder="ID를 입력해주세요.">
+                    <input type="Password" placeholder="Password를 입력해주세요.">
+                    <input type="RePassword" placeholder="Password를 한 번 더 입력해주세요.">
+                    <input type="sex" placeholder="성별을 입력해주세요.(남성/여성)">
+                    <input readonly type="SignUp" value="Sign Up">
                 </form>
             </div>
         </div>
@@ -123,7 +136,7 @@
             alert('에러가 발생했습니다!');
         }
 
-        function openloginPopup() {
+        function openLogin() {
             var loginPopup = document.getElementById("loginPopup");
             loginPopup.style.visibility = "visible";
             loginPopup.style.opacity = "1";
@@ -136,9 +149,16 @@
         }
 
         function openSignUp() {
-            alert("회원가입페이지");
+            var signUpPopup = document.getElementById("signUpPopup");
+            signUpPopup.style.visibility = "visible";
+            signUpPopup.style.opacity = "1";
         }
-
+        function closeSignUp() {
+            var signUpPopup = document.getElementById("signUpPopup");
+            signUpPopup.style.visibility = "hidden";
+            signUpPopup.style.opacity = "0";
+        }  
+        
         function handleChange(select) {
             var selectedValue = select.value;
             if (selectedValue === 'edit') {
@@ -169,7 +189,7 @@
             } else {
                 console.log("Selected Gloss Character: ", glossValue);
             }
-
+            
             let delimeterValue = document.getElementById('delimeter').value;
             if (delimeterValue == null) {
                 console.log("delimeterValue가 null상태입니다");
@@ -282,7 +302,7 @@
             } else {
                 alert("End of array reached.");
             }
-        }
+        }  
 
         function OpenOtherOption() {
             const ooo = document.getElementById('otherOption');
@@ -352,6 +372,7 @@
         border: 1px solid #ccc;
         border-radius: 4px;
         background-color: #f1f1f1;
+        box-sizing: border-box;
     }
 
     .input-group {
@@ -362,7 +383,8 @@
     .input-group label {
         display: block;
         font-size: 16px;
-        margin-bottom: 5px;
+        margin-bottom: 6.5px;
+        margin-left: 10px;
     }
 
     .input-group input,
@@ -373,6 +395,7 @@
         border: 1px solid #ccc;
         border-radius: 4px;
         font-size: 15px;
+        margin-left: 4px;
     }
 
     .input-group select,
@@ -382,9 +405,10 @@
         border: 1px solid #ccc;
         border-radius: 4px;
         font-size: 16px;
+        margin-left: 4px;
 
     }
-
+    
     .input-textarea {
         height: auto;
         width: 100%;
@@ -527,6 +551,15 @@
         text-decoration: underline;
     }
 
+    .login-button {
+        border: none;
+        border-radius: 5px;
+        background-color: #fff;
+        font-size: 15px;
+        color: #1900ff;
+        text-decoration: underline;
+    }
+
     .popup-overlay {
         position: relative;
         z-index: 1;
@@ -563,7 +596,9 @@
     }
 
     .popup-content input[type="Password"],
+    .popup-content input[type="RePassword"],
     .popup-content input[type="ID"],
+    .popup-content input[type="sex"],
     .popup-content select {
         margin-bottom: 10px;
         padding: 8px;
@@ -572,6 +607,7 @@
     }
 
     .popup-content input[type="Submit"],
+    .popup-content input[type="GoSignUp"],
     .popup-content input[type="SignUp"] {
         margin-bottom: 10px;
         text-align: center;
@@ -584,8 +620,8 @@
         cursor: pointer;
     }
 
-    .popup-content input[type="SubmitTest"]:hover,
     .popup-content input[type="Submit"]:hover,
+    .popup-content input[type="GoSignUp"]:hover,
     .popup-content input[type="SignUp"]:hover {
         background-color: #ffb285;
     }

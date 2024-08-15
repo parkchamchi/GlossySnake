@@ -39,7 +39,7 @@ class InitialLineNotFoundException(ChatgptGlossFetcherException):
 
 #Following PoC.
 class ChatgptAnnotator(Annotator):
-	def __init__(self, use_pretrained_model=True):
+	def __init__(self, use_pretrained_model=False):
 		self.annotator_name = "chatgpt_ft0"
 		self.gloss_fetcher = ChatgptGlossFetcher(use_pretrained_model=use_pretrained_model) #TODO: pretrained parameter
 
@@ -71,20 +71,20 @@ class ChatgptAnnotator(Annotator):
 	def reput_gloss(self, p: Paragraph, target_tokens: List[int]):
 		# R: Initially taking the `put_gloss` as a backbone... TODO: generalize these
 
-		#tokens_wo_delimiters = []
-		token_strs = []
+		tokens_wo_delimiters = []
+		#token_strs = []
 		reannotate_bools = [] #[(str, bool), ...]
 		target_token_idxs = [] #Not counting the delimiters
 		i_not_delimiter = 0
 		for i, t in enumerate(p.tokens):
 			if t.is_delimiter:
 				continue
-			
-			#tokens_wo_delimiters.append(t)
-			token_strs.append(t.txt)
+
+			tokens_wo_delimiters.append(t)
+			#token_strs.append(t.txt)
+
 			should_be_reannotated = i in target_tokens
 			reannotate_bools.append(should_be_reannotated)
-
 			if should_be_reannotated:
 				t.gloss = TOKEN_TO_REANNOTATE
 				target_token_idxs.append(i_not_delimiter)
@@ -100,7 +100,7 @@ class ChatgptAnnotator(Annotator):
 		glosses = []
 		previ = -1
 		for previ, endi in chunks_for_reannotation:
-			print(f"[{previ+1}:{endi+1}] out of {len(token_strs)} (len: {endi-previ})")
+			print(f"[{previ+1}:{endi+1}] out of {len(tokens_wo_delimiters)} (len: {endi-previ})")
 
 			# R: if the target in the chunk? (TODO: now redundant, delete this code later)
 			if not any([
@@ -114,15 +114,20 @@ class ChatgptAnnotator(Annotator):
 				raise RuntimeError("chunckize_for_reannotation() returned invalid chunks")
 				#continue
 
-			chunk_strs = token_strs[previ+1:endi+1]
-			chunk_glosses = self.gloss_fetcher.try_fetch_gloss(chunk_strs, reannotation=True)
+			chunk_tokens = tokens_wo_delimiters[previ+1:endi+1]
+			chunk_strs = [t.txt for t in chunk_tokens]
+			chunck_glosses = [t.gloss for t in chunk_tokens]
+			chunk_glosses = self.gloss_fetcher.try_fetch_gloss(chunk_strs, reannotation_gloss_strs=chunck_glosses)
 			glosses += chunk_glosses
 
 			previ = endi
 			print(f"Chunk: {chunk_glosses} (len: {len(chunk_glosses)})")
 	
-		#for token, gloss in zip(tokens_wo_delimiters, glosses):
-		#	token.gloss = gloss
+			for token, gloss in zip(chunk_tokens, glosses):
+				if token.gloss != TOKEN_TO_REANNOTATE:
+					continue
+
+				token.gloss = gloss + "!"
 
 		p.annotator_info = f"ChatGptAnnotator_`{self.lang_from}`_`{self.lang_to}`"
 
@@ -230,12 +235,14 @@ class ChatgptGlossFetcher(GlossFetcher):
 		self.model_encoding = tiktoken.encoding_for_model(self.model)
 		self.max_token_ratio = max_token_ratio #Limit the token usage to (question) * this_value
 		
-	def try_fetch_gloss(self, token_strs: List[str], outer_retry=2, inner_retry=3, reannotation=False) -> List[List[str]]:
+	def try_fetch_gloss(self, token_strs: List[str], outer_retry=2, inner_retry=3, reannotation_gloss_strs=None) -> List[List[str]]:
 		print(f"Trying to fetch {len(token_strs)} glosses")
+
+		reannotation = type(reannotation_gloss_strs) is list
 		if reannotation:
 			print("Reannotating.")
 
-		query = self.make_query(token_strs)
+		query = self.make_query(token_strs) if not reannotation else self.make_query_reannotation(token_strs, reannotation_gloss_strs)
 		orig_messages=[
 			*self.chatgpt_gloss_options.get_chat(reannotation=reannotation),
 			{"role": "user", "content": query},
@@ -273,6 +280,8 @@ class ChatgptGlossFetcher(GlossFetcher):
 		max_tokens = max(max_tokens, 4096)
 		print(f"W/ {max_tokens} max_tokens")
 
+		print(messages)
+
 		response = openai.ChatCompletion.create(
 			model=self.model,
 			messages=messages,
@@ -281,11 +290,11 @@ class ChatgptGlossFetcher(GlossFetcher):
 
 		print("token usage:", list(response["usage"].values()))
 
-		if reannotation:
-			raise NotImplementedError()
-
 		res = response["choices"][0]["message"]["content"]
 		self.last_res_text = res
+
+		print(res)
+
 		res = self.parse_res(res)
 
 		#Check completeness
@@ -306,6 +315,13 @@ class ChatgptGlossFetcher(GlossFetcher):
 		q = ""
 		for i, t in enumerate(token_strs):
 			q += f"{i}: {t}\n"
+
+		return q
+	
+	def make_query_reannotation(self, token_strs, token_glosses):
+		q = ""
+		for i, (txt, gloss) in enumerate(zip(token_strs, token_glosses)):
+			q += f"{i}: {txt} {GLOSS_DELIMITER} {gloss}\n"
 
 		return q
 	
@@ -356,9 +372,6 @@ class ChatgptGlossFetcher(GlossFetcher):
 		return res
 	
 	def validate_res(self, token_strs, res, reannotation=False) -> List[List[str]]:
-		if reannotation:
-			raise NotImplementedError()
-
 		token_strs_idx = 0 #Expected orig_word
 
 		#Pass 1: iter. by res
@@ -380,7 +393,10 @@ class ChatgptGlossFetcher(GlossFetcher):
 
 		#Pass 2: iter. by orig token_str
 		outres = []
+		print("res:", res)
 		for token_str in token_strs:
+			print("token_str:", token_str)
+
 			g = None
 			if token_str in res:
 				g = res.pop(token_str)[0]
@@ -414,7 +430,7 @@ class ChatgptGlossOptions:
 
 	def get_chat_untrained(self, reannotation=False):
 		if reannotation:
-			raise NotImplementedError()
+			return self.get_chat_untrained_reannotate()
 
 		newline = '\n'
 		len_tokens = len(self.example)
@@ -481,9 +497,61 @@ class ChatgptGlossOptions:
 			{"role": "assistant", "content": f"""
 				```
 				{newline.join([
-					f"{i}: {t[0]} {GLOSS_DELIMITER} {t[1]}{newline}"
+					f"{i}: {t[0]} {GLOSS_DELIMITER} {t[1]}"
 					for i, t in
 					enumerate(self.example)
+				])}
+				```
+			"""},
+		]
+	
+	def get_chat_untrained_reannotate(self):
+		#Does not follow the annotation args
+
+		to_reannotates = [1, 2]
+		newline = '\n'
+
+		return [
+			{"role": "system", "content": f"""
+				Re-eannotate this corpus (Interlinear gloss).
+	
+				The user will tokenize and enumerate the raw input, as:
+				```
+					0: als {GLOSS_DELIMITER} as
+					1: dieses {GLOSS_DELIMITER} {TOKEN_TO_REANNOTATE}
+					2: Herz. {GLOSS_DELIMITER} heart.
+				```
+				You have to find lines with `{TOKEN_TO_REANNOTATE}` and give a new translations, as:
+				```
+					1: dieses {GLOSS_DELIMITER} this
+				```
+				Here, `{TOKEN_TO_REANNOTATE}` was replaced by your reannotation.
+
+				The structure of the ouput is important and no line with shall be omitted.
+			"""},
+			{"role": "user", "content": f"""
+				e.g. `i: "original_word {GLOSS_DELIMITER} gloss`
+				Since there are {len(to_reannotates)} `{TOKEN_TO_REANNOTATE}` tokens in the input, {len(to_reannotates)} lines of output is exptected.
+				i.e. the last line be `{to_reannotates[-1]}: ...`
+
+				`gloss` is:
+				{self.gloss_insts}
+
+				```
+				{newline.join([
+					f"{i}: {t[0]} {GLOSS_DELIMITER} {t[1] if i not in to_reannotates else TOKEN_TO_REANNOTATE}"
+					for i, t in
+					enumerate(self.example)
+				])}
+				```
+			"""},
+			{"role": "assistant", "content": f"""
+				```
+				{newline.join([
+					f"{i}: {t[0]} {GLOSS_DELIMITER} {t[1]}"
+					for i, t in
+					enumerate(self.example)
+					if i in to_reannotates
 				])}
 				```
 			"""},

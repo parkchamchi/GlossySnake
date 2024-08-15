@@ -97,7 +97,6 @@ class ChatgptAnnotator(Annotator):
 		# R: ret.s [(p0, e0), ...] for [p0+1:e0+1], ... (to match above)
 		print(f"Chunks_for_reannotation: {chunks_for_reannotation}")
 
-		glosses = []
 		previ = -1
 		for previ, endi in chunks_for_reannotation:
 			print(f"[{previ+1}:{endi+1}] out of {len(tokens_wo_delimiters)} (len: {endi-previ})")
@@ -118,16 +117,15 @@ class ChatgptAnnotator(Annotator):
 			chunk_strs = [t.txt for t in chunk_tokens]
 			chunck_glosses = [t.gloss for t in chunk_tokens]
 			chunk_glosses = self.gloss_fetcher.try_fetch_gloss(chunk_strs, reannotation_gloss_strs=chunck_glosses)
-			glosses += chunk_glosses
 
 			previ = endi
 			print(f"Chunk: {chunk_glosses} (len: {len(chunk_glosses)})")
 	
-			for token, gloss in zip(chunk_tokens, glosses):
+			for token, gloss in zip(chunk_tokens, chunk_glosses):
 				if token.gloss != TOKEN_TO_REANNOTATE:
 					continue
 
-				token.gloss = gloss + "!"
+				token.gloss = gloss
 
 		p.annotator_info = f"ChatGptAnnotator_`{self.lang_from}`_`{self.lang_to}`"
 
@@ -256,7 +254,7 @@ class ChatgptGlossFetcher(GlossFetcher):
 			for try_j in range(inner_retry):
 				print(f"----------------------Try B{try_j}.")
 				try:
-					return self.fetch_gloss(token_strs, messages, reannotation=reannotation)
+					return self.fetch_gloss(token_strs, messages, reannotation_gloss_strs=reannotation_gloss_strs)
 				except ChatgptGlossFetcherException as exc:
 					print(f"Exception: {repr(exc)}. Retrying.")
 					print(f"last_res_text: {self.last_res_text}")
@@ -270,7 +268,7 @@ class ChatgptGlossFetcher(GlossFetcher):
 
 		raise CannotRetryMoreException(f"Failed after {outer_retry}*{inner_retry} retries.")
 	
-	def fetch_gloss(self, token_strs: List[str], messages, reannotation=False) -> List[List[str]]:
+	def fetch_gloss(self, token_strs: List[str], messages, reannotation_gloss_strs=False) -> List[List[str]]:
 		print(f"Fetching {len(token_strs)} glosses")
 
 		max_tokens = 0
@@ -307,7 +305,7 @@ class ChatgptGlossFetcher(GlossFetcher):
 				raise IncompleteResultException(exc_str)
 
 		#Check validity
-		res = self.validate_res(token_strs, res, reannotation=reannotation)
+		res = self.validate_res(token_strs, res, reannotation_gloss_strs=reannotation_gloss_strs)
 
 		return res
 	
@@ -371,7 +369,9 @@ class ChatgptGlossFetcher(GlossFetcher):
 		
 		return res
 	
-	def validate_res(self, token_strs, res, reannotation=False) -> List[List[str]]:
+	def validate_res(self, token_strs, res, reannotation_gloss_strs=False) -> List[List[str]]:
+		reannotation = type(reannotation_gloss_strs) is list
+
 		token_strs_idx = 0 #Expected orig_word
 
 		#Pass 1: iter. by res
@@ -393,12 +393,19 @@ class ChatgptGlossFetcher(GlossFetcher):
 
 		#Pass 2: iter. by orig token_str
 		outres = []
-		print("res:", res)
+		if reannotation:
+			orig_gloss_strs_copy = reannotation_gloss_strs.copy()
+		#print("res:", res)
+
 		for token_str in token_strs:
-			print("token_str:", token_str)
+			#print("token_str:", token_str)
 
 			g = None
-			if token_str in res:
+			if (
+				(not reannotation and token_str in res)
+				or
+				(reannotation and orig_gloss_strs_copy.pop(0) == TOKEN_TO_REANNOTATE)
+			):
 				g = res.pop(token_str)[0]
 			else:
 				#Dummy

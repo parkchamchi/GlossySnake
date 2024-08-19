@@ -39,7 +39,7 @@ class InitialLineNotFoundException(ChatgptGlossFetcherException):
 
 #Following PoC.
 class ChatgptAnnotator(Annotator):
-	def __init__(self, use_pretrained_model=False):
+	def __init__(self, use_pretrained_model=True):
 		self.annotator_name = "chatgpt_ft0"
 		self.gloss_fetcher = ChatgptGlossFetcher(use_pretrained_model=use_pretrained_model) #TODO: pretrained parameter
 
@@ -406,6 +406,7 @@ class ChatgptGlossFetcher(GlossFetcher):
 				or
 				(reannotation and orig_gloss_strs_copy.pop(0) == TOKEN_TO_REANNOTATE)
 			):
+				print("res:", res)
 				g = res.pop(token_str)[0]
 			else:
 				#Dummy
@@ -426,13 +427,15 @@ class ChatgptGlossOptions:
 
 	def get_chat_trained(self, reannotation=False):
 		if reannotation:
-			raise NotImplementedError()
-
-		return [
-			{"role": "system", "content": f"""
+			content = f"Reannotate the input. A series of words will be given, which form a part of sentences. Some lines will have `{TOKEN_TO_REANNOTATE}` on its right side, which is to be re-annotated. Return only lines with `{TOKEN_TO_REANNOTATE}`, with {TOKEN_TO_REANNOTATE} itself replaced following the context."
+		else:
+			content = f"""
 				Parse this corpus (Interlinear gloss). 
 				{self.gloss_insts}
-			"""}
+			"""
+
+		return [
+			{"role": "system", "content": content}
 		]
 
 	def get_chat_untrained(self, reannotation=False):

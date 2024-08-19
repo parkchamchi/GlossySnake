@@ -4,6 +4,7 @@ from .annotator import Annotator, TOKEN_UNKNOWN
 import openai
 import tiktoken
 import dotenv
+import warnings
 
 import os
 from typing import List, Tuple, Dict
@@ -19,6 +20,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 GLOSS_DELIMITER = "||"
 TOKEN_TO_REANNOTATE = "!TO_REANNOTATE" #local
+TOKEN_TO_IGNORE = "!TOKEN_TO_IGNORE" #those not to be processed
 
 class ChatgptGlossFetcherException(RuntimeError):
 	pass
@@ -71,6 +73,8 @@ class ChatgptAnnotator(Annotator):
 	def reput_gloss(self, p: Paragraph, target_tokens: List[int]):
 		# R: Initially taking the `put_gloss` as a backbone... TODO: generalize these
 
+		print("reput_gloss: target_tokens:", target_tokens)
+
 		tokens_wo_delimiters = []
 		#token_strs = []
 		reannotate_bools = [] #[(str, bool), ...]
@@ -101,7 +105,7 @@ class ChatgptAnnotator(Annotator):
 		for previ, endi in chunks_for_reannotation:
 			print(f"[{previ+1}:{endi+1}] out of {len(tokens_wo_delimiters)} (len: {endi-previ})")
 
-			# R: if the target in the chunk? (TODO: now redundant, delete this code later)
+			# R: if the target in the chunk? (TODO: now redundant, delete this code later) #TODO: it returns chucks with no token to reannotate. fix this.
 			if not any([
 				idx < endi+1
 				for idx
@@ -125,9 +129,12 @@ class ChatgptAnnotator(Annotator):
 				if token.gloss != TOKEN_TO_REANNOTATE:
 					continue
 
+				if gloss == TOKEN_TO_IGNORE:
+					warnings.warn(f"Token and Gloss not paired: {token}, {gloss}.\nchunck_tokens: {chunk_tokens}\nchunk_glosses: {chunk_glosses}")
+
 				token.gloss = gloss
 
-		p.annotator_info = f"ChatGptAnnotator_`{self.lang_from}`_`{self.lang_to}`"
+		#p.annotator_info = f"ChatGptAnnotator_`{self.lang_from}`_`{self.lang_to}`"
 
 	def chunckize(self, token_strs, maxgloss=80) -> List[int]:
 		#Returns the end indices
@@ -239,6 +246,7 @@ class ChatgptGlossFetcher(GlossFetcher):
 		reannotation = type(reannotation_gloss_strs) is list
 		if reannotation:
 			print("Reannotating.")
+			print("reannotation_gloss_strs:", reannotation_gloss_strs)
 
 		query = self.make_query(token_strs) if not reannotation else self.make_query_reannotation(token_strs, reannotation_gloss_strs)
 		orig_messages=[
@@ -356,12 +364,14 @@ class ChatgptGlossFetcher(GlossFetcher):
 					outres[int(line0)] = val
 				res = outres
 
+			"""
 			res = res.values() #Discard the linenums here. (Use them for debugging if needed)
 			res = {
 				line[0]: line[1:]
 				for line
 				in res
 			} #Use the first element (orig token) as key
+			"""
 		
 		except ValueError as exc:
 			print(orig_res)
@@ -369,54 +379,61 @@ class ChatgptGlossFetcher(GlossFetcher):
 		
 		return res
 	
-	def validate_res(self, token_strs, res, reannotation_gloss_strs=False) -> List[List[str]]:
+	def validate_res(self, token_strs, res: Dict[int, List[str]], reannotation_gloss_strs=False) -> List[List[str]]:
 		reannotation = type(reannotation_gloss_strs) is list
 
-		token_strs_idx = 0 #Expected orig_word
+		#token_strs_idx = 0 #Expected orig_word
+		outres = []
 
 		#Pass 1: iter. by res
-		for orig_word_in_res, glosses in res.items():
+		#for orig_word_in_res, glosses in res.items():
+		for i, the_list in res.items(): #{i: [orig_word, g0, ...]} #Now only g0 is considered
+			if len(the_list) < 1:
+				raise UnidentifiableTokenInResException(f"Empty line: {i}.") #Not likely.
+			orig_word_in_res = the_list[0]
+
 			#Find the word in token_strs
-			try:
-				token_strs_idx = token_strs.index(orig_word_in_res, token_strs_idx)
-			except ValueError:
+			#try:
+				#token_strs_idx = token_strs.index(orig_word_in_res, token_strs_idx)
+			#except ValueError:
+			if orig_word_in_res not in token_strs:
 				raise UnidentifiableTokenInResException(f"Unidentifiable: `{orig_word_in_res}`. This token was not in the original token list.")
 
 			#Check the len of the glosses
-			if len(glosses) == 0:
-				print("TODO: ignore this case")
-				raise IncompleteGlossesPerTokenException(f"Incorrenct number of gloss detected. (There should be one and no gloss shall be empty")
-			elif len(glosses) != 1:
-				raise IncompleteGlossesPerTokenException(f"Incorrenct number of gloss detected. (There should be one and no gloss shall be empty")
+			if len(the_list) < 2:
+				#raise IncompleteGlossesPerTokenException(f"Incorrenct number of gloss detected. (There should be one and no gloss shall be empty")
+				# Ignore this case: {i: [orig_word, ]}
+				the_list.append(TOKEN_UNKNOWN)
 
-			token_strs_idx += 1
+			#elif len(glosses) != 1:
+			#	raise IncompleteGlossesPerTokenException(f"Incorrenct number of gloss detected. (There should be one and no gloss shall be empty")
+			#token_strs_idx += 1
+
+			gloss = the_list[1] #not used
+
 
 		#Pass 2: iter. by orig token_str
 		outres = []
 		if reannotation:
-			orig_gloss_strs_copy = reannotation_gloss_strs.copy()
-		#print("res:", res)
+			#orig_gloss_strs_copy = reannotation_gloss_strs.copy()
+			print(reannotation_gloss_strs)
+			reannotation_indices = [i for i, e in enumerate(reannotation_gloss_strs) if e == TOKEN_TO_REANNOTATE]
+			print(reannotation_indices)
 
-		for token_str in token_strs:
-			#print("token_str:", token_str)
-
+		for i, token_str in enumerate(token_strs): #Not this `i`
 			g = None
-			if (
-				(not reannotation and token_str in res)
-				or
-				(reannotation and orig_gloss_strs_copy.pop(0) == TOKEN_TO_REANNOTATE)
-			):
-				print("res:", res)
-				g = res.pop(token_str)[0]
+
+			if reannotation and i not in reannotation_indices:
+				g = TOKEN_TO_IGNORE
 			else:
-				#Dummy
-				g = TOKEN_UNKNOWN
+				if i not in res:
+					g = TOKEN_UNKNOWN
+				else:
+					g = res[i][1]
 
 			outres.append(g)
 
 		return outres
-	
-	
 
 class ChatgptGlossOptions:
 	def __init__(self, gloss_insts: List[str], example: Tuple[str, str], is_trained):

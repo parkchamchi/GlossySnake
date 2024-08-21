@@ -36,10 +36,17 @@ INSTALLED_APPS = [
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
+	"django.contrib.sites",
     
 	#3rd party
 	"rest_framework",
 	"corsheaders", #cf. CORS
+	"rest_framework.authtoken",
+	"allauth",
+	"allauth.account",
+	"allauth.socialaccount",
+	"dj_rest_auth",
+	"dj_rest_auth.registration",
 
 	#Local
 	'upload.apps.UploadConfig',
@@ -48,13 +55,18 @@ INSTALLED_APPS = [
 #TODO: CHANGE THE PERMISSIONS
 REST_FRAMEWORK = {
 	"DEFAULT_PERMISSION_CLASSES": [
-		"rest_framework.permissions.AllowAny",
+		"rest_framework.permissions.IsAuthenticated",
+	],
+	"DEFAULT_AUTHENTICATION_CLASSES": [ # new
+		"rest_framework.authentication.SessionAuthentication",
+		"rest_framework.authentication.TokenAuthentication",
 	],
 }
 
 MIDDLEWARE = [
 	#3rd party
 	"corsheaders.middleware.CorsMiddleware",
+	"allauth.account.middleware.AccountMiddleware",
 
 	#Orig.
 	'django.middleware.security.SecurityMiddleware',
@@ -89,13 +101,16 @@ TEMPLATES = [
 				'django.template.context_processors.request',
 				'django.contrib.auth.context_processors.auth',
 				'django.contrib.messages.context_processors.messages',
+				#"django.template.context_processors.request",
 			],
 		},
 	},
 ]
 
-WSGI_APPLICATION = 'GlossySnakeBE.wsgi.application'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+SITE_ID = 1
 
+WSGI_APPLICATION = 'GlossySnakeBE.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

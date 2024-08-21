@@ -27,7 +27,7 @@ import json
 
 class UploadAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (AllowAny, )
+	#permission_classes = (AllowAny, )
 
 	def post(self, request, *args, **kwargs):
 		try:
@@ -63,7 +63,7 @@ class UploadAPIViewV4(APIView):
 		
 class ManipulatorAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (AllowAny, )
+	#permission_classes = (AllowAny, )
 
 	def __init__(self, taskfunc: Callable[[CorpusHeader, dict], None], query_list: dict):
 		super().__init__()
@@ -255,7 +255,7 @@ class AnnotatorReannotateAPIViewV4(ManipulatorAPIViewV4):
 		
 class CorpusesAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (AllowAny, )
+	#permission_classes = (AllowAny, )
 
 	def get(self, request, *args, **kwargs):
 		try:
@@ -280,7 +280,7 @@ class CorpusesAPIViewV4(APIView):
 		
 class CorpusesListAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (AllowAny, )
+	#permission_classes = (AllowAny, )
 
 	def get(self, request, *args, **kwargs):
 		try:
@@ -303,7 +303,7 @@ class CorpusesListAPIViewV4(APIView):
 		
 class TasksAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (AllowAny, )
+	#permission_classes = (AllowAny, )
 
 	def get(self, request, *args, **kwargs):
 		try:
@@ -327,7 +327,7 @@ class TasksAPIViewV4(APIView):
 		
 class TasksListAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (AllowAny, )
+	#permission_classes = (AllowAny, )
 
 	def get(self, request, *args, **kwargs):
 		try:
@@ -356,7 +356,7 @@ class TasksListAPIViewV4(APIView):
 		
 class TasksAbortViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (AllowAny, )
+	#permission_classes = (AllowAny, )
 
 	def get(self, request, *args, **kwargs):
 		try:

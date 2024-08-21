@@ -22,6 +22,9 @@ from .views import IndexPageView, AnnotateAPIViewV1
 urlpatterns = [
 	path("", IndexPageView.as_view()),
 	path("admin/", admin.site.urls),
+	path("api-auth/", include("rest_framework.urls")),
+	path("rest-auth/", include("dj_rest_auth.urls")),
+	path("rest-auth/registration/", include("dj_rest_auth.registration.urls")),
 
 	path("v1/glosses/annotate", AnnotateAPIViewV1.as_view()), #deprecated dummy
 	path("api/", include('upload.urls')), #cf. design doc

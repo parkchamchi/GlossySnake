@@ -18,6 +18,36 @@
 		<div id="frontend_test_div">
 			<hr>
 			<h2>Frontend Test</h2>
+			<hr>
+
+			<div id="frontend_auth_div">
+				<h3>REST Auth</h3>
+				<button id="frontend_user_button"
+					class="rest_auth_buttons btn btn-secondary"
+					onclick="onFrontendRestAuthUserButtonClicked()">
+					/rest-auth/user/
+				</button>
+				<p id="frontend_username_p"></p>
+
+				<button id="frontend_registration_button"
+					class="rest_auth_buttons btn btn-secondary"
+					onclick="onFrontendRestAuthRegistrationButtonClicked()">
+					/rest-auth/registration
+				</button>
+
+				<button id="frontend_login_button"
+					class="rest_auth_buttons btn btn-secondary"
+					onclick="onFrontendRestAuthLoginButtonClicked()">
+					/rest-auth/login/
+				</button>
+				
+				<button id="frontend_logout_button"
+					class="rest_auth_buttons btn btn-secondary"
+					onclick="onFrontendRestAuthLogoutButtonClicked()">
+					/rest-auth/logout/
+				</button>
+			</div>
+			<hr>
 			
 			<div id="frontend_corpuses_div">
 			</div>
@@ -55,15 +85,15 @@
 			<h2>API Test</h2>
 
 			<div id="urls">
-				<a href="rest-auth/login">rest-auth/login</a>
+				<a href="api/v4/rest-auth/login/">api/v4/rest-auth/login/</a>
 				<br>
-				<a href="rest-auth/logout">rest-auth/logout</a>
+				<a href="api/v4/rest-auth/logout/">api/v4/rest-auth/logout/</a>
 				<br>
-				<a href="rest-auth/registration">rest-auth/registration</a>
+				<a href="api/v4/rest-auth/registration">api/v4/rest-auth/registration</a>
 				<br>
-				<a href="rest-auth/password/reset">rest-auth/password/reset</a>
+				<a href="api/v4/rest-auth/password/reset">api/v4/rest-auth/password/reset</a>
 				<br>
-				<a href="rest-auth/password/reset/confirm">rest-auth/password/reset/confirm</a>
+				<a href="api/v4/rest-auth/password/reset/confirm">api/v4/rest-auth/password/reset/confirm</a>
 				<br>
 				<a href="api-auth/login">api-auth/login</a>
 				<br>
@@ -113,11 +143,16 @@
 
 					<option value="/tasks/">/tasks/</option>
 					<option value="/corpuses/">/corpuses/</option>
+					<option value="/rest-auth/user/">/rest-auth/user/</option>
+					<option value="/rest-auth/registration/">/rest-auth/registration/</option>
+					<option value="/rest-auth/login/">/rest-auth/login/</option>
+					<option value="/rest-auth/logout/">/rest-auth/logout/</option>
 				</select>
 			</div>
 
 			<hr>
 
+			<!-- TODO: generalize this -->
 			<div id="fields_div" class="container">
 				<!-- /parser/divide | /parser/parser | /annotator/annotate -->
 				<div id="corpus_id_field" class="field_div">
@@ -159,6 +194,30 @@
 						placeholder="Original Text"
 						id="original_text_textarea"></textarea>
 					<br>
+				</div>
+
+				<!-- /rest-auth/registration/ -->
+				<div id="username_field" class="field_div">
+					<label for="username">username</label>
+					<input type="text" name="username" placeholder='' value='' id="username_input"  class="field_input"><br>
+				</div>
+				<div id="password1_field" class="field_div">
+					<label for="password1">password1</label>
+					<input type="text" name="password1" placeholder='' value='' id="password1_input"  class="field_input"><br>
+				</div>
+				<div id="password2_field" class="field_div">
+					<label for="password2">password2</label>
+					<input type="text" name="password2" placeholder='' value='' id="password2_input"  class="field_input"><br>
+				</div>
+				<div id="email_field" class="field_div">
+					<label for="email">email</label>
+					<input type="text" name="email" placeholder='' value='' id="email_input"  class="field_input"><br>
+				</div>
+
+				<!-- /rest-auth/login/ -->
+				<div id="password_field" class="field_div">
+					<label for="password">password</label>
+					<input type="text" name="password" placeholder='' value='' id="password_input"  class="field_input"><br>
 				</div>
 
 				<button class="makequerybutton btn btn-primary" onclick="makeQuery()">Make Query</button>
@@ -216,12 +275,17 @@
 			"/parser/divide": ["corpus_id", "divide_options"],
 			"/parser/parse": ["corpus_id", "parse_options"],
 			"/annotator/annotate": ["corpus_id", "annotate_options"],
-			"/annotator/reannotate": ["corpus_id", "annotate_options", "reannotate_options"]
+			"/annotator/reannotate": ["corpus_id", "annotate_options", "reannotate_options"],
+			
+			"/rest-auth/registration/": ["username", "password1", "password2", "email"],
+			"/rest-auth/login/": ["username", "email", "password"],
+			"/rest-auth/logout/": [],
 		}
 		//TODO: merge with above. This assumes that each endpoint has only on method.
-		const GET_ENDPOINTS = ["/tasks/", "/corpuses/"]
+		const GET_ENDPOINTS = ["/tasks/", "/corpuses/", "/rest-auth/user/"]
 
 		window.onload = function () {
+			onFrontendRestAuthUserButtonClicked();
 			onEndpointChanged();
 			setCorpusesDiv();
 			setTasksDiv();
@@ -347,7 +411,10 @@
 				let status_pre = document.getElementById("status_pre");
 				status_pre.innerText = res.status + " " + res.statusText;
 			
-				let json = jsonHelper(res);
+				let noJson = res.status == 204;
+				let json = {"frontend_message": "no JSON."};
+				if (!noJson)
+					json = jsonHelper(res);
 
 				if (res.ok) {
 					let event = new CustomEvent("response_event", {
@@ -649,10 +716,35 @@
 		}
 		document.addEventListener("response_event", onTasksResponse);
 
-		async function onAnyOtherResponse(event) {
-			if (event.detail.url.endsWith("/corpuses/")) //TODO: map
+		async function onRestAuthUserResponse(event) {
+			//cf. https://dj-rest-auth.readthedocs.io/en/latest/api_endpoints.html#basic
+			if (!event.detail.url.endsWith("/rest-auth/user/"))
 				return;
-			if (event.detail.url.endsWith("/tasks/"))
+
+			const json = await event.detail.json;
+			const username = json.username;
+
+			const p = document.getElementById("frontend_username_p");
+			p.innerText = username;
+		}
+		document.addEventListener("response_event", onRestAuthUserResponse);
+
+		async function onRestAuthRegistrationResponse(event) {
+			if (!event.detail.url.endsWith("/rest-auth/registration/"))
+				return;
+
+			const json = await event.detail.json;
+
+			//Update the Username field
+			onFrontendRestAuthUserButtonClicked();
+		}
+		document.addEventListener("response_event", onRestAuthRegistrationResponse);
+
+		async function onAnyOtherResponse(event) {
+			const endpointsToExclude = ["/corpuses/", "/tasks/", "/rest-auth/user/", "/rest-auth/registration/"];
+			if (endpointsToExclude.some((endpoint) =>
+				event.detail.url.endsWith(endpoint))
+			) 
 				return;
 
 			//Check the option
@@ -877,6 +969,45 @@
 
 			submit();
 		}
+
+		function onFrontendRestAuthUserButtonClicked() {
+			selectEndpoint("/rest-auth/user/");
+			makeQuery();
+			submit();
+		}
+
+		const dummyUser = {
+			username: "testuser", password: "testpw_1234", email: "testuser@example.com",
+		}
+
+		function onFrontendRestAuthRegistrationButtonClicked(username=dummyUser.username, password=dummyUser.password, email=dummyUser.email) {
+			selectEndpoint("/rest-auth/registration/");
+
+			setField("username", username);
+			setField("password1", password);
+			setField("password2", password);
+			setField("email", email);
+
+			makeQuery();
+			submit();
+		}
+
+		function onFrontendRestAuthLoginButtonClicked(username=dummyUser.username, password=dummyUser.password, email=dummyUser.email) {
+			selectEndpoint("/rest-auth/login/");
+
+			setField("username", username);
+			setField("password", password);
+			setField("email", email);
+
+			makeQuery();
+			submit();
+		}
+		
+		function onFrontendRestAuthLogoutButtonClicked() {
+			selectEndpoint("/rest-auth/logout/");
+			makeQuery();
+			submit();
+		}
 	</script>
 
 	<style>
@@ -946,6 +1077,10 @@
 
 		.selected-token {
 			border: 1px white solid;
+		}
+
+		.rest_auth_buttons {
+			display: inline !important;
 		}
 	</style>
 </body>

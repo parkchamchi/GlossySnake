@@ -23,8 +23,8 @@ urlpatterns = [
 	path("", IndexPageView.as_view()),
 	path("admin/", admin.site.urls),
 	path("api-auth/", include("rest_framework.urls")),
-	path("rest-auth/", include("dj_rest_auth.urls")),
-	path("rest-auth/registration/", include("dj_rest_auth.registration.urls")),
+	path("api/v4/rest-auth/", include("dj_rest_auth.urls")), # /login, /logout, /user, ...
+	path("api/v4/rest-auth/registration/", include("dj_rest_auth.registration.urls")),
 
 	path("v1/glosses/annotate", AnnotateAPIViewV1.as_view()), #deprecated dummy
 	path("api/", include('upload.urls')), #cf. design doc

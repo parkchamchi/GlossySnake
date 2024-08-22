@@ -4,6 +4,7 @@ from django.views.decorators.http import require_POST
 # Create your views here.
 
 from rest_framework import status
+from rest_framework import permissions
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -25,9 +26,18 @@ import json
 
 #TODO: generalize?
 
+##TODO: add the token control on the index page
+#Not tested
+class IsAuthor(permissions.BasePermission):
+	def has_permission(self, request, view):
+		return request.user.is_authenticated
+	
+	def has_object_permission(self, request, view, obj):
+		return obj.author == request.user
+
 class UploadAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	#permission_classes = (AllowAny, )
+	permission_classes = (IsAuthor, )
 
 	def post(self, request, *args, **kwargs):
 		try:
@@ -63,7 +73,7 @@ class UploadAPIViewV4(APIView):
 		
 class ManipulatorAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	#permission_classes = (AllowAny, )
+	permission_classes = (IsAuthor, )
 
 	def __init__(self, taskfunc: Callable[[CorpusHeader, dict], None], query_list: dict):
 		super().__init__()
@@ -255,7 +265,7 @@ class AnnotatorReannotateAPIViewV4(ManipulatorAPIViewV4):
 		
 class CorpusesAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	#permission_classes = (AllowAny, )
+	permission_classes = (IsAuthor, )
 
 	def get(self, request, *args, **kwargs):
 		try:
@@ -280,7 +290,7 @@ class CorpusesAPIViewV4(APIView):
 		
 class CorpusesListAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	#permission_classes = (AllowAny, )
+	permission_classes = (IsAuthor, )
 
 	def get(self, request, *args, **kwargs):
 		try:
@@ -303,7 +313,7 @@ class CorpusesListAPIViewV4(APIView):
 		
 class TasksAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	#permission_classes = (AllowAny, )
+	permission_classes = (IsAuthor, )
 
 	def get(self, request, *args, **kwargs):
 		try:
@@ -327,7 +337,7 @@ class TasksAPIViewV4(APIView):
 		
 class TasksListAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	#permission_classes = (AllowAny, )
+	permission_classes = (IsAuthor, )
 
 	def get(self, request, *args, **kwargs):
 		try:
@@ -356,7 +366,7 @@ class TasksListAPIViewV4(APIView):
 		
 class TasksAbortViewV4(APIView):
 	parser_classes = [JSONParser]
-	#permission_classes = (AllowAny, )
+	permission_classes = (IsAuthor, )
 
 	def get(self, request, *args, **kwargs):
 		try:

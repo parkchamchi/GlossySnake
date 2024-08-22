@@ -109,6 +109,8 @@ TEMPLATES = [
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 SITE_ID = 1
+ACCOUNT_EMAIL_REQUIRED = True   
+ACCOUNT_USERNAME_REQUIRED = False
 
 WSGI_APPLICATION = 'GlossySnakeBE.wsgi.application'
 

@@ -403,8 +403,21 @@
 					"Content-type": "application/json; charset=UTF-8",
 				}
 			}
-			if (method == "POST")
+			if (method == "POST") {
 				data.body = query;
+
+				//POST: set CSRF too
+				const csrftoken = (document.cookie.match(/^(?:.*;)?\s*csrftoken\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1]
+				if (!csrftoken)
+					console.log("POST: no csrftoken.");
+				data.headers["X-CSRFToken"] = csrftoken;
+			}
+
+			//Ignore non-auth endpoints if not logged in
+			if (!isUsernamePFilled() && !uri.includes("auth")) {
+				console.log("Ignoring " + uri + " as not logged in.");
+				return;
+			}
 			
 			fetch(uri, data)
 			.then((res) => {
@@ -427,7 +440,10 @@
 					document.dispatchEvent(event);
 				}
 				else {
-
+					if (res.url.includes("/rest-auth/user/") && res.status == 403) {
+						//Couldn't access /user/ since it's not logged in
+						clearUsernameP();
+					}
 				}
 
 				return json;
@@ -725,23 +741,36 @@
 			const username = json.username;
 
 			const p = document.getElementById("frontend_username_p");
+			const orig_username = p.innerText;
 			p.innerText = username;
+
+			//Update the dependants
+			if (username != orig_username) {
+				setCorpusesDiv();
+				setTasksDiv();
+			}
 		}
 		document.addEventListener("response_event", onRestAuthUserResponse);
 
-		async function onRestAuthRegistrationResponse(event) {
-			if (!event.detail.url.endsWith("/rest-auth/registration/"))
+		async function onRestAuthUserChangedResponse(event) {
+			const endpointsToInclude = [
+				"/rest-auth/registration/", "/rest-auth/login/", "/rest-auth/logout/"
+			];
+			if (!endpointsToInclude.some((endpoint) =>
+				event.detail.url.endsWith(endpoint))
+			) 
 				return;
-
-			const json = await event.detail.json;
 
 			//Update the Username field
 			onFrontendRestAuthUserButtonClicked();
 		}
-		document.addEventListener("response_event", onRestAuthRegistrationResponse);
+		document.addEventListener("response_event", onRestAuthUserChangedResponse);
 
 		async function onAnyOtherResponse(event) {
-			const endpointsToExclude = ["/corpuses/", "/tasks/", "/rest-auth/user/", "/rest-auth/registration/"];
+			const endpointsToExclude = [
+				"/corpuses/", "/tasks/", "/rest-auth/user/",
+				"/rest-auth/registration/", "/rest-auth/login/", "/rest-auth/logout/",
+			];
 			if (endpointsToExclude.some((endpoint) =>
 				event.detail.url.endsWith(endpoint))
 			) 
@@ -1007,6 +1036,17 @@
 			selectEndpoint("/rest-auth/logout/");
 			makeQuery();
 			submit();
+		}
+
+		function isUsernamePFilled() {
+			const p = document.getElementById("frontend_username_p");
+			username = p.innerText;
+			return username != "";
+		}
+
+		function clearUsernameP() {
+			const p = document.getElementById("frontend_username_p");
+			p.innerText = "";
 		}
 	</script>
 

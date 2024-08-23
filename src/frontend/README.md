@@ -216,3 +216,18 @@ Week24
 * 선택/수정/삭제 기능 지속적 수정
 * main color Select하기(임시: #febe98)
 * Login과 Sign Up 기능과 관련해 백엔드 연결
+
+Week25
+-------------
+* 직관성 확보를 위한 디자인 일부 수정
+* 지속적인 버그 수정 및 오류 개선
+
+**error**
+* input-textarea와 output-textarea의 오른쪽 끝 마감이 위 아래와 일정하지 않음. 각각 위 아래 속성들과 일치하게 수정이 필요.
+* edittoken()을 적용하였으나 edit버튼을 눌러도 output textarea의 readonly 속성이 해제되지 않음.
+
+**차주 목표**
+* 상기된 오류 수정.
+* 선택/수정/삭제 기능 지속적 수정
+* main color Select하기(임시: #febe98)
+* Login과 Sign Up 기능과 관련해 백엔드 연결

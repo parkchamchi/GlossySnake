@@ -85,7 +85,7 @@
                 <br /><br /><br /><br /><br /><br />
                 <div class="preview-box" onclick="errormsg()"></div>
                 <br /><br /><br /><br />
-                <div class="request-box" onclick="sendRequest(); printResult(); texttoarray();"></div>
+                <div class="request-box" onclick="sendRequest(); printResult(); texttoarray(); blockResult();"></div>
             </div>
             <div class="section">
                 <div class="input-group">
@@ -107,7 +107,7 @@
         </div>
         <br />
         <p> Input_Text의 테스트 박스입니다! <span id="arrayOutput"></span></p>
-        <div class="result-box">
+        <div id="resultBox" class="result-box">
             <div class="option-div" style="font-size: 80%;">
                 Endpoint: <div id="endpointResult" class="endpoint-result" style="display: inline-block;">N/A</div> /
                 Delimiter: <div id="delimeterResult" class="delimeter-result" style="display: inline-block;">N/A</div> /
@@ -157,8 +157,8 @@
             var signUpPopup = document.getElementById("signUpPopup");
             signUpPopup.style.visibility = "hidden";
             signUpPopup.style.opacity = "0";
-        }  
-        
+        }
+
         function handleChange(select) {
             var selectedValue = select.value;
             if (selectedValue === 'edit') {
@@ -189,7 +189,7 @@
             } else {
                 console.log("Selected Gloss Character: ", glossValue);
             }
-            
+
             let delimeterValue = document.getElementById('delimeter').value;
             if (delimeterValue == null) {
                 console.log("delimeterValue가 null상태입니다");
@@ -240,6 +240,10 @@
                     console.error('Error:', error);
                     document.getElementById("warningMessage").style.display = "block";
                 });
+        }
+
+        function blockResult() {
+            document.getElementById('resultBox').style.display = "block";
         }
 
         function printResult() {
@@ -302,7 +306,7 @@
             } else {
                 alert("End of array reached.");
             }
-        }  
+        }
 
         function OpenOtherOption() {
             const ooo = document.getElementById('otherOption');
@@ -408,7 +412,7 @@
         margin-left: 4px;
 
     }
-    
+
     .input-textarea {
         height: auto;
         width: 100%;
@@ -515,6 +519,7 @@
     }
 
     .result-box {
+        display: none;
         background-color: rgb(199, 199, 199);
         width: 80%;
         border-radius: 5px;

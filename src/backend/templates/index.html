@@ -708,6 +708,8 @@
 			//If no logged in, just return
 			if (!isUsernamePFilled()) {
 				//TODO: fill here
+				console.log("Returning since not logged in.");
+				return;
 			}
 
 			selectEndpoint("/corpuses/");
@@ -717,12 +719,23 @@
 		}
 
 		function setTasksDiv() {
+			//If no logged in, just return
+			if (!isUsernamePFilled()) {
+				//TODO: fill here
+				console.log("Returning since not logged in.");
+				return;
+			}
+
 			selectEndpoint("/tasks/");
 			makeQuery();
 
 			submit();
 		}
 
+		function setCorpusesDivInnerHtml(innerHTML) {
+			let corpuses_div = document.getElementById("frontend_corpuses_div");
+			corpuses_div.innerHTML = innerHTML;
+		}
 		async function onCorpusesResponse(event) {
 			//Check url
 			if (!event.detail.url.endsWith("/corpuses/"))
@@ -730,22 +743,23 @@
 
 			const json = await event.detail.json;
 
-			let corpuses_div = document.getElementById("frontend_corpuses_div");
-			corpuses_div.innerHTML = corpusesToHtml(json, collapsed=true);
+			setCorpusesDivInnerHtml(corpusesToHtml(json, collapsed=true));
 
 			setCorpusJsons(json);
 		}
 		document.addEventListener("response_event", onCorpusesResponse);
 
+		function setTasksDivInnerHtml(innerHTML) {
+			let tasks_div = document.getElementById("frontend_tasks_div");
+			tasks_div.innerHTML = innerHTML;
+		}
 		async function onTasksResponse(event) {
 			//Check url
 			if (!event.detail.url.endsWith("/tasks/"))
 				return;
 
 			const json = await event.detail.json;
-
-			let tasks_div = document.getElementById("frontend_tasks_div");
-			tasks_div.innerHTML = tasksToHtml(json, collapsed=true);
+			setTasksDivInnerHtml(tasksToHtml(json, collapsed=true));
 		}
 		document.addEventListener("response_event", onTasksResponse);
 
@@ -755,6 +769,7 @@
 				return;
 
 			const json = await event.detail.json;
+			const is_auth = json.is_auth;
 			const username = json.username;
 
 			const p = document.getElementById("frontend_username_p");
@@ -762,7 +777,12 @@
 			p.innerText = username;
 
 			//Update the dependants
-			if (username != orig_username) {
+			if (!is_auth) {
+				const notLoggedInP = "<p>Not logged in.</p>"
+				setCorpusesDivInnerHtml(notLoggedInP);
+				setTasksDivInnerHtml(notLoggedInP);
+			}
+			else if (username != orig_username) {
 				setCorpusesDiv();
 				setTasksDiv();
 			}
@@ -785,7 +805,7 @@
 
 		async function onAnyOtherResponse(event) {
 			const endpointsToExclude = [
-				"/corpuses/", "/tasks/", "/check-user/",
+				"/corpuses/", "/tasks/", "/check-user",
 				"/rest-auth/registration/", "/rest-auth/login/", "/rest-auth/logout/",
 			];
 			if (endpointsToExclude.some((endpoint) =>

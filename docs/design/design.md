@@ -48,6 +48,10 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 - `GET /corpuses/<id>`
   - Res: `"corpuses_history"`
 
+- `GET /check-user`
+  - Res: `"is_auth"`, `"username"`
+  - Note: No authentication required.
+
 ##### /rest-auth/
 - See [`dj-rest-auth` Doc](https://dj-rest-auth.readthedocs.io/en/latest/api_endpoints.html)
 
@@ -57,9 +61,6 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 - `POST /logout/`
 - `POST /registration/`
   - Req: `"username"`, `"email"`, `"password1"`, `"password2` *(= `"password1`)*
-- `GET /user/` 
-  - Res: `"username"`
-  - Note: This too requires the user to be already logged in.
 - *etc.* (See the doc above)
 - Note: For every POST endpoints, the `csrftoken` that is saved on the client-side cookie has to be included on the request header with name `X-CSRFToken`. Test the backend index page to see this behavior. (Implemented [here](https://github.com/parkchamchi/GlossySnake/blob/0a938f51be24046c3e1b26ec320d0647bafd381a/src/backend/templates/index.html#L406))
 

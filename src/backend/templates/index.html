@@ -22,10 +22,10 @@
 
 			<div id="frontend_auth_div">
 				<h3>REST Auth</h3>
-				<button id="frontend_user_button"
+				<button id="frontend_check_user_button"
 					class="rest_auth_buttons btn btn-secondary"
-					onclick="onFrontendRestAuthUserButtonClicked()">
-					/rest-auth/user/
+					onclick="onFrontendCheckUserButtonClicked()">
+					/check-user
 				</button>
 				<p id="frontend_username_p"></p>
 
@@ -109,7 +109,8 @@
 				<br>
 				<a href="api-auth/logout">api-auth/logout</a>
 				<br>
-				<a href="admin/">admin/</a>
+				<a href="admin/">admin/</a> |
+				<a href="api/v4/check-user">api/v4/check-user</a>
 				<br>
 				<a href="api/v4/upload">api/v4/upload</a> |
 				<a href="api/v4/corpuses/">api/v4/corpuses/</a> |
@@ -153,7 +154,7 @@
 
 					<option value="/tasks/">/tasks/</option>
 					<option value="/corpuses/">/corpuses/</option>
-					<option value="/rest-auth/user/">/rest-auth/user/</option>
+					<option value="/check-user">/check-user</option>
 					<option value="/rest-auth/registration/">/rest-auth/registration/</option>
 					<option value="/rest-auth/login/">/rest-auth/login/</option>
 					<option value="/rest-auth/logout/">/rest-auth/logout/</option>
@@ -292,10 +293,10 @@
 			"/rest-auth/logout/": [],
 		}
 		//TODO: merge with above. This assumes that each endpoint has only on method.
-		const GET_ENDPOINTS = ["/tasks/", "/corpuses/", "/rest-auth/user/"]
+		const GET_ENDPOINTS = ["/tasks/", "/corpuses/", "/check-user"]
 
 		window.onload = function () {
-			onFrontendRestAuthUserButtonClicked();
+			onFrontendCheckUserButtonClicked();
 			onEndpointChanged();
 			setCorpusesDiv();
 			setTasksDiv();
@@ -424,7 +425,7 @@
 			}
 
 			//Ignore non-auth endpoints if not logged in
-			if (!isUsernamePFilled() && !uri.includes("auth")) {
+			if (!isUsernamePFilled() && !uri.includes("auth") && !uri.includes("/check-user")) {
 				console.log("Ignoring " + uri + " as not logged in.");
 				return;
 			}
@@ -450,8 +451,9 @@
 					document.dispatchEvent(event);
 				}
 				else {
-					if (res.url.includes("/rest-auth/user/") && res.status == 403) {
+					if (res.url.includes("/check-user") && res.status == 403) {
 						//Couldn't access /user/ since it's not logged in
+						//Note: this is an old behavior code for `/rest-auth/user/`. Since new `/check-user` returns `ok` even when it's not logged in, it has to be handled else where (that is, ignore this code below)
 						clearUsernameP();
 					}
 				}
@@ -703,6 +705,11 @@
 		}
 
 		function setCorpusesDiv() {
+			//If no logged in, just return
+			if (!isUsernamePFilled()) {
+				//TODO: fill here
+			}
+
 			selectEndpoint("/corpuses/");
 			makeQuery();
 
@@ -744,7 +751,7 @@
 
 		async function onRestAuthUserResponse(event) {
 			//cf. https://dj-rest-auth.readthedocs.io/en/latest/api_endpoints.html#basic
-			if (!event.detail.url.endsWith("/rest-auth/user/"))
+			if (!event.detail.url.endsWith("/check-user"))
 				return;
 
 			const json = await event.detail.json;
@@ -772,13 +779,13 @@
 				return;
 
 			//Update the Username field
-			onFrontendRestAuthUserButtonClicked();
+			onFrontendCheckUserButtonClicked();
 		}
 		document.addEventListener("response_event", onRestAuthUserChangedResponse);
 
 		async function onAnyOtherResponse(event) {
 			const endpointsToExclude = [
-				"/corpuses/", "/tasks/", "/rest-auth/user/",
+				"/corpuses/", "/tasks/", "/check-user/",
 				"/rest-auth/registration/", "/rest-auth/login/", "/rest-auth/logout/",
 			];
 			if (endpointsToExclude.some((endpoint) =>
@@ -1009,8 +1016,8 @@
 			submit();
 		}
 
-		function onFrontendRestAuthUserButtonClicked() {
-			selectEndpoint("/rest-auth/user/");
+		function onFrontendCheckUserButtonClicked() {
+			selectEndpoint("/check-user");
 			makeQuery();
 			submit();
 		}

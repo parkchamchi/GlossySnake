@@ -383,3 +383,17 @@ class TasksAbortViewV4(APIView):
 				},
 				status=status.HTTP_400_BAD_REQUEST
 			)
+		
+class CheckUserViewV4(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (AllowAny, )
+
+	def get(self, request, *args, **kwargs):
+		is_auth = request.user.is_authenticated
+
+		return Response(
+			{
+				"is_auth": is_auth,
+				"username": request.user.username if is_auth else None,
+			}
+		)

@@ -52,6 +52,7 @@ DjParagraphDelimitersInCorpus }o-up-|| DjParagraphDelimiter
 entity CorpusHeader {
 	* id
 	---
+	user
 }
 
 interface DjCorpusInCorpusInfo {

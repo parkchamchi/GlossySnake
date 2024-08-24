@@ -51,7 +51,7 @@ class UploadAPIViewV4(APIView):
 			elif original_text is not None:
 				corpus_data = Corpus(paragraphs=[], paragraph_delimiters=[], original_text=original_text, p_div_locs=[])
 			
-			uc = CorpusHeader.objects.create()
+			uc = CorpusHeader.objects.create(user=request.user)
 			uc.add_corpus(corpus_data) #see model.py
 			uc.save()
 			corpus_id = uc.id
@@ -297,7 +297,7 @@ class CorpusesListAPIViewV4(APIView):
 			toret= [
 				{"corpus_id": uc.id, "corpuses_history": uc.corpuses_history}
 				for uc
-				in CorpusHeader.objects.all()
+				in CorpusHeader.objects.filter(user=request.user)
 			]
 			
 			return Response(

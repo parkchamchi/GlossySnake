@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 
 from .serializables import Corpus, Paragraph, Token, ALLOWED_PSTATES, AnnotatorInfo
 
@@ -15,8 +16,15 @@ class TaskStatusV4(models.TextChoices):
 	ERROR = "ERROR"
 	ABORTED = "ABORTED"
 
+USER_MODEL = get_user_model()
+
 class CorpusHeaderV4(models.Model):
 	id = models.AutoField(primary_key=True)
+
+	user = models.ForeignKey(
+		USER_MODEL,
+		on_delete=models.CASCADE,
+	)
 
 	def add_corpus(self, corpus_obj: Corpus):
 		# Set the corpus as a child of this object.

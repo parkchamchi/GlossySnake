@@ -31,14 +31,24 @@
 
 				<button id="frontend_registration_button"
 					class="rest_auth_buttons btn btn-secondary"
-					onclick="onFrontendRestAuthRegistrationButtonClicked()">
-					/rest-auth/registration
+					onclick="onFrontendRestAuthRegistrationButtonClicked(getDummyUser(0))">
+					/rest-auth/registration [0]
 				</button>
-
 				<button id="frontend_login_button"
 					class="rest_auth_buttons btn btn-secondary"
-					onclick="onFrontendRestAuthLoginButtonClicked()">
-					/rest-auth/login/
+					onclick="onFrontendRestAuthLoginButtonClicked(getDummyUser(0))">
+					/rest-auth/login/ [0]
+				</button>
+
+				<button id="frontend_registration_button"
+					class="rest_auth_buttons btn btn-secondary"
+					onclick="onFrontendRestAuthRegistrationButtonClicked(getDummyUser(1))">
+					/rest-auth/registration [1]
+				</button>
+				<button id="frontend_login_button"
+					class="rest_auth_buttons btn btn-secondary"
+					onclick="onFrontendRestAuthLoginButtonClicked(getDummyUser(1))">
+					/rest-auth/login/ [1]
 				</button>
 				
 				<button id="frontend_logout_button"
@@ -1009,24 +1019,34 @@
 			username: "testuser", password: "testpw_1234", email: "testuser@example.com",
 		}
 
-		function onFrontendRestAuthRegistrationButtonClicked(username=dummyUser.username, password=dummyUser.password, email=dummyUser.email) {
+		function User(username, password, email) {
+			this.username = username;
+			this.password = password;
+			this.email = email;
+		}
+
+		function getDummyUser(n=0) {
+			return new User("testuser"+n, "test_password"+n, "testuser"+n+"@example.com");
+		}
+
+		function onFrontendRestAuthRegistrationButtonClicked(user) {
 			selectEndpoint("/rest-auth/registration/");
 
-			setField("username", username);
-			setField("password1", password);
-			setField("password2", password);
-			setField("email", email);
+			setField("username", user.username);
+			setField("password1", user.password);
+			setField("password2", user.password);
+			setField("email", user.email);
 
 			makeQuery();
 			submit();
 		}
 
-		function onFrontendRestAuthLoginButtonClicked(username=dummyUser.username, password=dummyUser.password, email=dummyUser.email) {
+		function onFrontendRestAuthLoginButtonClicked(user) {
 			selectEndpoint("/rest-auth/login/");
 
-			setField("username", username);
-			setField("password", password);
-			setField("email", email);
+			setField("username", user.username);
+			setField("password", user.password);
+			setField("email", user.email);
 
 			makeQuery();
 			submit();

@@ -26,18 +26,9 @@ import json
 
 #TODO: generalize?
 
-##TODO: add the token control on the index page
-#Not tested
-class IsAuthor(permissions.BasePermission):
-	def has_permission(self, request, view):
-		return request.user.is_authenticated
-	
-	def has_object_permission(self, request, view, obj):
-		return obj.author == request.user
-
 class UploadAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (IsAuthor, )
+	permission_classes = (IsAuthenticated, )
 
 	def post(self, request, *args, **kwargs):
 		try:
@@ -73,7 +64,7 @@ class UploadAPIViewV4(APIView):
 		
 class ManipulatorAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (IsAuthor, )
+	permission_classes = (IsAuthenticated, )
 
 	def __init__(self, taskfunc: Callable[[CorpusHeader, dict], None], query_list: dict):
 		super().__init__()
@@ -91,7 +82,7 @@ class ManipulatorAPIViewV4(APIView):
 				data[query] = request.data.get(query) #Sets `None` when it does not exist
 
 			#Get the corpus
-			uc = CorpusHeader.objects.get(id=corpus_id) #TODO: on fail
+			uc = CorpusHeader.objects.get(id=corpus_id, user=request.user) #TODO: on fail
 			if uc.current_task is not None:
 				raise ValueError(f"The corpus is already being processed by another task: {uc.current_task}")
 			
@@ -265,14 +256,13 @@ class AnnotatorReannotateAPIViewV4(ManipulatorAPIViewV4):
 		
 class CorpusesAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (IsAuthor, )
+	permission_classes = (IsAuthenticated, )
 
 	def get(self, request, *args, **kwargs):
 		try:
 			corpus_id = self.kwargs.get("pk")
-			uc = CorpusHeader.objects.get(id=corpus_id) #TODO: on fail
+			uc = CorpusHeader.objects.get(id=corpus_id, user=request.user) #TODO: on fail
 			corpuses_history = uc.corpuses_history
-			corpuses_history = corpuses_history
 			
 			return Response(
 				{
@@ -290,7 +280,7 @@ class CorpusesAPIViewV4(APIView):
 		
 class CorpusesListAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (IsAuthor, )
+	permission_classes = (IsAuthenticated, )
 
 	def get(self, request, *args, **kwargs):
 		try:
@@ -313,12 +303,12 @@ class CorpusesListAPIViewV4(APIView):
 		
 class TasksAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (IsAuthor, )
+	permission_classes = (IsAuthenticated, )
 
 	def get(self, request, *args, **kwargs):
 		try:
 			task_id = self.kwargs.get("pk")
-			task = TaskInfo.objects.get(id=task_id) #TODO: on fail
+			task = TaskInfo.objects.get(id=task_id, target_corpus_header_id__user=request.user) #TODO: on fail
 			
 			return Response(
 				{
@@ -337,11 +327,11 @@ class TasksAPIViewV4(APIView):
 		
 class TasksListAPIViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (IsAuthor, )
+	permission_classes = (IsAuthenticated, )
 
 	def get(self, request, *args, **kwargs):
 		try:
-			tasks = TaskInfo.objects.all()
+			tasks = TaskInfo.objects.filter(target_corpus_header_id__user=request.user)
 			toret = [
 				{
 					"task_id": task.id,
@@ -366,12 +356,12 @@ class TasksListAPIViewV4(APIView):
 		
 class TasksAbortViewV4(APIView):
 	parser_classes = [JSONParser]
-	permission_classes = (IsAuthor, )
+	permission_classes = (IsAuthenticated, )
 
 	def get(self, request, *args, **kwargs):
 		try:
 			task_id = self.kwargs.get("pk")
-			task = TaskInfo.objects.get(id=task_id) #TODO: on fail
+			task = TaskInfo.objects.get(id=task_id, target_corpus_header_id__user=request.user) #TODO: on fail
 
 			if not task.is_valid_to_abort():
 				raise ValueError("Invalid abort")

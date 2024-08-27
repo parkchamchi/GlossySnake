@@ -56,11 +56,13 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 - See [`dj-rest-auth` Doc](https://dj-rest-auth.readthedocs.io/en/latest/api_endpoints.html)
 
 - `POST /login/` *(that is, `/api/v4/rest-auth/login/`)*
-  - Req: `"username"`, `"email"`, `"password"`
+  - Req: `"email"`, `"password"`, 
   - Res: `"key"` *(By TokenAuthentication. Currently ignorable)*
+  - Note: ~~`username`~~ is not required
 - `POST /logout/`
 - `POST /registration/`
-  - Req: `"username"`, `"email"`, `"password1"`, `"password2` *(= `"password1`)*
+  - Req: `"email"`, `"password1"`, `"password2` *(= `"password1`)*
+  - Note: ~~`username`~~ is not required
 - *etc.* (See the doc above)
 - Note: For every POST endpoints, the `csrftoken` that is saved on the client-side cookie has to be included on the request header with name `X-CSRFToken`. Test the backend index page to see this behavior. (Implemented [here](https://github.com/parkchamchi/GlossySnake/blob/0a938f51be24046c3e1b26ec320d0647bafd381a/src/backend/templates/index.html#L406))
 
@@ -116,6 +118,13 @@ class Annotator:
 ![images/er_dj_serializables.png](images/er_dj_serializables.png)
 
 `TaskInfo.status` is in [`READY`, `RUNNING`, `FINISHED`, `ERROR`, `ABORTED`]
+
+## User model
+
+- **email**
+- password
+- ...
+- ~~username~~ *(not used)*
 
 ## Deprecated
 

@@ -395,5 +395,6 @@ class CheckUserViewV4(APIView):
 			{
 				"is_auth": is_auth,
 				"username": request.user.username if is_auth else None,
+				"email": request.user.email if is_auth else None,
 			}
 		)

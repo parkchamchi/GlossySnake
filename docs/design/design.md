@@ -49,7 +49,7 @@ e.g. `http://localhost/api/v2/annotator/annotate`
   - Res: `"corpuses_history"`
 
 - `GET /check-user`
-  - Res: `"is_auth"`, `"username"`
+  - Res: `"is_auth"`, `"email"`
   - Note: No authentication required.
 
 ##### /rest-auth/

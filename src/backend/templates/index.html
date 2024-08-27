@@ -27,7 +27,7 @@
 					onclick="onFrontendCheckUserButtonClicked()">
 					/check-user
 				</button>
-				<p id="frontend_username_p"></p>
+				<p id="frontend_user_email_p"></p>
 
 				<button id="frontend_registration_button"
 					class="rest_auth_buttons btn btn-secondary"
@@ -208,10 +208,6 @@
 				</div>
 
 				<!-- /rest-auth/registration/ -->
-				<div id="username_field" class="field_div">
-					<label for="username">username</label>
-					<input type="text" name="username" placeholder='' value='' id="username_input"  class="field_input"><br>
-				</div>
 				<div id="password1_field" class="field_div">
 					<label for="password1">password1</label>
 					<input type="text" name="password1" placeholder='' value='' id="password1_input"  class="field_input"><br>
@@ -288,8 +284,8 @@
 			"/annotator/annotate": ["corpus_id", "annotate_options"],
 			"/annotator/reannotate": ["corpus_id", "annotate_options", "reannotate_options"],
 			
-			"/rest-auth/registration/": ["username", "password1", "password2", "email"],
-			"/rest-auth/login/": ["username", "email", "password"],
+			"/rest-auth/registration/": ["password1", "password2", "email"],
+			"/rest-auth/login/": ["email", "password"],
 			"/rest-auth/logout/": [],
 		}
 		//TODO: merge with above. This assumes that each endpoint has only on method.
@@ -425,7 +421,7 @@
 			}
 
 			//Ignore non-auth endpoints if not logged in
-			if (!isUsernamePFilled() && !uri.includes("auth") && !uri.includes("/check-user")) {
+			if (!isUserEmailPFilled() && !uri.includes("auth") && !uri.includes("/check-user")) {
 				console.log("Ignoring " + uri + " as not logged in.");
 				return;
 			}
@@ -454,7 +450,7 @@
 					if (res.url.includes("/check-user") && res.status == 403) {
 						//Couldn't access /user/ since it's not logged in
 						//Note: this is an old behavior code for `/rest-auth/user/`. Since new `/check-user` returns `ok` even when it's not logged in, it has to be handled else where (that is, ignore this code below)
-						clearUsernameP();
+						clearUserEmailP();
 					}
 				}
 
@@ -706,7 +702,7 @@
 
 		function setCorpusesDiv() {
 			//If no logged in, just return
-			if (!isUsernamePFilled()) {
+			if (!isUserEmailPFilled()) {
 				//TODO: fill here
 				console.log("Returning since not logged in.");
 				return;
@@ -720,7 +716,7 @@
 
 		function setTasksDiv() {
 			//If no logged in, just return
-			if (!isUsernamePFilled()) {
+			if (!isUserEmailPFilled()) {
 				//TODO: fill here
 				console.log("Returning since not logged in.");
 				return;
@@ -770,11 +766,11 @@
 
 			const json = await event.detail.json;
 			const is_auth = json.is_auth;
-			const username = json.username;
+			const user_email = json.email;
 
-			const p = document.getElementById("frontend_username_p");
-			const orig_username = p.innerText;
-			p.innerText = username;
+			const p = document.getElementById("frontend_user_email_p");
+			const orig_user_email = p.innerText;
+			p.innerText = user_email;
 
 			//Update the dependants
 			if (!is_auth) {
@@ -782,7 +778,7 @@
 				setCorpusesDivInnerHtml(notLoggedInP);
 				setTasksDivInnerHtml(notLoggedInP);
 			}
-			else if (username != orig_username) {
+			else if (user_email != orig_user_email) {
 				setCorpusesDiv();
 				setTasksDiv();
 			}
@@ -798,7 +794,7 @@
 			) 
 				return;
 
-			//Update the Username field
+			//Update the Email field
 			onFrontendCheckUserButtonClicked();
 		}
 		document.addEventListener("response_event", onRestAuthUserChangedResponse);
@@ -1042,24 +1038,18 @@
 			submit();
 		}
 
-		const dummyUser = {
-			username: "testuser", password: "testpw_1234", email: "testuser@example.com",
-		}
-
-		function User(username, password, email) {
-			this.username = username;
+		function User(password, email) {
 			this.password = password;
 			this.email = email;
 		}
 
 		function getDummyUser(n=0) {
-			return new User("testuser"+n, "test_password"+n, "testuser"+n+"@example.com");
+			return new User("test_password"+n, "testuser"+n+"@example.com");
 		}
 
 		function onFrontendRestAuthRegistrationButtonClicked(user) {
 			selectEndpoint("/rest-auth/registration/");
 
-			setField("username", user.username);
 			setField("password1", user.password);
 			setField("password2", user.password);
 			setField("email", user.email);
@@ -1071,7 +1061,6 @@
 		function onFrontendRestAuthLoginButtonClicked(user) {
 			selectEndpoint("/rest-auth/login/");
 
-			setField("username", user.username);
 			setField("password", user.password);
 			setField("email", user.email);
 
@@ -1085,14 +1074,14 @@
 			submit();
 		}
 
-		function isUsernamePFilled() {
-			const p = document.getElementById("frontend_username_p");
-			username = p.innerText;
-			return username != "";
+		function isUserEmailPFilled() {
+			const p = document.getElementById("frontend_user_email_p");
+			user_email = p.innerText;
+			return user_email != "";
 		}
 
-		function clearUsernameP() {
-			const p = document.getElementById("frontend_username_p");
+		function clearUserEmailP() {
+			const p = document.getElementById("frontend_user_email_p");
 			p.innerText = "";
 		}
 	</script>

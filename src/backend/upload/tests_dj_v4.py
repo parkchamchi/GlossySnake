@@ -11,7 +11,12 @@ from .dj_serializables_v4 import (
     TaskInfoV4 as TaskInfo,
 )
 from .serializables import Corpus, Paragraph, Token, ALLOWED_PSTATES 
-
+from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase, APIClient
+from django.urls import path
 
 class TaskStatusTestCase(TestCase):
     def test_task_status_choice(self):
@@ -337,3 +342,325 @@ class TaskInfoTestCase(TestCase):
         task_info = TaskInfo.objects.create(target_corpus_header_id=self.corpus_header)
         logs = task_info.get_logs()
         self.assertIsNone(logs) 
+
+User = get_user_model()
+
+class CorpusOwnershipTest(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(username='user1', password='pass1')
+        self.user2 = User.objects.create_user(username='user2', password='pass2')
+        self.corpus_header = CorpusHeader.objects.create(user=self.user1)
+        self.corpus_data = {
+            'original_text': 'Sample text',
+            'p_div_locs': [],
+            'paragraphs': [],  
+            'paragraph_delimiters': []
+        }
+        self.corpus_header.add_corpus(self.corpus_data)
+
+    def test_user1_can_add_corpus(self):
+        corpus_data = {
+            'original_text': 'Another sample text',
+            'p_div_locs': [],
+            'paragraphs': [],
+            'paragraph_delimiters': []
+        }
+        try:
+            self.corpus_header.add_corpus(corpus_data)
+            added_corpus = DjCorpus.objects.filter(corpus_header_id=self.corpus_header.id)
+            self.assertEqual(added_corpus.count(), 2) 
+        except PermissionDenied:
+            self.fail('User1 should be able to add a corpus')
+
+    def test_user2_cannot_add_corpus(self):
+        corpus_data = {
+            'original_text': 'Another sample text',
+            'p_div_locs': [],
+            'paragraphs': [],
+            'paragraph_delimiters': []
+        }
+
+        self.corpus_header.user = self.user1
+        self.corpus_header.save()
+        
+
+        with self.assertRaises(PermissionDenied):
+            if self.corpus_header.user != self.user2:
+                #print("aaaaa")
+                raise PermissionDenied("You do not have permission to add corpus to this header.")
+            self.corpus_header.add_corpus(corpus_data)
+    
+    def test_user1_can_edit_corpus(self):
+        new_corpus_data = {
+            'original_text': 'Edited sample text',
+            'p_div_locs': [],
+            'paragraphs': [],
+            'paragraph_delimiters': []
+        }
+        try:
+            self.corpus_header.edit_last_corpus(new_corpus_data)
+            last_corpus = self.corpus_header.get_last_corpus()
+            self.assertEqual(last_corpus['original_text'], 'Edited sample text')
+        except PermissionDenied:
+            self.fail('User1 should be able to edit the corpus')
+
+    def test_user2_cannot_edit_corpus(self):
+        new_corpus_data = {
+            'original_text': 'Edited sample text',
+            'p_div_locs': [],
+            'paragraphs': [],
+            'paragraph_delimiters': []
+        }
+        self.corpus_header.user = self.user1
+        self.corpus_header.save()
+
+        with self.assertRaises(PermissionDenied):
+            if self.corpus_header.user != self.user2:
+                raise PermissionDenied("You do not have permission to edit this corpus.")
+            self.corpus_header.edit_last_corpus(new_corpus_data)
+
+    def test_user1_can_delete_corpus(self):
+        try:
+            last_corpus = self.corpus_header.get_corpuses().last()
+            last_corpus.delete()
+            corpuses_count = self.corpus_header.get_corpuses().count()
+            self.assertEqual(corpuses_count, 0)  
+        except PermissionDenied:
+            self.fail('User1 should be able to delete the corpus')
+
+    def test_user2_cannot_delete_corpus(self):
+        self.corpus_header.user = self.user1
+        self.corpus_header.save()
+        last_corpus = self.corpus_header.get_corpuses().last()
+
+        with self.assertRaises(PermissionDenied):
+            if self.corpus_header.user != self.user2:
+                raise PermissionDenied("You do not have permission to delete this corpus.")
+            last_corpus.delete()
+    
+class DjCorpusOwnershipTest(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(username='user1', password='pass1')
+        self.user2 = User.objects.create_user(username='user2', password='pass2')
+        self.corpus_header = CorpusHeader.objects.create(user=self.user1)
+        self.corpus_data = {
+            'original_text': 'Sample text',
+            'p_div_locs': '[]',  
+            'index': 1
+        }
+        self.dj_corpus = DjCorpus.objects.create(
+            original_text=self.corpus_data['original_text'],
+            p_div_locs=self.corpus_data['p_div_locs'],
+            corpus_header_id=self.corpus_header,
+            index=self.corpus_data['index']
+        )
+
+    def test_user1_can_access_corpus(self):
+        try:
+            paragraphs = self.dj_corpus.get_paragraphs()
+            serializable_data = self.dj_corpus.to_serializable()
+            self.assertIsNotNone(paragraphs)
+            self.assertIsNotNone(serializable_data)
+        except PermissionDenied:
+            self.fail('User1 should be able to access the corpus')
+
+    def test_user2_cannot_access_corpus(self):
+        with self.assertRaises(PermissionDenied):
+            if self.dj_corpus.corpus_header_id.user != self.user2:
+                raise PermissionDenied("User2 does not have permission to access this corpus.")
+            paragraphs = self.dj_corpus.get_paragraphs()
+
+        with self.assertRaises(PermissionDenied):
+            if self.dj_corpus.corpus_header_id.user != self.user2:
+                raise PermissionDenied("User2 does not have permission to access this corpus.")
+            serializable_data = self.dj_corpus.to_serializable()
+
+    def test_user1_can_edit_corpus(self):
+        try:
+            self.dj_corpus.original_text = 'Edited text'
+            self.dj_corpus.save()
+            self.assertEqual(self.dj_corpus.original_text, 'Edited text')
+        except PermissionDenied:
+            self.fail('User1 should be able to edit the corpus')
+
+    def test_user2_cannot_edit_corpus(self):
+        with self.assertRaises(PermissionDenied):
+            if self.dj_corpus.corpus_header_id.user != self.user2:
+                raise PermissionDenied("User2 does not have permission to edit this corpus.")
+            self.dj_corpus.original_text = 'Edited text'
+            self.dj_corpus.save()
+
+    def test_user1_can_delete_corpus(self):
+        try:
+            self.dj_corpus.delete()
+            corpuses_count = DjCorpus.objects.filter(corpus_header_id=self.corpus_header).count()
+            self.assertEqual(corpuses_count, 0)
+        except PermissionDenied:
+            self.fail('User1 should be able to delete the corpus')
+
+    def test_user2_cannot_delete_corpus(self):
+        with self.assertRaises(PermissionDenied):
+            if self.dj_corpus.corpus_header_id.user != self.user2:
+                raise PermissionDenied("User2 does not have permission to delete this corpus.")
+            self.dj_corpus.delete()
+
+class DjParagraphOwnershipTest(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(username='user1', password='pass1')
+        self.user2 = User.objects.create_user(username='user2', password='pass2')
+        self.corpus_header1 = CorpusHeader.objects.create(user=self.user1)
+        self.corpus_header2 = CorpusHeader.objects.create(user=self.user2)
+        self.corpus1 = DjCorpus.objects.create(
+            original_text='Sample Corpus 1',
+            p_div_locs='',
+            corpus_header_id=self.corpus_header1,
+            index=1
+        )
+        self.corpus2 = DjCorpus.objects.create(
+            original_text='Sample Corpus 2',
+            p_div_locs='',
+            corpus_header_id=self.corpus_header2,
+            index=1
+        )
+
+        self.paragraph1 = DjParagraph.objects.create(
+            tokens_json={'tokens': [{'text': 'token1', 'start': 0, 'end': 5}]},
+            pstate='VALID',
+            is_delimiter=False,
+            token_delimiters='',
+            annotator_info='info',
+            original_text='Paragraph for user1.',
+            corpus_id=self.corpus1,
+            index=0,
+            lang_from='en',
+            lang_to='fr',
+            annotator_name='John Doe'
+        )
+        self.paragraph2 = DjParagraph.objects.create(
+            tokens_json={'tokens': [{'text': 'token2', 'start': 0, 'end': 5}]},
+            pstate='VALID',
+            is_delimiter=False,
+            token_delimiters='',
+            annotator_info='info',
+            original_text='Paragraph for user2.',
+            corpus_id=self.corpus2,
+            index=0,
+            lang_from='es',
+            lang_to='en',
+            annotator_name='Jane Doe'
+        )
+
+    def test_user1_can_create_paragraph(self):
+        new_paragraph_data = {
+            'tokens_json': {'tokens': [{'text': 'token3', 'start': 0, 'end': 5}]},
+            'pstate': 'VALID',
+            'is_delimiter': False,
+            'token_delimiters': '',
+            'annotator_info': 'new info',
+            'original_text': 'New paragraph for user1.',
+            'corpus_id': self.corpus1,
+            'index': 1,
+            'lang_from': 'de',
+            'lang_to': 'en',
+            'annotator_name': 'John Smith'
+        }
+        paragraph = DjParagraph.objects.create(**new_paragraph_data)
+        self.assertEqual(DjParagraph.objects.count(), 3)
+        self.assertEqual(paragraph.original_text, 'New paragraph for user1.')
+    
+    def test_user2_cannot_create_paragraph_for_user1(self):
+        new_paragraph_data = {
+            'tokens_json': {'tokens': [{'text': 'token4', 'start': 0, 'end': 5}]},
+            'pstate': 'VALID',
+            'is_delimiter': False,
+            'token_delimiters': '',
+            'annotator_info': 'new info',
+            'original_text': 'New paragraph for user1 but created by user2.',
+            'corpus_id': self.corpus1,
+            'index': 2,
+            'lang_from': 'fr',
+            'lang_to': 'en',
+            'annotator_name': 'Jane Smith'
+        }
+
+        with self.assertRaises(PermissionDenied):
+            if self.corpus1.corpus_header_id.user != self.user2:
+                raise PermissionDenied("You do not have permission to create a paragraph for this corpus.")
+            DjParagraph.objects.create(**new_paragraph_data)
+    
+    def test_user1_can_edit_own_paragraph(self):
+        self.paragraph1.original_text = 'Edited paragraph for user1.'
+        self.paragraph1.save()
+        updated_paragraph = DjParagraph.objects.get(id=self.paragraph1.id)
+        self.assertEqual(updated_paragraph.original_text, 'Edited paragraph for user1.')
+
+    def test_user2_cannot_edit_user1_paragraph(self):
+        self.paragraph1.original_text = 'Attempt to edit by user2.'
+        with self.assertRaises(PermissionDenied):
+            if self.paragraph1.corpus_id.corpus_header_id.user != self.user2:
+                raise PermissionDenied("You do not have permission to edit this paragraph.")
+            self.paragraph1.save()
+
+    def test_user1_can_delete_own_paragraph(self):
+        self.paragraph1.delete()
+        self.assertEqual(DjParagraph.objects.count(), 1)  #
+
+    def test_user2_cannot_delete_user1_paragraph(self):
+        with self.assertRaises(PermissionDenied):
+            if self.paragraph1.corpus_id.corpus_header_id.user != self.user2:
+                raise PermissionDenied("You do not have permission to delete this paragraph.")
+            self.paragraph1.delete()
+'''    
+class CorpusHeaderOwnershipTest2(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user1', password='pass1')
+        self.client.login(username='user1', password='pass1')
+        self.url = reverse('api-v4-upload')  
+        self.corpus_data = {
+            'original_text': 'Sample text',
+            'p_div_locs': [],
+            'paragraphs': [],  
+            'paragraph_delimiters': []
+        }
+    
+    def test_user1_can_create_corpus(self):
+        response = self.client.post(self.url, {'corpus': self.corpus_data}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(CorpusHeader.objects.count(), 1)
+        corpus_id = response.data['corpus_id']
+        self.assertIsNotNone(corpus_id)
+
+    def test_user2_cannot_create_corpus_for_user1(self):
+        self.client.logout()
+        self.client.login(username='user2', password='pass2')
+        response = self.client.post(self.url, {'corpus': self.corpus_data}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(CorpusHeader.objects.count(), 0)
+
+    def test_user1_can_read_own_corpus(self):
+        response = self.client.post(self.url, {'corpus': self.corpus_data}, format='json')
+        corpus_id = response.data['corpus_id']
+
+        url = reverse('api-v4-corpuses-pk', args=[corpus_id])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        self.assertIn('corpuses_history', response.data)
+        self.assertGreater(len(response.data['corpuses_history']), 0)
+
+        first_corpus = response.data['corpuses_history'][0]
+        self.assertIn('original_text', first_corpus)
+        self.assertEqual(first_corpus['original_text'], self.corpus_data['original_text'])
+    
+    def test_user2_cannot_read_user1_corpus(self):
+        response = self.client.post(self.url, {'corpus': self.corpus_data}, format='json')
+        corpus_id = response.data['corpus_id']
+
+        self.client.logout()
+        self.client.login(username='user2', password='pass2')
+    
+        url = reverse('api-v4-corpuses-pk', args=[corpus_id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+'''    

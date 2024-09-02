@@ -391,10 +391,19 @@ class CheckUserViewV4(APIView):
 	def get(self, request, *args, **kwargs):
 		is_auth = request.user.is_authenticated
 
-		return Response(
-			{
+		if is_auth:
+			return Response(
+				{
+					"is_auth": is_auth,
+					"username": request.user.username if is_auth else None,
+					"email": request.user.email if is_auth else None,
+				}
+			)
+		else:
+			return Response(
+				{
 				"is_auth": is_auth,
-				"username": request.user.username if is_auth else None,
-				"email": request.user.email if is_auth else None,
-			}
-		)
+                "erorr": "User is not authenticated."
+				},
+                status=status.HTTP_401_UNAUTHORIZED
+            )

@@ -664,3 +664,29 @@ class CorpusHeaderOwnershipTest2(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 '''    
+class CheckUserViewTest(TestCase):
+    def setUp(self):
+        # 테스트용 클라이언트 생성
+        self.client = APIClient()
+        # 테스트용 사용자 생성
+        self.user = User.objects.create_user(username='testuser', email='testuser@example.com', password='testpassword')
+
+    def test_authenticated_user(self):
+        self.client.login(username='testuser', password='testpassword')
+        url = reverse('api-v4-user-check') 
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['is_auth'])
+        #print(response.data['is_auth'])
+        self.assertEqual(response.data['username'], 'testuser')
+        #print(response.data['username'])
+        self.assertEqual(response.data['email'], 'testuser@example.com')
+        #print(response.data['email'])
+
+    def test_unauthenticated_user(self):
+        url = reverse('api-v4-user-check')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertFalse(response.data['is_auth'])
+        self.assertEqual(response.data['erorr'], "User is not authenticated.")
+        #print(response.data['erorr'])

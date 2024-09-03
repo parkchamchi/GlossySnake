@@ -384,17 +384,94 @@ class TasksAbortViewV4(APIView):
 				status=status.HTTP_400_BAD_REQUEST
 			)
 		
-class CheckUserViewV4(APIView):
+class UserCheckViewV4(APIView):
 	parser_classes = [JSONParser]
 	permission_classes = (AllowAny, )
 
 	def get(self, request, *args, **kwargs):
-		is_auth = request.user.is_authenticated
+		try:
+			is_auth = request.user.is_authenticated
 
-		return Response(
-			{
-				"is_auth": is_auth,
-				"username": request.user.username if is_auth else None,
-				"email": request.user.email if is_auth else None,
-			}
-		)
+			return Response(
+				{
+					"is_auth": is_auth,
+					"username": request.user.username if is_auth else None,
+					"email": request.user.email if is_auth else None,
+				}
+			)
+		
+		except Exception as e:
+			return Response(
+				{
+					"success": False,
+					"error": str(e)
+				},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+		
+class UserOpenaiApiKeyViewV4(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, )
+
+	def get(self, request, *args, **kwargs):
+		try:
+			openai_api_key = request.user.openai_api_key
+
+			return Response(
+				{
+					"openai_api_key": openai_api_key,
+				}
+			)
+		except Exception as e:
+			return Response(
+				{
+					"success": False,
+					"error": str(e)
+				},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+		
+	def put(self, request, *args, **kwargs):
+		try:
+			openai_api_key = request.data.get("openai_api_key")
+			if not openai_api_key:
+				raise ValueError("`openai_api_key` not given.")
+
+			request.user.openai_api_key = openai_api_key
+			request.user.save()
+
+			return Response(
+					{
+						"success": True
+					},
+					status=status.HTTP_200_OK
+				)
+		except Exception as e:
+			return Response(
+				{
+					"success": False,
+					"error": str(e)
+				},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+		
+	def delete(self, request, *args, **kwargs):
+		try:
+			request.user.openai_api_key = None
+			request.user.save()
+
+			return Response(
+					{
+						"success": True
+					},
+					status=status.HTTP_200_OK
+				)
+		except Exception as e:
+			return Response(
+				{
+					"success": False,
+					"error": str(e)
+				},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+		

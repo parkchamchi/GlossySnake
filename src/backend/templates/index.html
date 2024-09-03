@@ -22,7 +22,7 @@
 
 			<div id="frontend_auth_div">
 				<h3>REST Auth</h3>
-				<button id="frontend_check_user_button"
+				<button id="frontend_user_check_button"
 					class="rest_auth_buttons btn btn-secondary"
 					onclick="onFrontendUserCheckButtonClicked()">
 					/user/check
@@ -56,6 +56,25 @@
 					onclick="onFrontendRestAuthLogoutButtonClicked()">
 					/rest-auth/logout/
 				</button>
+
+				<br>
+
+				<button id="frontend_get_user_openai_api_key_button"
+					class="rest_auth_buttons btn btn-secondary"
+					onclick="onFrontendGetUserOpenaiApiKeyButtonClicked()">
+					GET /user/openai-api-key
+				</button>
+				<button id="frontend_put_user_openai_api_key_button"
+					class="rest_auth_buttons btn btn-secondary"
+					onclick="onFrontendPutUserOpenaiApiKeyButtonClicked()">
+					PUT /user/openai-api-key
+				</button>
+				<button id="frontend_delete_user_openai_api_key_button"
+					class="rest_auth_buttons btn btn-secondary"
+					onclick="onFrontendDeleteUserOpenaiApiKeyButtonClicked()">
+					DELETE /user/openai-api-key
+				</button>
+				<p id="frontend_user_openai_api_key_p"></p>
 			</div>
 			<hr>
 			
@@ -155,6 +174,9 @@
 					<option value="/tasks/">/tasks/</option>
 					<option value="/corpuses/">/corpuses/</option>
 					<option value="/user/check">/user/check</option>
+					<option value="GET /user/openai-api-key">GET /user/openai-api-key</option>
+					<option value="PUT /user/openai-api-key">PUT /user/openai-api-key</option>
+					<option value="DELETE /user/openai-api-key">DELETE /user/openai-api-key</option>
 					<option value="/rest-auth/registration/">/rest-auth/registration/</option>
 					<option value="/rest-auth/login/">/rest-auth/login/</option>
 					<option value="/rest-auth/logout/">/rest-auth/logout/</option>
@@ -227,6 +249,12 @@
 					<input type="text" name="password" placeholder='' value='' id="password_input"  class="field_input"><br>
 				</div>
 
+				<!-- /user/openai-api-key/ -->
+				<div id="openai_api_key_field" class="field_div">
+					<label for="openai_api_key">openai_api_key</label>
+					<input type="text" name="openai_api_key" placeholder='' value='' id="openai_api_key_input"  class="field_input"><br>
+				</div>
+
 				<button class="makequerybutton btn btn-primary" onclick="makeQuery()">Make Query</button>
 			</div>
 
@@ -238,7 +266,12 @@
 				<input type="radio" name="method" value="GET" id="GET_radio">
 				<label for="method">GET</label>
 				<input type="radio" name="method" value="POST" id="POST_radio" checked>
-				<label for="method">POST</label><br>
+				<label for="method">POST</label>
+				<input type="radio" name="method" value="PUT" id="PUT_radio" checked>
+				<label for="method">PUT</label>
+				<input type="radio" name="method" value="POST" id="DELETE_radio" checked>
+				<label for="method">DELETE</label>
+				<br>
 
 				<label for="uri">URI</label>
 				<input type="text" name="uri" placeholder="uri" id="uri_input"><br>
@@ -275,7 +308,7 @@
 		// SCRIPTS
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		const METHODS = ["GET", "POST"]; //prolly not actual const
+		const METHODS = ["GET", "POST", "PUT", "DELETE"]; //prolly not actual const
 
 		const POST_ENDPOINTS_AND_REQS = {
 			"/upload": ["original_text"],
@@ -290,6 +323,9 @@
 		}
 		//TODO: merge with above. This assumes that each endpoint has only on method.
 		const GET_ENDPOINTS = ["/tasks/", "/corpuses/", "/user/check"]
+		const PUT_ENDPOINTS_AND_REQS = {
+			"PUT /user/openai-api-key": ["openai_api_key"],
+		};
 
 		window.onload = function () {
 			onFrontendUserCheckButtonClicked();
@@ -298,11 +334,32 @@
 			setTasksDiv();
 		}
 
+		function getReqs(endpoint) {
+			let method = doesEndpointHaveExplicitMethod(endpoint);
+			if (!method) {
+				if (GET_ENDPOINTS.includes(endpoint))
+					method = "GET";
+				else if (POST_ENDPOINTS_AND_REQS.includes(endpoint))
+					method = "POST";
+			}		
+
+			switch (method) {
+			case "GET":
+				return [];
+			case "POST":
+				return POST_ENDPOINTS_AND_REQS[endpoint];
+			case "PUT":
+				return PUT_ENDPOINTS_AND_REQS[endpoint];
+			case "DELETE":
+				return [];
+			default:
+				throw "getReqs(): could not infer the method";
+			}
+		}
+
 		function onEndpointChanged() {
 			let endpoint = document.getElementById("endpoint_select").value;
-			let reqs = [];
-			if (!GET_ENDPOINTS.includes(endpoint))
-				reqs = POST_ENDPOINTS_AND_REQS[endpoint];
+			let reqs = getReqs(endpoint);
 
 			const fields_div = document.getElementById("fields_div");
 			const divs = fields_div.getElementsByClassName("field_div");
@@ -316,7 +373,21 @@
 			}
 		}
 
+		function doesEndpointHaveExplicitMethod(endpoint) {
+			for (const method of METHODS) {
+				if (endpoint.startsWith(method))
+					return method;
+			}
+
+			return false;
+		}
+
 		function setUri(resource, version) {
+			method = doesEndpointHaveExplicitMethod(resource);
+			if (method) {
+				resource = resource.substring(method.length).trim(); //Remove the explicit method
+			}
+
 			let route = document.getElementById("route_input").value;
 			uri = route + version + resource;
 			document.getElementById("uri_input").value = uri;
@@ -358,7 +429,10 @@
 			let endpoint = document.getElementById("endpoint_select").value;
 			let version = document.getElementById("api_uri_input").value;
 			setUri(endpoint, version);
-			let method = (GET_ENDPOINTS.includes(endpoint) ? "GET" : "POST");
+
+			let method = doesEndpointHaveExplicitMethod(endpoint);
+			if (!method)
+				method = (GET_ENDPOINTS.includes(endpoint) ? "GET" : "POST");
 			setMethod(method);
 
 			if (method == "GET") {
@@ -366,7 +440,7 @@
 				return;
 			}
 
-			const reqs = POST_ENDPOINTS_AND_REQS[endpoint];
+			const reqs = getReqs(endpoint);
 
 			const fields_div = document.getElementById("fields_div");
 			const inputs = fields_div.getElementsByClassName("field_input"); //Incl. textarea
@@ -410,7 +484,7 @@
 					"Content-type": "application/json; charset=UTF-8",
 				}
 			}
-			if (method == "POST") {
+			if (method != "GET") {
 				data.body = query;
 
 				//POST: set CSRF too
@@ -1083,6 +1157,22 @@
 		function clearUserEmailP() {
 			const p = document.getElementById("frontend_user_email_p");
 			p.innerText = "";
+		}
+
+		function onFrontendGetUserOpenaiApiKeyButtonClicked() {
+			selectEndpoint("GET /user/openai-api-key");
+			makeQuery();
+			submit();
+		}
+		function onFrontendPutUserOpenaiApiKeyButtonClicked() {
+			selectEndpoint("PUT /user/openai-api-key");
+			makeQuery();
+			submit();
+		}
+		function onFrontendDeleteUserOpenaiApiKeyButtonClicked() {
+			selectEndpoint("DELETE /user/openai-api-key");
+			makeQuery();
+			submit();
 		}
 	</script>
 

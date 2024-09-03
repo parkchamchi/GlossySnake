@@ -50,5 +50,6 @@ urlpatterns = [
 	path("v4/tasks/<int:pk>/abort", TasksAbortViewV4.as_view(), name="api-v4-tasks-pk-abort"),
 	path("v4/tasks/", TasksListAPIViewV4.as_view(), name="api-v4-tasks"),
 
-	path("v4/user/check", CheckUserViewV4.as_view(), name="api-v4-user-check"),
+	path("v4/user/check", UserCheckViewV4.as_view(), name="api-v4-user-check"),
+	path("v4/user/openai-api-key", UserOpenaiApiKeyViewV4.as_view(), name="api-v4-user-openai-api-key"),
 ]

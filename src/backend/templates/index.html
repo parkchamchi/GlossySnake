@@ -339,7 +339,7 @@
 			if (!method) {
 				if (GET_ENDPOINTS.includes(endpoint))
 					method = "GET";
-				else if (POST_ENDPOINTS_AND_REQS.includes(endpoint))
+				else if (POST_ENDPOINTS_AND_REQS.hasOwnProperty(endpoint))
 					method = "POST";
 			}		
 

@@ -170,6 +170,12 @@ class AnnotatorAnnotateAPIViewV4(ManipulatorAPIViewV4):
 			if annotator_name == "chatgpt_ft0":
 				from .chatgpt_annotator import ChatgptAnnotator #TODO: try?
 				annotator = ChatgptAnnotator()
+			elif annotator_name.startswith("user_chatgpt"):
+				#Use the user's openai key
+				user_openai_key = uc.user.openai_api_key #since `uc` (`CorpusHeader`) has the `user` field, use it TODO: verify integrity
+				if not user_openai_key:
+					raise ValueError("/annotate: user's openai api key is not set or invalid.")
+				raise NotImplementedError()
 			else:
 				annotator = Annotator()
 

@@ -23,6 +23,9 @@ note left of AnnotateOptions::annotator_name
 	can be:
 	  - null
 	  - "chatgpt_ft0"
+	  - "user_chatgpt_0"
+	  - "user_chatgpt_1"
+	  - ...
 end note
 note left of AnnotateOptions::target_paragraphs
 	can be null

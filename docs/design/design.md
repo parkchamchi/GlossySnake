@@ -80,6 +80,10 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 ### Req. options
 ![images/class_req_options.png](images/class_req_options.png)
 
+- For `AnnotateOptions.annotator_name`
+  - `null`: defaults to `"chatpgt_ft0"`
+  - `"chatpgt_ft0"`: uses the pretrained ChatGPT model
+  - `"user_chatgpt_%d`": uses the user's own OpenAI API key (`%d` starts with `0`.)
 - On `/annotator/reannotate`, the fields of `AnnotateOptions`:
   - `.target_paragraphs`: only the first element is used.
   - The other fields can be null can be null (will use the previous one)
@@ -115,7 +119,6 @@ class Annotator:
 		p.pstate = "ANNOTATED"
 		p.annotator_info = ...
 ```
-
 
 ## Seq.
 ![images/seq_general.png](images/seq_general.png)

@@ -175,6 +175,13 @@ class AnnotatorAnnotateAPIViewV4(ManipulatorAPIViewV4):
 				user_openai_key = uc.user.openai_api_key #since `uc` (`CorpusHeader`) has the `user` field, use it TODO: verify integrity
 				if not user_openai_key:
 					raise ValueError("/annotate: user's openai api key is not set or invalid.")
+
+				#Parse the `%d`
+				num = annotator_name.replace("user_chatgpt")
+				num = int(num)
+
+				print("TODO: implement the behavior for different `num`s")
+
 				raise NotImplementedError()
 			else:
 				annotator = Annotator()

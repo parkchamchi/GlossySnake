@@ -41,9 +41,9 @@ class InitialLineNotFoundException(ChatgptGlossFetcherException):
 
 #Following PoC.
 class ChatgptAnnotator(Annotator):
-	def __init__(self, use_pretrained_model=True):
+	def __init__(self, use_pretrained_model=True, user_openai_api_key=None):
 		self.annotator_name = "chatgpt_ft0"
-		self.gloss_fetcher = ChatgptGlossFetcher(use_pretrained_model=use_pretrained_model) #TODO: pretrained parameter
+		self.gloss_fetcher = ChatgptGlossFetcher(use_pretrained_model=use_pretrained_model, user_openai_api_key=user_openai_api_key) #TODO: pretrained parameter
 
 	def put_gloss(self, p: Paragraph):
 		#First get the token strings. This ignores the delimiters like newlines, which may be negative for the performance. (TODO: check)
@@ -222,11 +222,12 @@ class GlossFetcher:
 		return [[f"dummy{i}"] for i in range(length)]
 
 class ChatgptGlossFetcher(GlossFetcher):
-	def __init__(self, chatgpt_gloss_options=None, use_pretrained_model=False, ignore_incomplete_res=True, max_token_ratio=3):
+	def __init__(self, chatgpt_gloss_options=None, use_pretrained_model=False, ignore_incomplete_res=True, max_token_ratio=3, user_openai_api_key=None):
 		if chatgpt_gloss_options is None:
 			chatgpt_gloss_options = ChatgptGlossOptions.get_default_obj(is_trained=use_pretrained_model)
 		self.chatgpt_gloss_options = chatgpt_gloss_options
 		self.ignore_incomplete_res = ignore_incomplete_res
+		self.user_openai_api_key = user_openai_api_key
 
 		#self.use_pretrained_model = use_pretrained_model
 		if use_pretrained_model:

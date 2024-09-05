@@ -5,4 +5,11 @@ from django.contrib.auth.admin import UserAdmin
 
 from .models import User
 
-#admin.site.register(User, UserAdmin)
+class ExtendedUserAdmin(UserAdmin):
+	model = User
+	list_display = ["email", "available_openai_tokens"]
+	fieldsets = UserAdmin.fieldsets + (
+		(None, {"fields": ("available_openai_tokens", )}),
+	)
+
+admin.site.register(User, ExtendedUserAdmin)

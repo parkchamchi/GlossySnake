@@ -51,12 +51,6 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 - `GET /user/check`
   - Res: `"is_auth"`, `"email"`
   - Note: No authentication required.
-##### NOT IMPLEMENTED
-- `GET /user/openai_api_key`
-  - Res: `"openai_api_key"`
-  - Note: can be null. (if not set)
-- `PUT /user/openai_api_key`
-- `DELETE /user/openai_api_key`
 
 ##### /rest-auth/
 - See [`dj-rest-auth` Doc](https://dj-rest-auth.readthedocs.io/en/latest/api_endpoints.html)
@@ -133,10 +127,22 @@ class Annotator:
 - **email**
 - password
 - ~~username~~ *(not used)*
+### Token infos
+- available_openai_tokens
 ### ~~API key infos~~ NOT IMPLEMENTED.
 - personal_openai_key *(TODO: take care of this sensitive data)*
 
 ## Deprecated
+
+### v4
+#### `openai_api_key`
+- `GET /user/openai_api_key`
+  - Res: `"openai_api_key"`
+  - Note: can be null. (if not set)
+- `PUT /user/openai_api_key`
+- `DELETE /user/openai_api_key`
+
+- `User.personal_openai_key` *(take care of this sensitive data)*
 
 ### v3
 #### ER

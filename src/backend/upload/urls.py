@@ -3,12 +3,32 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from .views_v4 import *
-from .views_v3 import *
-from .views_v2 import *
+#from .views_v3 import *
+#from .views_v2 import *
 
 urlpatterns = [
-	#path('admin/', admin.site.urls),
-	
+	#/v4/
+	path("v4/upload", UploadAPIViewV4.as_view(), name="api-v4-upload"),
+
+	path("v4/parser/divide", ParserDivideAPIViewV4.as_view(), name="api-v4-parser-divide"),
+	path("v4/parser/parse", ParserParserAPIViewV4.as_view(), name="api-v4-parser-parse"),
+
+	path("v4/annotator/annotate", AnnotatorAnnotateAPIViewV4.as_view(), name="api-v4-annotator-annotate"),
+	path("v4/annotator/reannotate", AnnotatorReannotateAPIViewV4.as_view(), name="api-v4-annotator-reannotate"),
+
+	path("v4/corpuses/<int:pk>", CorpusesAPIViewV4.as_view(), name="api-v4-corpuses-pk"),
+	path("v4/corpuses/", CorpusesListAPIViewV4.as_view(), name="api-v4-corpuses"),
+	path("v4/tasks/<int:pk>", TasksAPIViewV4.as_view(), name="api-v4-tasks-pk"),
+	path("v4/tasks/<int:pk>/abort", TasksAbortViewV4.as_view(), name="api-v4-tasks-pk-abort"),
+	path("v4/tasks/", TasksListAPIViewV4.as_view(), name="api-v4-tasks"),
+
+	path("v4/user/check", UserCheckViewV4.as_view(), name="api-v4-user-check"),
+	path("v4/user/available-openai-tokens", UserAvailableOpenaiTokensViewV4.as_view(), name="api-v4-user-available-openai-tokens"),
+	#DEPRECATED
+	path("v4/user/openai-api-key", UserOpenaiApiKeyViewV4.as_view(), name="api-v4-user-openai-api-key"),
+]
+
+"""
 	#/v2/
 	path("v2/upload", UploadAPIView.as_view(), name="api-upload"),
 
@@ -34,24 +54,4 @@ urlpatterns = [
 	path("v3/corpuses/", CorpusesListAPIViewV3.as_view(), name="api-v3-corpuses"),
 	path("v3/tasks/<int:pk>", TasksAPIViewV3.as_view(), name="api-v3-tasks-pk"),
 	path("v3/tasks/", TasksListAPIViewV3.as_view(), name="api-v3-tasks"),
-
-	#/v4/
-	path("v4/upload", UploadAPIViewV4.as_view(), name="api-v4-upload"),
-
-	path("v4/parser/divide", ParserDivideAPIViewV4.as_view(), name="api-v4-parser-divide"),
-	path("v4/parser/parse", ParserParserAPIViewV4.as_view(), name="api-v4-parser-parse"),
-
-	path("v4/annotator/annotate", AnnotatorAnnotateAPIViewV4.as_view(), name="api-v4-annotator-annotate"),
-	path("v4/annotator/reannotate", AnnotatorReannotateAPIViewV4.as_view(), name="api-v4-annotator-reannotate"),
-
-	path("v4/corpuses/<int:pk>", CorpusesAPIViewV4.as_view(), name="api-v4-corpuses-pk"),
-	path("v4/corpuses/", CorpusesListAPIViewV4.as_view(), name="api-v4-corpuses"),
-	path("v4/tasks/<int:pk>", TasksAPIViewV4.as_view(), name="api-v4-tasks-pk"),
-	path("v4/tasks/<int:pk>/abort", TasksAbortViewV4.as_view(), name="api-v4-tasks-pk-abort"),
-	path("v4/tasks/", TasksListAPIViewV4.as_view(), name="api-v4-tasks"),
-
-	path("v4/user/check", UserCheckViewV4.as_view(), name="api-v4-user-check"),
-	path("v4/user/available-openai-tokens", UserAvailableOpenaiTokensViewV4.as_view(), name="api-v4-user-available-openai-tokens"),
-	#DEPRECATED
-	path("v4/user/openai-api-key", UserOpenaiApiKeyViewV4.as_view(), name="api-v4-user-openai-api-key"),
-]
+"""

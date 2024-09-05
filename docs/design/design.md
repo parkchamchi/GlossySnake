@@ -51,6 +51,8 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 - `GET /user/check`
   - Res: `"is_auth"`, `"email"`
   - Note: No authentication required.
+- `GET /user/available-openai-tokens`
+  - Res: `"available-openai-tokens"`
 
 ##### /rest-auth/
 - See [`dj-rest-auth` Doc](https://dj-rest-auth.readthedocs.io/en/latest/api_endpoints.html)

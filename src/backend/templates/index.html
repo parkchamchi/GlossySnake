@@ -58,6 +58,12 @@
 				</button>
 
 				<hr>
+				<button id="frontend_user_available_openai_tokens_button"
+					class="rest_auth_buttons btn btn-secondary"
+					onclick="onFrontendUserAvailableOpenaiTokensButtonClicked()">
+					/user/available-openai-tokens
+				</button>
+
 				<!--
 				<button id="frontend_get_user_openai_api_key_button"
 					class="rest_auth_buttons btn btn-secondary"
@@ -175,12 +181,14 @@
 					<option value="/tasks/">/tasks/</option>
 					<option value="/corpuses/">/corpuses/</option>
 					<option value="/user/check">/user/check</option>
-					<option value="GET /user/openai-api-key">GET /user/openai-api-key</option>
-					<option value="PUT /user/openai-api-key">PUT /user/openai-api-key</option>
-					<option value="DELETE /user/openai-api-key">DELETE /user/openai-api-key</option>
+					<option value="/user/available-openai-tokens">/user/available-openai-tokens</option>
+
 					<option value="/rest-auth/registration/">/rest-auth/registration/</option>
 					<option value="/rest-auth/login/">/rest-auth/login/</option>
 					<option value="/rest-auth/logout/">/rest-auth/logout/</option>
+					<option value="GET /user/openai-api-key">GET /user/openai-api-key</option>
+					<option value="PUT /user/openai-api-key">PUT /user/openai-api-key</option>
+					<option value="DELETE /user/openai-api-key">DELETE /user/openai-api-key</option>
 				</select>
 			</div>
 
@@ -323,7 +331,7 @@
 			"/rest-auth/logout/": [],
 		}
 		//TODO: merge with above. This assumes that each endpoint has only on method.
-		const GET_ENDPOINTS = ["/tasks/", "/corpuses/", "/user/check"]
+		const GET_ENDPOINTS = ["/tasks/", "/corpuses/", "/user/check", "/user/available-openai-tokens"];
 		const PUT_ENDPOINTS_AND_REQS = {
 			"PUT /user/openai-api-key": ["openai_api_key"],
 		};
@@ -1178,6 +1186,12 @@
 		}
 		function onFrontendDeleteUserOpenaiApiKeyButtonClicked() {
 			selectEndpoint("DELETE /user/openai-api-key");
+			makeQuery();
+			submit();
+		}
+
+		function onFrontendUserAvailableOpenaiTokensButtonClicked() {
+			selectEndpoint("/user/available-openai-tokens");
 			makeQuery();
 			submit();
 		}

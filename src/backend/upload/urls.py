@@ -51,5 +51,7 @@ urlpatterns = [
 	path("v4/tasks/", TasksListAPIViewV4.as_view(), name="api-v4-tasks"),
 
 	path("v4/user/check", UserCheckViewV4.as_view(), name="api-v4-user-check"),
+	path("v4/user/available-openai-tokens", UserAvailableOpenaiTokensViewV4.as_view(), name="api-v4-user-available-openai-tokens"),
+	#DEPRECATED
 	path("v4/user/openai-api-key", UserOpenaiApiKeyViewV4.as_view(), name="api-v4-user-openai-api-key"),
 ]

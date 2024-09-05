@@ -422,6 +422,29 @@ class UserCheckViewV4(APIView):
 				status=status.HTTP_400_BAD_REQUEST
 			)
 		
+class UserAvailableOpenaiTokensViewV4(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, )
+
+	def get(self, request, *args, **kwargs):
+		try:
+			available_openai_tokens = request.user.available_openai_tokens
+
+			return Response(
+				{
+					"available_openai_tokens": available_openai_tokens,
+				}
+			)
+		except Exception as e:
+			return Response(
+				{
+					"success": False,
+					"error": str(e)
+				},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+		
+#DEPRECATED
 class UserOpenaiApiKeyViewV4(APIView):
 	parser_classes = [JSONParser]
 	permission_classes = (IsAuthenticated, )

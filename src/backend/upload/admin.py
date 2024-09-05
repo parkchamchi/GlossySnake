@@ -9,7 +9,7 @@ class ExtendedUserAdmin(UserAdmin):
 	model = User
 	list_display = ["email", "available_openai_tokens"]
 	fieldsets = UserAdmin.fieldsets + (
-		(None, {"fields": ("available_openai_tokens", )}),
+		("OpenAI Info", {"fields": ("available_openai_tokens", )}),
 	)
 
 admin.site.register(User, ExtendedUserAdmin)

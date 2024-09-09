@@ -45,6 +45,7 @@ def make_dummy_result(outstring):
 
 	return out
 
+"""
 class AnnotateAPIViewV1(views.APIView):
 	def get(self, request):
 		return Response(make_dummy_result("ERROR: GOT `GET` NOT `POST`"))
@@ -63,3 +64,4 @@ class AnnotateAPIViewV1(views.APIView):
 			res_add = f"EXCEPTION: {exc}"
 
 		return Response(make_dummy_result("ANNOTATE: received. " + res_add))
+"""

@@ -1,0 +1,15 @@
+[Unit]
+Description=uWSGI service
+After=syslog.target
+
+[Service]
+ExecStart=srv/GlossySnake/src/backend/.venv/bin/uwsgi -i /srv/GlossySnake/src/backend/.config/uwsgi/glossysnake.ini
+
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target

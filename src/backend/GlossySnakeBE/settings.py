@@ -27,6 +27,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
 	"127.0.0.1",
 	".ap-northeast-2.compute.amazonaws.com",
+	"glossysnake.com",
 ]
 
 # Application definition

@@ -22,6 +22,11 @@
 
 			<div id="frontend_auth_div">
 				<h3>REST Auth</h3>
+				<button id="frontend_user_get_temp_user_button"
+					class="rest_auth_buttons btn btn-secondary"
+					onclick="onFrontendUserGetTempUserButtonClicked()">
+					/user/get-temp-user
+				</button>
 				<button id="frontend_user_check_button"
 					class="rest_auth_buttons btn btn-secondary"
 					onclick="onFrontendUserCheckButtonClicked()">
@@ -182,6 +187,7 @@
 					<option value="/corpuses/">/corpuses/</option>
 					<option value="/user/check">/user/check</option>
 					<option value="/user/available-openai-tokens">/user/available-openai-tokens</option>
+					<option value="/user/get-temp-user">/user/get-temp-user</option>
 
 					<option value="/rest-auth/registration/">/rest-auth/registration/</option>
 					<option value="/rest-auth/login/">/rest-auth/login/</option>
@@ -331,7 +337,7 @@
 			"/rest-auth/logout/": [],
 		}
 		//TODO: merge with above. This assumes that each endpoint has only on method.
-		const GET_ENDPOINTS = ["/tasks/", "/corpuses/", "/user/check", "/user/available-openai-tokens"];
+		const GET_ENDPOINTS = ["/tasks/", "/corpuses/", "/user/check", "/user/available-openai-tokens", "/user/get-temp-user"];
 		const PUT_ENDPOINTS_AND_REQS = {
 			"PUT /user/openai-api-key": ["openai_api_key"],
 		};
@@ -504,7 +510,8 @@
 			}
 
 			//Ignore non-auth endpoints if not logged in
-			if (!isUserEmailPFilled() && !uri.includes("auth") && !uri.includes("/user/check")) {
+			const AUTH_ENDPOINTS = ["auth", "/user/check", "/user/get-temp-user"];
+			if (!isUserEmailPFilled() && !AUTH_ENDPOINTS.some(endpoint => uri.includes(endpoint))) {
 				console.log("Ignoring " + uri + " as not logged in.");
 				return;
 			}
@@ -892,9 +899,25 @@
 		}
 		document.addEventListener("response_event", onRestAuthUserChangedResponse);
 
+		async function onUserGetTempUserResponse(event) {
+			if (!event.detail.url.endsWith("/user/get-temp-user"))
+				return;
+
+			const json = await event.detail.json;
+			const success = json.success;
+			if (success) {
+				//Update the Email field
+				onFrontendUserCheckButtonClicked();
+			}
+			else {
+				console.error("/user/get-temp-user: !success")
+			}
+		}
+		document.addEventListener("response_event", onUserGetTempUserResponse);
+
 		async function onAnyOtherResponse(event) {
 			const endpointsToExclude = [
-				"/corpuses/", "/tasks/", "/user/check",
+				"/corpuses/", "/tasks/", "/user/check", "/user/get-temp-user",
 				"/rest-auth/registration/", "/rest-auth/login/", "/rest-auth/logout/",
 			];
 			if (endpointsToExclude.some((endpoint) =>
@@ -1196,6 +1219,12 @@
 
 		function onFrontendUserAvailableOpenaiTokensButtonClicked() {
 			selectEndpoint("/user/available-openai-tokens");
+			makeQuery();
+			submit();
+		}
+
+		function onFrontendUserGetTempUserButtonClicked() {
+			selectEndpoint("/user/get-temp-user");
 			makeQuery();
 			submit();
 		}

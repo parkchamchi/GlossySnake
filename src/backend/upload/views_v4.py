@@ -19,6 +19,7 @@ from .dj_serializables_v4 import (
 from .parser import Parser
 from .annotator import Annotator
 from .serializables import Corpus
+from .models import User
 
 import traceback
 from typing import Callable
@@ -408,7 +409,7 @@ class UserCheckViewV4(APIView):
 			return Response(
 				{
 					"is_auth": is_auth,
-					"username": request.user.username if is_auth else None,
+					#"username": request.user.username if is_auth else None,
 					"email": request.user.email if is_auth else None,
 				}
 			)
@@ -443,7 +444,30 @@ class UserAvailableOpenaiTokensViewV4(APIView):
 				},
 				status=status.HTTP_400_BAD_REQUEST
 			)
-		
+
+class UserGetTempUserViewV4(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (AllowAny, )
+
+	def get(self, request, *args, **kwargs):
+		try:
+			temp_user = User.get_temp_user(request=request)
+
+			return Response(
+				{
+					"success": True,
+				}
+			)
+		except Exception as e:
+			raise e
+			return Response(
+				{
+					"success": False,
+					"error": str(e)
+				},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+
 #DEPRECATED
 class UserOpenaiApiKeyViewV4(APIView):
 	parser_classes = [JSONParser]

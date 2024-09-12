@@ -69,24 +69,23 @@
 					/user/available-openai-tokens
 				</button>
 
-				<!--
-				<button id="frontend_get_user_openai_api_key_button"
-					class="rest_auth_buttons btn btn-secondary"
-					onclick="onFrontendGetUserOpenaiApiKeyButtonClicked()">
-					GET /user/openai-api-key
-				</button>
-				<button id="frontend_put_user_openai_api_key_button"
-					class="rest_auth_buttons btn btn-secondary"
-					onclick="onFrontendPutUserOpenaiApiKeyButtonClicked()">
-					PUT /user/openai-api-key
-				</button>
-				<button id="frontend_delete_user_openai_api_key_button"
-					class="rest_auth_buttons btn btn-secondary"
-					onclick="onFrontendDeleteUserOpenaiApiKeyButtonClicked()">
-					DELETE /user/openai-api-key
-				</button>
-				<p id="frontend_user_openai_api_key_p"></p>
-				-->
+				<hr>
+				<label for="frontend_annotator_name">annotator_name:</label>
+				<select name="frontend_annotator_name" id="frontend_annotator_name_select">
+					<option value="dummy">dummy</option>
+					<option value="chatgpt_ft0">chatgpt_ft0</option>
+					<option value="chatgpt_gpt-3.5-turbo-untrained_0">chatgpt_gpt-3.5-turbo-untrained_0</option>
+					<option value="chatgpt_gpt-3.5-turbo-pretrained_0">chatgpt_gpt-3.5-turbo-pretrained_0</option>
+				</select>
+				<label for="frontend_lang_from">lang_from:</label>
+				<select name="frontend_lang_from" id="frontend_lang_from_select">
+					<option value="French">French</option>
+					<option value="German">German</option>
+				</select>
+				<label for="frontend_lang_to">lang_to:</label>
+				<select name="frontend_lang_to" id="frontend_lang_to_select">
+					<option value="English">English</option>
+				</select>
 			</div>
 			<hr>
 			
@@ -592,26 +591,12 @@
 				if (hasId && !p.is_delimiter && p.tokens && p.tokens.length > 0) {
 					str += `
 						<span>
-							<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus.id}, 'lang_from', 'lang_to', null, [${p_idx}])">
-								Annotate (dummy)
+							<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus.id}, [${p_idx}])">
+								Annotate
 							</button>
-							<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus.id}, 'French', 'English', 'chatgpt_ft0', [${p_idx}])">
-								Annotate (chatgpt_ft0, from French)
-							</button>
-							<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus.id}, 'German', 'French', 'chatgpt_ft0', [${p_idx}])">
-								Annotate (chatgpt_ft0, from German)
-							</button>
-							<!--
-							<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus.id}, 'German', 'English', 'user_chatgpt_0')">
-								Annotate (user_chatgpt_0, from German)
-							</button>
-							-->
 							<br>
 							<button class="corpus_button btn btn-light" onclick="onCorpusReannotateButtonClicked(${corpus.id}, ${p_idx}, null, null, null)">
-								Reannotate (dummy)
-							</button>
-							<button class="corpus_button btn btn-light" onclick="onCorpusReannotateButtonClicked(${corpus.id}, ${p_idx}, null, null, 'chatgpt_ft0')">
-								Reannotate (chatgpt_ft0)
+								Reannotate
 							</button>
 						</span>
 					`
@@ -678,19 +663,8 @@
 									<br>
 
 									<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id})">
-										Annotate (dummy)
+										Annotate
 									</button>
-									<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id}, 'French', 'English', 'chatgpt_ft0')">
-										Annotate (chatgpt_ft0, from French)
-									</button>
-									<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id}, 'German', 'English', 'chatgpt_ft0')">
-										Annotate (chatgpt_ft0, from German)
-									</button>
-									<!--
-									<button class="corpus_button btn btn-light" onclick="onCorpusAnnotateButtonClicked(${corpus_id}, 'German', 'English', 'user_chatgpt_0')">
-										Annotate (user_chatgpt_0, from German)
-									</button>
-									-->
 								</span>
 								<br>
 							`;
@@ -965,13 +939,26 @@
 			submit();
 		}
 
-		function onCorpusAnnotateButtonClicked(corpus_id, lang_from="French", lang_to="English", annotator_name=null, target_paragraphs=null) {
+		function AnnotateOptions(annotator_name, lang_from, lang_to, target_paragraphs) {
+			this.annotator_name = annotator_name;
+			this.lang_from = lang_from;
+			this.lang_to = lang_to;
+			this.target_paragraphs = target_paragraphs;
+		}
+		AnnotateOptions.getFromFrontend = function (target_paragraphs=null) {
+			annotator_name = document.getElementById("frontend_annotator_name_select").value;
+			lang_from = document.getElementById("frontend_lang_from_select").value;
+			lang_to = document.getElementById("frontend_lang_to_select").value;
+			
+			return new AnnotateOptions(annotator_name, lang_from, lang_to, target_paragraphs);
+		}
+
+		function onCorpusAnnotateButtonClicked(corpus_id, target_paragraphs=null) {
 			selectEndpoint("/annotator/annotate");
 			setField("corpus_id", corpus_id);
 
-			let annotate_options = {
-				lang_from: lang_from, lang_to: lang_to, annotator_name: annotator_name, target_paragraphs: target_paragraphs,
-			};
+			let annotate_options = AnnotateOptions.getFromFrontend(target_paragraphs);
+			console.log(annotate_options);
 			annotate_options = JSON.stringify(annotate_options);
 			setField("annotate_options", annotate_options);
 
@@ -979,7 +966,7 @@
 			submit();
 		}
 
-		function onCorpusReannotateButtonClicked(corpus_id, target_p, lang_from="French", lang_to="English", annotator_name=null) {
+		function onCorpusReannotateButtonClicked(corpus_id, target_p) {
 			const p_set = isTokenSelected(corpus_id, target_p, null, true);
 			if (!p_set) {
 				console.log("reannotate: no token selected.");
@@ -989,9 +976,7 @@
 			selectEndpoint("/annotator/reannotate");
 			setField("corpus_id", corpus_id);
 
-			let annotate_options = {
-				lang_from: lang_from, lang_to: lang_to, annotator_name: annotator_name, target_paragraphs: [target_p],
-			};
+			let annotate_options = AnnotateOptions.getFromFrontend([target_p]);
 			annotate_options = JSON.stringify(annotate_options);
 			setField("annotate_options", annotate_options);
 

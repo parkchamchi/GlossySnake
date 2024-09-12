@@ -17,7 +17,7 @@ from .dj_serializables_v4 import (
 )
 
 from .parser import Parser
-from .annotator import Annotator
+from .annotator import get_annotator
 from .serializables import Corpus
 from .models import User
 
@@ -168,24 +168,7 @@ class AnnotatorAnnotateAPIViewV4(ManipulatorAPIViewV4):
 			target_paragraphs = annotate_options.get("target_paragraphs")
 			
 			#Annotate
-			if annotator_name == "chatgpt_ft0":
-				from .chatgpt_annotator import ChatgptAnnotator #TODO: try?
-				annotator = ChatgptAnnotator()
-			elif annotator_name.startswith("user_chatgpt"):
-				#Use the user's openai key
-				user_openai_key = uc.user.openai_api_key #since `uc` (`CorpusHeader`) has the `user` field, use it TODO: verify integrity
-				if not user_openai_key:
-					raise ValueError("/annotate: user's openai api key is not set or invalid.")
-
-				#Parse the `%d`
-				num = annotator_name.replace("user_chatgpt")
-				num = int(num)
-
-				print("TODO: implement the behavior for different `num`s")
-
-				raise NotImplementedError()
-			else:
-				annotator = Annotator()
+			annotator = get_annotator(annotator_name)
 
 			corpus = uc.get_last_corpus()
 			corpus = Corpus.fromdict(corpus)
@@ -253,12 +236,7 @@ class AnnotatorReannotateAPIViewV4(ManipulatorAPIViewV4):
 			if lang_to is None: lang_to = target_p.annotator_info_obj.lang_to
 
 			#Annotate
-			if annotator_name == "chatgpt_ft0":
-				from .chatgpt_annotator import ChatgptAnnotator #TODO: try?
-				annotator = ChatgptAnnotator()
-			else:
-				annotator = Annotator()
-
+			annotator = get_annotator(annotator_name)
 			annotator.reannotate(target_p, lang_from, lang_to, target_tokens)
 			
 			#Apply to DB
@@ -451,7 +429,7 @@ class UserGetTempUserViewV4(APIView):
 
 	def get(self, request, *args, **kwargs):
 		try:
-			temp_user = User.get_temp_user(request=request)
+			_ = User.get_temp_user(request=request)
 
 			return Response(
 				{
@@ -459,7 +437,6 @@ class UserGetTempUserViewV4(APIView):
 				}
 			)
 		except Exception as e:
-			raise e
 			return Response(
 				{
 					"success": False,

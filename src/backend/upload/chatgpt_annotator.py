@@ -41,9 +41,10 @@ class InitialLineNotFoundException(ChatgptGlossFetcherException):
 
 #Following PoC.
 class ChatgptAnnotator(Annotator):
-	def __init__(self, use_pretrained_model=True, user_openai_api_key=None):
-		self.annotator_name = "chatgpt_ft0"
-		self.gloss_fetcher = ChatgptGlossFetcher(use_pretrained_model=use_pretrained_model, user_openai_api_key=user_openai_api_key) #TODO: pretrained parameter
+	def __init__(self, annotator_name): #, user_openai_api_key=None):
+		self.annotator_name = annotator_name
+		use_pretrained_model = "pretrained" in annotator_name
+		self.gloss_fetcher = ChatgptGlossFetcher(use_pretrained_model=use_pretrained_model)
 
 	def put_gloss(self, p: Paragraph):
 		#First get the token strings. This ignores the delimiters like newlines, which may be negative for the performance. (TODO: check)
@@ -222,17 +223,17 @@ class GlossFetcher:
 		return [[f"dummy{i}"] for i in range(length)]
 
 class ChatgptGlossFetcher(GlossFetcher):
-	def __init__(self, chatgpt_gloss_options=None, use_pretrained_model=False, ignore_incomplete_res=True, max_token_ratio=3, user_openai_api_key=None):
+	def __init__(self, chatgpt_gloss_options=None, use_pretrained_model=False, ignore_incomplete_res=True, max_token_ratio=3, model="gpt-3.5-turbo"): #, user_openai_api_key=None):
 		if chatgpt_gloss_options is None:
 			chatgpt_gloss_options = ChatgptGlossOptions.get_default_obj(is_trained=use_pretrained_model)
 		self.chatgpt_gloss_options = chatgpt_gloss_options
 		self.ignore_incomplete_res = ignore_incomplete_res
-		self.user_openai_api_key = user_openai_api_key
+		#self.user_openai_api_key = user_openai_api_key
 
-		#self.use_pretrained_model = use_pretrained_model
+		#`"model"` should consist of alphanumerals and underscores.
 		if use_pretrained_model:
 			print("Using the pretrained model.")
-			self.model = os.getenv("PRETRAINED_MODEL")
+			self.model = os.getenv("PRETRAINED_MODEL_" + model)
 		else:
 			print("Using the general model.")
 			self.model = "gpt-3.5-turbo"
@@ -284,7 +285,7 @@ class ChatgptGlossFetcher(GlossFetcher):
 		for row in messages:
 			max_tokens += len(self.model_encoding.encode(row["content"]))
 		max_tokens *= self.max_token_ratio
-		max_tokens = max(max_tokens, 4096)
+		max_tokens = min(max_tokens, 4096)
 		print(f"W/ {max_tokens} max_tokens")
 
 		print(messages)

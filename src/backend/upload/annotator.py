@@ -7,6 +7,13 @@ from typing import List, Tuple
 
 TOKEN_UNKNOWN = "!UNKNOWN"
 
+def get_annotator(annotator_name):
+	if annotator_name and annotator_name.startswith("chatgpt_"):
+		from .chatgpt_annotator import ChatgptAnnotator
+		return ChatgptAnnotator(annotator_name=annotator_name)
+	else:
+		return Annotator()
+
 class Annotator:
 	def __init__(self):
 		self.annotator_name = "DUMMYGLOSS"

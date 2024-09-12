@@ -80,9 +80,11 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 ![images/class_req_options.png](images/class_req_options.png)
 
 - For `AnnotateOptions.annotator_name`
-  - `null`: defaults to `"chatpgt_ft0"`
-  - `"chatpgt_ft0"`: uses the pretrained ChatGPT model
-  - ~~`"user_chatgpt_%d`": uses the user's own OpenAI API key (`%d` starts with `0`.)~~ NOT IMPLEMENTED.
+  - `null`: defaults to `"dummy"`
+  - `"dummy"`: for test purposes
+  - `"chatpgt_ft0"`: uses the pretrained ChatGPT model (default fallback)
+    - `"chatgpt_gpt-3.5-turbo-untrained_0"`: Using untrained
+    - `"chatgpt_gpt-3.5-turbo-finetuned_0"`: Using pretrained
 - On `/annotator/reannotate`, the fields of `AnnotateOptions`:
   - `.target_paragraphs`: only the first element is used.
   - The other fields can be null can be null (will use the previous one)

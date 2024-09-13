@@ -73,18 +73,18 @@
 				<label for="frontend_annotator_name">annotator_name:</label>
 				<select name="frontend_annotator_name" id="frontend_annotator_name_select">
 					<option value="dummy">dummy</option>
-					<option value="chatgpt_ft0">chatgpt_ft0</option>
+					<option value="chatgpt_ft0" selected>chatgpt_ft0</option>
 					<option value="chatgpt_gpt-3.5-turbo-untrained_0">chatgpt_gpt-3.5-turbo-untrained_0</option>
 					<option value="chatgpt_gpt-3.5-turbo-pretrained_0">chatgpt_gpt-3.5-turbo-pretrained_0</option>
 				</select>
 				<label for="frontend_lang_from">lang_from:</label>
 				<select name="frontend_lang_from" id="frontend_lang_from_select">
 					<option value="French">French</option>
-					<option value="German">German</option>
+					<option value="German" selected>German</option>
 				</select>
 				<label for="frontend_lang_to">lang_to:</label>
 				<select name="frontend_lang_to" id="frontend_lang_to_select">
-					<option value="English">English</option>
+					<option value="English" selected>English</option>
 				</select>
 			</div>
 			<hr>
@@ -1082,23 +1082,6 @@
 				}
 			}
 		}
-
-		/*
-		function onReannotate(corpus_id, target_tokens, annotate_options=null) {
-			selectEndpoint("/annotator/reannotate");
-			setField("corpus_id", corpus_id);
-
-			let reannotate_options = {"target_tokens": target_tokens};
-			reannotate_options = JSON.stringify(reannotate_options);
-			annotate_options = JSON.stringify(annotate_options);
-
-			setField("reannotate_options", reannotate_options);
-			setField("annotate_options", annotate_options);
-
-			makeQuery();
-			submit();
-		}
-		*/
 
 		function onTaskAbortButtonClicked(task_id) {
 			selectEndpoint("/tasks/");

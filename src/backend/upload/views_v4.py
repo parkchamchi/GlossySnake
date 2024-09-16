@@ -9,6 +9,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.authtoken.models import Token as AuthToken
 
 #from .models import UploadedCorpus, Task
 from .dj_serializables_v4 import (
@@ -422,6 +423,11 @@ class UserAvailableOpenaiTokensViewV4(APIView):
 				},
 				status=status.HTTP_400_BAD_REQUEST
 			)
+		
+def get_auth_key(user):
+	auth_key = AuthToken.objects.get_or_create(user=user)
+	auth_key = auth_key[0].key
+	return auth_key
 
 class UserGetTempUserViewV4(APIView):
 	parser_classes = [JSONParser]
@@ -430,16 +436,39 @@ class UserGetTempUserViewV4(APIView):
 	def get(self, request, *args, **kwargs):
 		try:
 			_ = User.get_temp_user(request=request)
+			key = get_auth_key(request.user)
 
 			return Response(
 				{
 					"success": True,
+					"key": key,
 				}
 			)
 		except Exception as e:
 			return Response(
 				{
 					"success": False,
+					"error": str(e)
+				},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+		
+class UserKeyViewV4(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, )
+
+	def get(self, request, *args, **kwargs):
+		try:
+			auth_key = get_auth_key(request.user)
+
+			return Response(
+				{
+					"key": auth_key,
+				}
+			)
+		except Exception as e:
+			return Response(
+				{
 					"error": str(e)
 				},
 				status=status.HTTP_400_BAD_REQUEST

@@ -49,20 +49,22 @@ e.g. `http://localhost/api/v2/annotator/annotate`
   - Res: `"corpuses_history"`
 
 - `GET /user/check`
-  - Res: `"is_auth"`, `"email"`
+  - Res: `"is_auth"`, `"email"`, `"key"`
   - Note: No authentication required.
 - `GET /user/available-openai-tokens`
   - Res: `"available-openai-tokens"`
 - `GET /user/get-temp-user`
-  - Res: `"success"`
-  - Note: Logs in. The email will end with `@example.com`.
+  - Res: `"success"`, `"key"`
+  - Note: *May* logs in. The email will end with `@example.com`.
+- `GET /user/key`
+  - Res: `"key"`
 
 ##### /rest-auth/
 - See [`dj-rest-auth` Doc](https://dj-rest-auth.readthedocs.io/en/latest/api_endpoints.html)
 
 - `POST /login/` *(that is, `/api/v4/rest-auth/login/`)*
   - Req: `"email"`, `"password"`, 
-  - Res: `"key"` *(By TokenAuthentication. Currently ignorable)*
+  - Res: `"key"`
   - Note: ~~`username`~~ is not required
 - `POST /logout/`
 - `POST /registration/`

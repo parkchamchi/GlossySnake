@@ -38,3 +38,4 @@
 - [Week 25: Impl. of iter-3 #8](docs/weekly/week25.md)
 - [Week 26: Impl. of iter-3 #9](docs/weekly/week26.md)
 - [Week 27: Deployment #1](docs/weekly/week27.md)
+- [Week 28: Deployment #1](docs/weekly/week28.md)

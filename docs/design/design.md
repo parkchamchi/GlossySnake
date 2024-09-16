@@ -47,6 +47,8 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 
 - `GET /corpuses/<id>`
   - Res: `"corpuses_history"`
+- `GET /corpuses/`
+  - Res: [`{"corpus_id", "corpuses_history"}`, ...]
 
 - `GET /user/check`
   - Res: `"is_auth"`, `"email"`, `"key"`

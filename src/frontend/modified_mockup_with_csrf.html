@@ -31,7 +31,6 @@
                 <span class="close-btn" onclick="closeSignUp()">&times;</span>
                 <h2>Sign Up</h2>
                 <form>
-                    <input type="text" placeholder="Username을 입력해주세요." id="signUpUsername">
                     <input type="email" placeholder="Email을 입력해주세요." id="signUpEmail">
                     <input type="password" placeholder="Password를 입력해주세요." id="signUpPassword">
                     <input type="password" placeholder="Password를 한 번 더 입력해주세요." id="signUpPasswordConfirm">
@@ -39,7 +38,7 @@
                 </form>
             </div>
         </div>
-        
+
 
         <div id="warningMessage" class="warning-box">
             WARNING: The backend returned an error (Only shown when an event occurs.)
@@ -75,6 +74,11 @@
             <div class="section">
                 <h3>Result</h3>
                 <textarea id="output" class="output-textarea" readonly></textarea>
+                <div class="token-operate">
+                    <div onclick="selectToken()">Select</div>
+                    <div onclick="editToken()">Edit</div>
+                    <div onclick="deleteToken()">Delete</div>
+                </div>
             </div>
         </div>
     </div>
@@ -109,29 +113,28 @@
             const id = document.getElementById('loginId').value;
             const password = document.getElementById('loginPassword').value;
 
-            fetch('http://glossysnake.com/api/v4/rest-auth/login/', {
+            fetch('http://127.0.0.1:56123/api/v4/rest-auth/login/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    username: id,
+                    email: id,
                     password: password,
                 }),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-                closeloginPopup();  // 로그인 후 팝업 닫기
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                document.getElementById("warningMessage").style.display = "block";
-            });
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    closeloginPopup();  // 로그인 후 팝업 닫기
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    document.getElementById("warningMessage").style.display = "block";
+                });
         }
 
         function onSignUpButtonClicked() {
-            const username = document.getElementById('signUpUsername').value;
             const email = document.getElementById('signUpEmail').value;
             const password = document.getElementById('signUpPassword').value;
             const passwordConfirm = document.getElementById('signUpPasswordConfirm').value;
@@ -141,38 +144,38 @@
                 return;
             }
 
-            fetch('http://glossysnake.com/api/v4/rest-auth/registration/', {
+            fetch('http://127.0.0.1:56123/api/v4/rest-auth/registration/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    username: username,
                     email: email,
                     password1: password,
                     password2: passwordConfirm,
                 }),
             })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();  // JSON 형식일 경우
-                } else {
-                    return response.text();  // JSON이 아니면 텍스트로 처리
-                }
-            })
-            .then(data => {
-                try {
-                    // JSON일 경우 처리
-                    console.log('Success:', data);
-                } catch (error) {
-                    // 텍스트일 경우 처리
-                    console.log('Non-JSON Response:', data);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-            
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();  // JSON 형식일 경우
+                    } else {
+                        return response.text();  // JSON이 아니면 텍스트로 처리
+                    }
+                })
+                .then(data => {
+                    try {
+                        // JSON일 경우 처리
+                        console.log('Success:', data);
+                    } catch (error) {
+                        // 텍스트일 경우 처리
+                        console.log('Non-JSON Response:', data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
         function sendRequest() {
             let method = "POST";
             let data = { headers: {} }; // data 객체를 초기화합니다. headers를 빈 객체로 초기화합니다.
@@ -219,7 +222,7 @@
             let full_url = endpoint + "/api/v4/upload";
             console.log('Fetching URL:', full_url);
 
-            const csrftoken = (document.cookie.match(/^(?:.*;)?\s*csrftoken\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1];
+            const csrftoken = (document.cookie.match(/^(?:.*;)?\s*csrftoken\s*=\s*([^;]+)(?:.*)?$/) || [, null])[1];
             if (!csrftoken) {
                 console.log("POST: no csrftoken.");
             } else {
@@ -233,36 +236,71 @@
                     'Content-Type': 'application/json',
                     ...data.headers
                 },
-                
-                
+
+
                 body: JSON.stringify({
                     text: corpus,
                     original: originalValue,
                     gloss: glossValue,
-                    delimeter: delimeterValue 
-                }),                
+                    delimeter: delimeterValue
+                }),
             })
-      
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Success:', data);
-                document.getElementById('output').textContent = JSON.stringify(data);
-                document.getElementById("shown3Message").style.display = "block";
-                document.getElementById("scrollMessage").style.display = "block";
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById("warningMessage").style.display = "block";
-            });
+
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Success:', data);
+                    document.getElementById('output').textContent = JSON.stringify(data);
+                    document.getElementById("shown3Message").style.display = "block";
+                    document.getElementById("scrollMessage").style.display = "block";
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById("warningMessage").style.display = "block";
+                });
         }
 
-    }
+        function selecttoken() {
+            const userConfirmed = confirm("want to choice? Edit is impossible.");
 
+            if (userConfirmed) {
+                const textContent = document.getElementById('output').value;
+
+                document.getElementById('finalOutputResult').textContent = textContext;
+            } else {
+                alert("You Canceled.");
+            }
+        }
+
+        function editToken() {
+            const textarea = document.getElementById('output')
+
+            textarea.removeAttribute('readonly');
+        }
+
+        function deletetoken() {
+            if (currentIndex < textArray.length) {
+                textArray.splice(currentIndex, 1);
+
+                document.getElementById('output').textContent = textArray.join(' ');
+
+                if (currentIndex >= textArray.length) {
+                    currentIndex = textArray.length - 1;
+                }
+
+                if (textArray.length > 0) {
+                    document.getElementById('finalOutputResult').value = textArray[currentIndex];
+                } else {
+                    document.getElementById('finalOutputResult').value = 'No content';
+                }
+            } else {
+                alert("End of array reached.");
+            }
+        }
     </script>
 
     <style>
@@ -366,6 +404,8 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
             display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
             align-items: center;
             visibility: hidden;
@@ -415,6 +455,21 @@
             right: 10px;
             cursor: pointer;
         }
+
+        .token-operate {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .token-operate div {
+            flex: 1;
+            text-align: center;
+            border: 1px solid #ccc;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+        }
     </style>
 
 
@@ -424,30 +479,29 @@
             const id = document.getElementById('loginId').value;
             const password = document.getElementById('loginPassword').value;
 
-            fetch('http://glossysnake.com/api/v4/rest-auth/login/', {
+            fetch('http://127.0.0.1:56123/api/v4/rest-auth/login/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    username: id,
+                    email: id,
                     password: password,
                 }),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-                closeloginPopup();  // Close the popup on success
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                document.getElementById("warningMessage").style.display = "block";
-            });
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    closeloginPopup();  // Close the popup on success
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    document.getElementById("warningMessage").style.display = "block";
+                });
         }
 
         // Backend interaction for signup
         function onSignUpButtonClicked() {
-            const username = document.getElementById('signUpUsername').value;
             const email = document.getElementById('signUpEmail').value;
             const password = document.getElementById('signUpPassword').value;
             const passwordConfirm = document.getElementById('signUpPasswordConfirm').value;
@@ -457,27 +511,38 @@
                 return;
             }
 
-            fetch('http://glossysnake.com/api/v4/rest-auth/registration/', {
+            fetch('http://127.0.0.1:56123/api/v4/rest-auth/registration/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    username: username,
                     email: email,
                     password1: password,
                     password2: passwordConfirm,
                 }),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-                closeSignUp();  // Close the popup on success
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                document.getElementById("warningMessage").style.display = "block";
-            });
+                .then(response => {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.indexOf('application/json') !== -1) {
+                        return response.json();  // JSON일 경우
+                    } else {
+                        return response.text();  // JSON이 아닌 경우 (HTML일 가능성)
+                    }
+                })
+                .then(data => {
+                    try {
+                        // JSON 형식일 경우
+                        console.log('Success:', JSON.parse(data));
+                    } catch (error) {
+                        // 텍스트 형식일 경우
+                        console.log('Non-JSON response:', data);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    document.getElementById("warningMessage").style.display = "block";
+                });
         }
 
         // Backend interaction for uploading text
@@ -486,7 +551,7 @@
             const gloss = document.getElementById('glossSelect').value;
             const corpus = document.getElementById('corpus').value;
 
-            fetch('http://glossysnake.com/api/v4/upload', {
+            fetch('http://127.0.0.1:56123/api/v4/upload', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -497,18 +562,18 @@
                     gloss: gloss
                 }),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Upload success:', data);
-                document.getElementById('output').textContent = JSON.stringify(data);
-            })
-            .catch(error => {
-                console.error('Upload error:', error);
-                document.getElementById("warningMessage").style.display = "block";
-            });
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Upload success:', data);
+                    document.getElementById('output').textContent = JSON.stringify(data);
+                })
+                .catch(error => {
+                    console.error('Upload error:', error);
+                    document.getElementById("warningMessage").style.display = "block";
+                });
         }
     </script>
-    
+
     <script>
         // Function to get CSRF token from cookies
         function getCSRFToken() {
@@ -531,30 +596,29 @@
             const id = document.getElementById('loginId').value;
             const password = document.getElementById('loginPassword').value;
 
-            fetch('http://glossysnake.com/api/v4/rest-auth/login/', {
+            fetch('http://127.0.0.1:56123/api/v4/rest-auth/login/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCSRFToken()  // CSRF token included here
                 },
                 body: JSON.stringify({
-                    username: id,
+                    email: id,
                     password: password,
                 }),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-                closeloginPopup();  // Close the popup on success
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                document.getElementById("warningMessage").style.display = "block";
-            });
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    closeloginPopup();  // Close the popup on success
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    document.getElementById("warningMessage").style.display = "block";
+                });
         }
 
         function onSignUpButtonClicked() {
-            const username = document.getElementById('signUpUsername').value;
             const email = document.getElementById('signUpEmail').value;
             const password = document.getElementById('signUpPassword').value;
             const passwordConfirm = document.getElementById('signUpPasswordConfirm').value;
@@ -564,28 +628,27 @@
                 return;
             }
 
-            fetch('http://glossysnake.com/api/v4/rest-auth/registration/', {
+            fetch('http://127.0.0.1:56123/api/v4/rest-auth/registration/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCSRFToken()  // CSRF token included here
                 },
                 body: JSON.stringify({
-                    username: username,
                     email: email,
                     password1: password,
                     password2: passwordConfirm,
                 }),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-                closeSignUp();  // Close the popup on success
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                document.getElementById("warningMessage").style.display = "block";
-            });
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    closeSignUp();  // Close the popup on success
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    document.getElementById("warningMessage").style.display = "block";
+                });
         }
 
         function onUploadButtonClicked() {
@@ -593,7 +656,7 @@
             const gloss = document.getElementById('glossSelect').value;
             const corpus = document.getElementById('corpus').value;
 
-            fetch('http://glossysnake.com/api/v4/upload', {
+            fetch('http://127.0.0.1:56123/api/v4/upload', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -605,19 +668,19 @@
                     gloss: gloss
                 }),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Upload success:', data);
-                document.getElementById('output').textContent = JSON.stringify(data);
-            })
-            .catch(error => {
-                console.error('Upload error:', error);
-                document.getElementById("warningMessage").style.display = "block";
-            });
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Upload success:', data);
+                    document.getElementById('output').textContent = JSON.stringify(data);
+                })
+                .catch(error => {
+                    console.error('Upload error:', error);
+                    document.getElementById("warningMessage").style.display = "block";
+                });
         }
     </script>
 
 </body>
-    
+
 
 </html>

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="#">
     <title>Document</title>
 </head>
 
@@ -18,8 +19,8 @@
                 <span class="close-btn" onclick="closeloginPopup()">&times;</span>
                 <h2>Login</h2>
                 <form>
-                    <input type="ID" placeholder="ID">
-                    <input type="Password" placeholder="Password">
+                    <input type="email" placeholder="email">
+                    <input type="password" placeholder="Password">
                     <input readonly type="Submit" value="Login">
                     <input readonly onclick="openSignUp()" type="GoSignUp" value="Go Sign Up">
                 </form>
@@ -29,12 +30,11 @@
             <div class="popup-content">
                 <span class="close-btn" onclick="closeSignUp()">&times;</span>
                 <h2>Sign Up</h2>
-                <form>
-                    <input type="ID" placeholder="ID를 입력해주세요.">
-                    <input type="Password" placeholder="Password를 입력해주세요.">
-                    <input type="RePassword" placeholder="Password를 한 번 더 입력해주세요.">
-                    <input type="sex" placeholder="성별을 입력해주세요.(남성/여성)">
-                    <input readonly type="SignUp" value="Sign Up">
+                <form id="signup-form">
+                    <input type="email" id="email" placeholder="email" required>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <input type="password" id="repassword" placeholder="retry Password" required>
+                    <input readonly type="submit" value="Sign Up">
                 </form>
             </div>
         </div>
@@ -57,13 +57,13 @@
                 <div class="input-group">
                     <label for="originalSelect">Original Language</label>
                     <select id="originalSelect" name="Original">
-                        <option value="Deutsch" selected>Deutsch</option>
+                        <option value="german" selected>german</option>
                         <option value="French">French</option>
                         <option value="English">English</option>
                         <option value="korean">Korean</option>
                     </select>
                 </div>
-                <textarea id="inputText" class="input-textarea" placeholder="The corpus insert textarea"></textarea>
+                <textarea id="corpus" class="input-textarea" placeholder="The corpus insert textarea"></textarea>
                 <div class="button-group">
                     Other Options
                     <button onclick="OpenOtherOption()">∇</button>
@@ -71,7 +71,7 @@
                 <div id="otherOption" class="other-option">
                     <div class="input-group">
                         <label for="endpoint">Endpoint</label>
-                        <input type="text" id="endpoint" value="http://127.0.0.1:56122">
+                        <input type="text" id="endpoint" value="http://127.0.0.1:56123">
                     </div>
                     <div class="input-group">
                         <select id="delimeter">
@@ -85,13 +85,13 @@
                 <br /><br /><br /><br /><br /><br />
                 <div class="preview-box" onclick="errormsg()"></div>
                 <br /><br /><br /><br />
-                <div class="request-box" onclick="sendRequest(); printResult(); texttoarray(); blockResult();"></div>
+                <div class="request-box" onclick="sendRequest(); printResult(); blockResult();"></div>
             </div>
             <div class="section">
                 <div class="input-group">
                     <label for="glossSelect">Gloss Language</label>
                     <select id="glossSelect" name="Gloss">
-                        <option value="Deutsch">Deutsch</option>
+                        <option value="german">german</option>
                         <option value="French">French</option>
                         <option value="English" selected>English</option>
                         <option value="korean">Korean</option>
@@ -106,7 +106,6 @@
             </div>
         </div>
         <br />
-        <p> Input_Text의 테스트 박스입니다! <span id="arrayOutput"></span></p>
         <div id="resultBox" class="result-box">
             <div class="option-div" style="font-size: 80%;">
                 Endpoint: <div id="endpointResult" class="endpoint-result" style="display: inline-block;">N/A</div> /
@@ -115,7 +114,7 @@
                 </div> /
                 Gloss_Language: <div id="glossResult" class="gloss-result" style="display: inline-block;">N/A</div>
             </div>
-            <div>Input Text: <div id="inputTextResult" class="input-text-result">N/A</div>
+            <div>Input Text: <div id="corpusResult" class="input-text-result">N/A</div>
             </div>
             <div>Result: <br />
                 <div id="finalOutputResult" class="final-output-result">N/A</div>
@@ -199,17 +198,17 @@
                 console.log("Selected Delimeter: ", delimeterValue);
             }
 
-            let inputText = document.getElementById('inputText').value;
-            if (inputText == null) {
-                console.log("inputText가 null상태입니다");
-            } else if (inputText == undefined) {
-                console.log("inputText가 undefined상태입니다");
+            let corpus = document.getElementById('corpus').value;
+            if (corpus == null) {
+                console.log("corpus가 null상태입니다");
+            } else if (corpus == undefined) {
+                console.log("corpus가 undefined상태입니다");
             } else {
-                console.log("Input Text: ", inputText);
+                console.log("corpus: ", corpus);
             }
 
             //Send a POST request to Backend
-            let full_url = endpoint + "/api/v2/annotator/annotate";
+            let full_url = endpoint + "/api/v4/upload";
             console.log('Fetching URL:', full_url);
 
             fetch(full_url, {
@@ -218,7 +217,7 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    text: inputText,
+                    text: corpus,
                     original: originalValue,
                     gloss: glossValue,
                     delimeter: delimeterValue
@@ -251,23 +250,14 @@
             let delimeterValue = document.getElementById('delimeter').value;
             let originalValue = document.getElementById('originalSelect').value;
             let glossValue = document.getElementById('glossSelect').value;
-            let inputText = document.getElementById('inputText').value;
+            let corpus = document.getElementById('corpus').value;
 
             document.getElementById("endpointResult").innerText = endpoint;
             document.getElementById("delimeterResult").innerText = delimeterValue;
             document.getElementById("originalResult").innerText = originalValue;
             document.getElementById("glossResult").innerText = glossValue;
-            document.getElementById("inputtextResult").innerText = inputText;
+            document.getElementById("corpusResult").innerText = corpus;
             // document.getElementById("finaloutputReuslt").innerText = finaloutput;
-        }
-
-        function texttoarray() {
-            const userInput = document.getElementById('inputText').value;
-
-            const textArray = userInput.split(' ');
-
-            //inputtext의 배열화를 시각적으로 확인하기 위해 임시적으로 만든 코드입니다.
-            document.getElementById('arrayOutput').textContent = JSON.stringify(textArray);
         }
 
         function selecttoken() {

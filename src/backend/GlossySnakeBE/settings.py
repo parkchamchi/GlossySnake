@@ -91,6 +91,8 @@ MIDDLEWARE = [
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 #TODO: SHOULD BE ALTERED ON DEPLOYMENT
 CORS_ALLOWED_ORIGINS = (
 	"http://127.0.0.1:3000",

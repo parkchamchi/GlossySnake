@@ -173,7 +173,7 @@ class ChatgptAnnotator(Annotator):
 
 		return end_sents
 	
-	def chunckize_for_reannotation(self, reannotate_bools: List[bool], margin=16) -> List[Tuple[int, int]]:
+	def chunckize_for_reannotation(self, reannotate_bools: List[bool], margin=16, min_margin=4) -> List[Tuple[int, int]]:
 		# R: ret.s [(p0, e0), ...] for [p0+1:e0+1], ... (see reput_gloss)
 		# TODO: also has to receive which ones are to be reannotated
 
@@ -190,7 +190,7 @@ class ChatgptAnnotator(Annotator):
 				lastone = chunks[-1][1]
 				
 				#Take care of the margin; this ensures that the context is included.
-				if i < lastone-margin:
+				if i < lastone - min_margin:
 					#Included in the last chunk; ignore this `i`
 					continue
 

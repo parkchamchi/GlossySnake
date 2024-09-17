@@ -39,6 +39,8 @@ e.g. `http://localhost/api/v2/annotator/annotate`
   - Req: `"corpus_id"`, `"annotate_options"`, `"reannotate_options"`
   - Res: `"task_id"`
 
+- `GET /tasks/`
+  - Res: [`{"task_id", "status", "target_corpus_id"}`, ...]
 - `GET /tasks/<id>`
   - Res: `"status"`, `"target_corpus_id"`
 - `GET /tasks/<id>/abort`

@@ -59,9 +59,10 @@ e.g. `http://localhost/api/v2/annotator/annotate`
   - Res: `"available-openai-tokens"`
 - `GET /user/get-temp-user`
   - Res: `"success"`, `"key"`
-  - Note: *May* logs in. The email will end with `@example.com`.
+  - Note: The session logs in. The email will end with `@example.com`.
 - `GET /user/key`
   - Res: `"key"`
+  - Note: `"key"` is not needed since it also uses the session.
 
 ##### /rest-auth/
 - See [`dj-rest-auth` Doc](https://dj-rest-auth.readthedocs.io/en/latest/api_endpoints.html)
@@ -91,6 +92,8 @@ e.g. `http://localhost/api/v2/annotator/annotate`
   - `"chatpgt_ft0"`: uses the pretrained ChatGPT model (default fallback)
     - `"chatgpt_gpt-3.5-turbo-untrained_0"`: Using untrained
     - `"chatgpt_gpt-3.5-turbo-pretrained_0"`: Using pretrained
+    - `"chatgpt_gpt-4o-mini-untrained_0"`
+    - `"chatgpt_gpt-4o-mini-pretrained_0"`
 - On `/annotator/reannotate`, the fields of `AnnotateOptions`:
   - `.target_paragraphs`: only the first element is used.
   - The other fields can be null can be null (will use the previous one)

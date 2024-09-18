@@ -34,6 +34,8 @@
 				<select v-model="annotator_name" name="annotator_name" id="annotator_name_select" class="form-control">
 					<option value="dummy">dummy</option>
 					<option value="chatgpt_ft0">chatgpt_ft0</option>
+					<option value="chatgpt_gpt-4o-mini-untrained_0">chatgpt_gpt-4o-mini-untrained_0</option>
+					<option value="chatgpt_gpt-4o-mini-pretrained_0">chatgpt_gpt-4o-mini-pretrained_0</option>
 					<option value="chatgpt_gpt-3.5-turbo-untrained_0">chatgpt_gpt-3.5-turbo-untrained_0</option>
 					<option value="chatgpt_gpt-3.5-turbo-pretrained_0">chatgpt_gpt-3.5-turbo-pretrained_0</option>
 				</select>

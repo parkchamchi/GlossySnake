@@ -46,17 +46,23 @@
 				}
 				EventBus.emit("updateCorpuses");
 				EventBus.emit("updateTasks");
-			}
+			},
+			async newGuestAccount() {
+				this.api.submit("/user/get-temp-user");
+			},
 		},
 		async created() {
 			await this.updateUser();
-		},
+		},	
 	}
 </script>
 
 <template>
 	<div id="frontend_auth_div">
-		<h3>REST Auth</h3>
 		<p>{{ email }}</p>
+		<button @click="newGuestAccount()"
+			class="btn">
+			New Guest Account
+		</button>
 	</div>
 </template>

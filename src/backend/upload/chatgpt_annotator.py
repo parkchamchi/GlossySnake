@@ -58,7 +58,12 @@ class ChatgptAnnotator(Annotator):
 		glosses = []
 		previ = -1
 		for endi in chunks:
-			print(f"[{previ+1}:{endi+1}] out of {len(token_strs)} (len: {endi-previ})")
+			the_len = endi-previ
+			if the_len <= 0:
+				print("warning: the_len <= 0)")
+				previ = endi
+				continue
+			print(f"[{previ+1}:{endi+1}] out of {len(token_strs)} (len: {the_len})")
 			chunk_strs = token_strs[previ+1:endi+1]
 			chunk_glosses = self.gloss_fetcher.try_fetch_gloss(chunk_strs)
 			glosses += chunk_glosses
@@ -104,7 +109,12 @@ class ChatgptAnnotator(Annotator):
 
 		previ = -1
 		for previ, endi in chunks_for_reannotation:
-			print(f"[{previ+1}:{endi+1}] out of {len(tokens_wo_delimiters)} (len: {endi-previ})")
+			the_len = endi-previ
+			if the_len <= 0:
+				print("warning: the_len <= 0")
+				previ = endi
+				continue
+			print(f"[{previ+1}:{endi+1}] out of {len(tokens_wo_delimiters)} (len: {the_len})")
 
 			# R: if the target in the chunk? (TODO: now redundant, delete this code later) #TODO: it returns chucks with no token to reannotate. fix this.
 			if not any([
@@ -228,12 +238,13 @@ class ChatgptGlossFetcher(GlossFetcher):
 			chatgpt_gloss_options = ChatgptGlossOptions.get_default_obj(is_trained=use_pretrained_model)
 		self.chatgpt_gloss_options = chatgpt_gloss_options
 		self.ignore_incomplete_res = ignore_incomplete_res
-		self.chatgpt_ft0_model = "chatgpt_gpt-3.5-turbo-pretrained_0"
+		self.chatgpt_ft0_model = "chatgpt_gpt-4o-mini-pretrained_0"
 
 		#`"model"` should consist of alphanumerals and underscores.
 		if model == "chatgpt_ft0":
 			print("Using the pretrained model.")
 			self.model = os.getenv("PRETRAINED_MODEL_" + self.chatgpt_ft0_model)
+			use_pretrained_model = True
 		elif use_pretrained_model:
 			print("Using the pretrained model.")
 			self.model = os.getenv("PRETRAINED_MODEL_" + model)

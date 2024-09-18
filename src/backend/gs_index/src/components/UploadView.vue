@@ -23,7 +23,6 @@
 				let file = event.target.files[0];
 				let content = await file.text();
 				content = JSON.parse(content);
-				console.log(content);
 
 				//TODO: repeats
 				this.api.submit("/upload", "POST", {

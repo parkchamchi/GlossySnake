@@ -19,6 +19,9 @@
 			is_delimiter() {
 				return this.t.is_delimiter;
 			},
+			should_linebreak() {
+				return this.t.txt.includes('\n');
+			},
 			txt() {
 				return this.t.txt;
 			},
@@ -47,6 +50,7 @@
 			<li class="list-group-item gloss">{{ gloss }}</li>
 		</ul>
 	</div>
+	<br v-else-if="should_linebreak">
 	<div v-else
 		class="token_wrapper">
 		<span>{{ txt }}</span>

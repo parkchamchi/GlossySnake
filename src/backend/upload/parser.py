@@ -17,13 +17,16 @@ def tokenize(txt, delimiters: list) -> List[Tuple[str, bool]]:
 class Parser:
 	def divide_into_paragraphs(self, corpus, paragraph_delimiters=['\n'], **kwargs):
 		original_text = corpus.original_text
+		paragraph_delimiters = [
+			e.replace("\\n", "\n")
+			for e
+			in paragraph_delimiters
+		]
 
 		fragments = [original_text]
 		#print("fragmaents:", fragments)
 		for delim in sorted(paragraph_delimiters, key=len):
 			#print("DELIM:", delim)
-			delim = delim.replace("\\n", "\n")
-			print(delim)
 			for i in range(len(fragments)):
 				splitted = fragments[i].split(delim) # ["token0", "token1"]
 

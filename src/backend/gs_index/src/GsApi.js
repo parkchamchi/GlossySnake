@@ -60,7 +60,7 @@ GsApi.prototype.submit = async function (endpoint, method="GET", query=null) {
 GsApi.prototype.emitCorpusesUpdate = async function (endpoint) {
 	const endpointsToExclude = [
 		"/corpuses/", "/tasks/", //targets
-		"/user/check", "/user/get-temp-user", //handled by RestAuth.vue
+		"/user/check", "/user/get-temp-user", "/user/logout", //handled by RestAuth.vue
 		"/rest-auth/registration/", "/rest-auth/login/", "/rest-auth/logout/", //handled by RestAuth.vue
 	];
 	if (endpointsToExclude.some((endpointToExclude) =>

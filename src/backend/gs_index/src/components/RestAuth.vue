@@ -47,8 +47,8 @@
 				EventBus.emit("updateCorpuses");
 				EventBus.emit("updateTasks");
 			},
-			async newGuestAccount() {
-				this.api.submit("/user/get-temp-user");
+			async logout() {
+				await this.api.submit("/user/logout/");
 			},
 		},
 		async created() {
@@ -60,9 +60,9 @@
 <template>
 	<div id="frontend_auth_div">
 		<p>{{ email }}</p>
-		<button @click="newGuestAccount()"
+		<button @click="logout()"
 			class="btn">
-			New Guest Account
+			Logout
 		</button>
 	</div>
 </template>

@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
+from django.contrib.auth import logout
 
 # Create your views here.
 
@@ -473,6 +474,27 @@ class UserKeyViewV4(APIView):
 				},
 				status=status.HTTP_400_BAD_REQUEST
 			)
+		
+class UserLogoutViewV4(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, )
+
+	def get(self, request, *args, **kwargs):
+		try:
+			logout(request)
+
+			return Response(
+				{
+					"success": True,
+				}
+			)
+		except Exception as e:
+			return Response(
+				{
+					"error": str(e)
+				},
+				status=status.HTTP_400_BAD_REQUEST
+			)
 
 #DEPRECATED
 class UserOpenaiApiKeyViewV4(APIView):
@@ -540,4 +562,3 @@ class UserOpenaiApiKeyViewV4(APIView):
 				},
 				status=status.HTTP_400_BAD_REQUEST
 			)
-		

@@ -63,6 +63,7 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 - `GET /user/key`
   - Res: `"key"`
   - Note: `"key"` is not needed since it also uses the session.
+- `GET /user/logout`
 
 ##### /rest-auth/
 - See [`dj-rest-auth` Doc](https://dj-rest-auth.readthedocs.io/en/latest/api_endpoints.html)

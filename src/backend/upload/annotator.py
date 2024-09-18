@@ -7,10 +7,10 @@ from typing import List, Tuple
 
 TOKEN_UNKNOWN = "!UNKNOWN"
 
-def get_annotator(annotator_name):
+def get_annotator(annotator_name, token_usage_callback):
 	if annotator_name and annotator_name.startswith("chatgpt_"):
 		from .chatgpt_annotator import ChatgptAnnotator
-		return ChatgptAnnotator(annotator_name=annotator_name)
+		return ChatgptAnnotator(annotator_name=annotator_name, token_usage_callback=token_usage_callback)
 	else:
 		return Annotator()
 

@@ -29,6 +29,15 @@ import json
 
 #TODO: generalize?
 
+def get_token_usage_callback(uc: CorpusHeader):
+	#Ad hoc: have to acquire the user from `uc`
+	user = uc.user
+
+	def token_usage_callback(x):
+		user.add_token_usage(x)
+
+	return token_usage_callback
+
 class UploadAPIViewV4(APIView):
 	parser_classes = [JSONParser]
 	permission_classes = (IsAuthenticated, )
@@ -170,7 +179,7 @@ class AnnotatorAnnotateAPIViewV4(ManipulatorAPIViewV4):
 			target_paragraphs = annotate_options.get("target_paragraphs")
 			
 			#Annotate
-			annotator = get_annotator(annotator_name)
+			annotator = get_annotator(annotator_name, token_usage_callback=get_token_usage_callback(uc))
 
 			corpus = uc.get_last_corpus()
 			corpus = Corpus.fromdict(corpus)
@@ -238,7 +247,7 @@ class AnnotatorReannotateAPIViewV4(ManipulatorAPIViewV4):
 			if lang_to is None: lang_to = target_p.annotator_info_obj.lang_to
 
 			#Annotate
-			annotator = get_annotator(annotator_name)
+			annotator = get_annotator(annotator_name, token_usage_callback=get_token_usage_callback(uc))
 			annotator.reannotate(target_p, lang_from, lang_to, target_tokens)
 			
 			#Apply to DB

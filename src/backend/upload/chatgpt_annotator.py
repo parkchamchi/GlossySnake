@@ -41,10 +41,10 @@ class InitialLineNotFoundException(ChatgptGlossFetcherException):
 
 #Following PoC.
 class ChatgptAnnotator(Annotator):
-	def __init__(self, annotator_name): #, user_openai_api_key=None):
+	def __init__(self, annotator_name, token_usage_callback): #, user_openai_api_key=None):
 		self.annotator_name = annotator_name
 		use_pretrained_model = "pretrained" in annotator_name
-		self.gloss_fetcher = ChatgptGlossFetcher(use_pretrained_model=use_pretrained_model, model=annotator_name)
+		self.gloss_fetcher = ChatgptGlossFetcher(use_pretrained_model=use_pretrained_model, model=annotator_name, token_usage_callback=token_usage_callback)
 
 	def put_gloss(self, p: Paragraph):
 		#First get the token strings. This ignores the delimiters like newlines, which may be negative for the performance. (TODO: check)
@@ -233,10 +233,7 @@ class GlossFetcher:
 		return [[f"dummy{i}"] for i in range(length)]
 
 class ChatgptGlossFetcher(GlossFetcher):
-	def __init__(self, chatgpt_gloss_options=None, use_pretrained_model=False, ignore_incomplete_res=True, max_token_ratio=3, model="gpt-3.5-turbo"): #, user_openai_api_key=None):
-		if chatgpt_gloss_options is None:
-			chatgpt_gloss_options = ChatgptGlossOptions.get_default_obj(is_trained=use_pretrained_model)
-		self.chatgpt_gloss_options = chatgpt_gloss_options
+	def __init__(self, chatgpt_gloss_options=None, use_pretrained_model=False, ignore_incomplete_res=True, max_token_ratio=3, model="gpt-4o-mini", token_usage_callback=None): #, user_openai_api_key=None):
 		self.ignore_incomplete_res = ignore_incomplete_res
 		self.chatgpt_ft0_model = "chatgpt_gpt-4o-mini-pretrained_0"
 
@@ -253,10 +250,16 @@ class ChatgptGlossFetcher(GlossFetcher):
 			self.model = model.replace("chatgpt_", "").replace("-untrained_0", "") #TODO: ad hoc
 		if not self.model:
 			raise ValueError(f"Unknown model: {self.model}")
+		
+		#Should be done after setting self.model
+		if chatgpt_gloss_options is None:
+			chatgpt_gloss_options = ChatgptGlossOptions.get_default_obj(is_trained=use_pretrained_model)
+		self.chatgpt_gloss_options = chatgpt_gloss_options
 
 		#For token usage predicting
 		self.model_encoding = tiktoken.encoding_for_model(self.model)
 		self.max_token_ratio = max_token_ratio #Limit the token usage to (question) * this_value
+		self.token_usage_callback = token_usage_callback
 		
 	def try_fetch_gloss(self, token_strs: List[str], outer_retry=2, inner_retry=3, reannotation_gloss_strs=None) -> List[List[str]]:
 		print(f"Trying to fetch {len(token_strs)} glosses")
@@ -312,7 +315,9 @@ class ChatgptGlossFetcher(GlossFetcher):
 			max_tokens=max_tokens,
 		)
 
-		print("token usage:", response["usage"]["total_tokens"])
+		token_usage = response["usage"]["total_tokens"]
+		print("token usage:", token_usage)
+		self.token_usage_callback(token_usage)
 
 		res = response["choices"][0]["message"]["content"]
 		self.last_res_text = res

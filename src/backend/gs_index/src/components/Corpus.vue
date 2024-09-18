@@ -172,7 +172,7 @@
 	.corpus_buttons_span {
 		display: flex;
 		justify-content: flex-end;
-		//gap: 4px;
+		/*gap: 4px;*/
 	}
 
 	.corpus_button {

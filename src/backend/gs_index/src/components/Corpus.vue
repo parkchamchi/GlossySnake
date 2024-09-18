@@ -24,6 +24,7 @@
 				sharedState,
 
 				isCorpusVisible: false,
+				showPre: false,
 			}
 		},
 		methods: {
@@ -122,7 +123,8 @@
 			</span>
 			<br>
 
-			<pre class="corpus-pre">{{ JSON.stringify(corpus) }}</pre>
+			<pre v-if="showPre"
+				class="corpus-pre">{{ JSON.stringify(corpus) }}</pre>
 
 			<h4>paragraphs</h4>
 			<Paragraph v-for="(p, index) in corpus.paragraphs"

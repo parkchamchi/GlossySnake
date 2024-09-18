@@ -23,6 +23,7 @@
 		data() {
 			return {
 				selectedTokens: new Set(),
+				showPre: false,
 			}
 		},
 		methods: {
@@ -52,9 +53,11 @@
 			<button class="corpus_button btn btn-light" @click="reannotateP(index)">
 				Reannotate
 			</button>
+			<br>
 		</span>
 
-		<pre>{{ JSON.stringify(p) }}</pre>
+		<pre v-if="showPre"
+			>{{ JSON.stringify(p) }}</pre>
 
 		<Token v-for="(t, index) in p.tokens"
 			:key="index"

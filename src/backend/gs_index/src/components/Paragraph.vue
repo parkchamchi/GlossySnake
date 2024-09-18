@@ -45,11 +45,10 @@
 
 <template>
 	<div class='paragraph_wrapper'>
-		<span v-if="isAnnotateButtonVisible" class="paragraph_annotate_buttons-span">
+		<span v-if="isAnnotateButtonVisible" class="paragraph_annotate_buttons_span">
 			<button class="corpus_button btn btn-light" @click="annotateP(index)">
 				Annotate
 			</button>
-			<br>
 			<button class="corpus_button btn btn-light" @click="reannotateP(index)">
 				Reannotate
 			</button>
@@ -66,3 +65,15 @@
 			@selectionChanged="onSelectionChanged" />
 	</div>
 </template>
+
+<style scoped>
+	.paragraph_annotate_buttons_span {
+		display: flex;
+		justify-content: flex-end;
+		//gap: 4px;
+	}
+
+	.corpus_button {
+		font-size: 80%;
+	}
+</style>

@@ -108,14 +108,11 @@
 		<div v-if="isCorpusVisible" class="corpus">
 			<span class="corpus_buttons_span">
 				<button class="corpus_button btn btn-light" @click="download()">Download</button>
-				<br>
 
 				<button class="corpus_button btn btn-light" @click="divide()">Divide</button>
 				<button class="corpus_button btn btn-light" @click="divide('\\n\\n')">Divide (for poems)</button>
-				<br>
 
 				<button class="corpus_button btn btn-light" @click="parse()">Parse</button>
-				<br>
 
 				<button class="corpus_button btn btn-light" @click="annotate()">
 					Annotate
@@ -138,6 +135,16 @@
 </template>
 
 <style scoped>
+	.corpus_buttons_span {
+		display: flex;
+		justify-content: flex-end;
+		//gap: 4px;
+	}
+
+	.corpus_button {
+		font-size: 90%;
+	}
+
 	.corpus-pre {
 		max-width: 100%;
 		overflow: auto;

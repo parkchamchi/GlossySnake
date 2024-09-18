@@ -48,7 +48,7 @@
 				EventBus.emit("updateTasks");
 			},
 			async logout() {
-				await this.api.submit("/user/logout/");
+				await this.api.submit("/user/logout");
 			},
 		},
 		async created() {

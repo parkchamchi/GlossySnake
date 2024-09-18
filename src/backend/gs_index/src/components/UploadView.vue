@@ -18,6 +18,21 @@
 					.then((json) => {
 						EventBus.emit("addAlert", { message: "Uploaded corpus " + json.corpus_id });
 					});
+			},
+			async onJsonFileInput(event) {
+				let file = event.target.files[0];
+				let content = await file.text();
+				content = JSON.parse(content);
+				console.log(content);
+
+				//TODO: repeats
+				this.api.submit("/upload", "POST", {
+					"corpus": content,
+				})
+					.then((res) => res.json())
+					.then((json) => {
+						EventBus.emit("addAlert", { message: "Uploaded corpus " + json.corpus_id });
+					});
 			}
 		}
 	}
@@ -44,7 +59,7 @@
 		<br>
 
 		<p>...or the JSON file</p>
-		<input type="file" id="json_file_input" onchange="onJsonFileInput(this.files)">
+		<input type="file" id="json_file_input" @change="onJsonFileInput">
 	</div>
 </template>
 

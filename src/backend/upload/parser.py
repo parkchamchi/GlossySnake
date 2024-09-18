@@ -22,6 +22,7 @@ class Parser:
 		#print("fragmaents:", fragments)
 		for delim in sorted(paragraph_delimiters, key=len):
 			#print("DELIM:", delim)
+			delim.replace("\\n", "\n")
 			for i in range(len(fragments)):
 				splitted = fragments[i].split(delim) # ["token0", "token1"]
 

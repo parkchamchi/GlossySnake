@@ -312,7 +312,7 @@ class ChatgptGlossFetcher(GlossFetcher):
 			max_tokens=max_tokens,
 		)
 
-		print("token usage:", list(response["usage"].values()))
+		print("token usage:", response["usage"]["total_tokens"])
 
 		res = response["choices"][0]["message"]["content"]
 		self.last_res_text = res

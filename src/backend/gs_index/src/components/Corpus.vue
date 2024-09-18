@@ -118,6 +118,10 @@
 				this.api.submit("/annotator/reannotate", "POST", {
 					corpus_id: this.corpus_id,
 					annotate_options: {
+						annotator_name: this.sharedState.annotator_name,
+						lang_from: this.sharedState.lang_from,
+						lang_to: this.sharedState.lang_to,
+						
 						target_paragraphs: target_paragraphs,
 					},
 					reannotate_options: {

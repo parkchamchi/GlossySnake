@@ -27,6 +27,40 @@
 				showPre: false,
 			}
 		},
+		computed: {
+			pseudoState() {
+				const psEmpty = !this.corpus.paragraphs || this.corpus.paragraphs.length <= 0;
+				if (psEmpty)
+					return "PLAIN";
+
+				const toTest = this.corpus.paragraphs[0];
+				return toTest.pstate;
+			},
+
+			//TODO: gen.
+			divideButtonClass() {
+				const pr = (this.pseudoState == "PLAIN");
+				return {
+					'btn-primary': pr,
+					'btn-light': !pr,
+				};
+			},
+			parseButtonClass() {
+				const pr = (this.pseudoState == "DIVIDED");
+
+				return {
+					'btn-primary': pr,
+					'btn-light': !pr,
+				};
+			},
+			annotateButtonClass() {
+				const pr = (this.pseudoState == "PARSED");
+				return {
+					'btn-primary': pr,
+					'btn-light': !pr,
+				};
+			},
+		},
 		methods: {
 			toggleCorpusVisibility() {
 				this.isCorpusVisible = !this.isCorpusVisible;
@@ -109,12 +143,12 @@
 			<span class="corpus_buttons_span">
 				<button class="corpus_button btn btn-light" @click="download()">Download</button>
 
-				<button class="corpus_button btn btn-light" @click="divide()">Divide</button>
-				<button class="corpus_button btn btn-light" @click="divide('\\n\\n')">Divide (for poems)</button>
+				<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide()">Divide</button>
+				<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide('\\n\\n')">Divide (for poems)</button>
 
-				<button class="corpus_button btn btn-light" @click="parse()">Parse</button>
+				<button :class="['corpus_button', 'btn', parseButtonClass]" @click="parse()">Parse</button>
 
-				<button class="corpus_button btn btn-light" @click="annotate()">
+				<button :class="['corpus_button', 'btn', annotateButtonClass]" @click="annotate()">
 					Annotate
 				</button>
 			</span>

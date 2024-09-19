@@ -38,6 +38,8 @@ class CannotParseException(ChatgptGlossFetcherException):
 	pass
 class InitialLineNotFoundException(ChatgptGlossFetcherException):
 	pass
+class NumberNotMatchingException(ChatgptGlossFetcherException):
+	pass
 
 #Following PoC.
 class ChatgptAnnotator(Annotator):
@@ -407,6 +409,16 @@ class ChatgptGlossFetcher(GlossFetcher):
 
 		#token_strs_idx = 0 #Expected orig_word
 		outres = []
+
+		print("token_strs:", token_strs)
+		print("res:", res)
+		for i, (orig_txt, (ret_i, [ret_txt, ret_gloss])) in enumerate(zip(token_strs, res.items())):
+			print(i, ret_i, orig_txt, ret_txt, ret_gloss)
+			if i != ret_i:
+				raise NumberNotMatchingException(f"`{ret_i}:` line not found.")
+			if orig_txt != ret_txt:
+				raise NumberNotMatchingException(f"Expected `{i}: {orig_txt} ||` but got `{i}: {ret_txt} || `. The number has to be exact. Rewrite as `{i}: {orig_txt} ||`.")
+		#TODO replace the code below with this loop
 
 		#Pass 1: iter. by res
 		#for orig_word_in_res, glosses in res.items():

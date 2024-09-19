@@ -429,13 +429,10 @@ class ChatgptGlossFetcher(GlossFetcher):
 	def validate_res(self, token_strs, res: Dict[int, List[str]], reannotation_gloss_strs=False) -> List[List[str]]:
 		reannotation = type(reannotation_gloss_strs) is list
 
-		#token_strs_idx = 0 #Expected orig_word
-		outres = []
-
 		print("token_strs:", token_strs)
 		print("res:", res)
 		for i, (orig_txt, (ret_i, res_value)) in enumerate(zip(token_strs, res.items())):
-			if i != ret_i:
+			if not reannotation and i != ret_i:
 				raise NumberNotMatchingException(f"`{ret_i}:` line not found.")
 			
 			if len(res_value) <= 0:
@@ -447,7 +444,8 @@ class ChatgptGlossFetcher(GlossFetcher):
 			[ret_txt, ret_gloss] = res_value[:2]
 			print(i, ret_i, orig_txt, ret_txt, ret_gloss)
 
-			if not loose_comparison(orig_txt, ret_txt):
+			#TODO: reannotation case
+			if not reannotation and not loose_comparison(orig_txt, ret_txt):
 				raise NumberNotMatchingException(f"Expected `{i}: {orig_txt} ||` but got `{i}: {ret_txt} || `. The number has to be exact. Rewrite as `{i}: {orig_txt} ||`.")
 		
 		#Pass 2: iter. by orig token_str
@@ -457,6 +455,11 @@ class ChatgptGlossFetcher(GlossFetcher):
 			print(reannotation_gloss_strs)
 			reannotation_indices = [i for i, e in enumerate(reannotation_gloss_strs) if e == TOKEN_TO_REANNOTATE]
 			print(reannotation_indices)
+
+			#TODO: why does this happen (likely chunking error)
+			if reannotation_indices == []:
+				print("TODO: reannotation_indices == []")
+				return [TOKEN_TO_IGNORE for _ in range(len(token_strs))]
 
 		for i, _ in enumerate(token_strs): #Not this `i`
 			g = None

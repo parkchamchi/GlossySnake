@@ -3,6 +3,10 @@
 *.pyc
 media/
 tmp/
+static_root/
+templates/vue.html
+static/index-*.js
+static/index-*.css
 
 db.sqlite3
 db.sqlite3-journal

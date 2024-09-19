@@ -8,10 +8,16 @@ class User(AbstractUser):
 	email = models.EmailField(unique=True)
 	is_temp_user = models.BooleanField(default=False)
 
-	available_openai_tokens = models.IntegerField(default=0)
+	available_openai_tokens = models.IntegerField(default=10_000)
 
 	#API Keys TODO: DEPRECATED
 	openai_api_key = models.CharField(null=True, max_length=128)
+
+	def add_token_usage(self, x):
+		if self.available_openai_tokens < x:
+			raise ValueError(f"{x} exceeds the av. token {self.available_openai_tokens}")
+		
+		self.available_openai_tokens -= x
 
 	@staticmethod
 	def get_temp_user(request):

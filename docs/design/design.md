@@ -39,6 +39,8 @@ e.g. `http://localhost/api/v2/annotator/annotate`
   - Req: `"corpus_id"`, `"annotate_options"`, `"reannotate_options"`
   - Res: `"task_id"`
 
+- `GET /tasks/`
+  - Res: [`{"task_id", "status", "target_corpus_id"}`, ...]
 - `GET /tasks/<id>`
   - Res: `"status"`, `"target_corpus_id"`
 - `GET /tasks/<id>/abort`
@@ -47,22 +49,28 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 
 - `GET /corpuses/<id>`
   - Res: `"corpuses_history"`
+- `GET /corpuses/`
+  - Res: [`{"corpus_id", "corpuses_history"}`, ...]
 
 - `GET /user/check`
-  - Res: `"is_auth"`, `"email"`
+  - Res: `"is_auth"`, `"email"`, `"key"`
   - Note: No authentication required.
 - `GET /user/available-openai-tokens`
   - Res: `"available-openai-tokens"`
 - `GET /user/get-temp-user`
-  - Res: `"success"`
-  - Note: Logs in. The email will end with `@example.com`.
+  - Res: `"success"`, `"key"`
+  - Note: The session logs in. The email will end with `@example.com`.
+- `GET /user/key`
+  - Res: `"key"`
+  - Note: `"key"` is not needed since it also uses the session.
+- `GET /user/logout`
 
 ##### /rest-auth/
 - See [`dj-rest-auth` Doc](https://dj-rest-auth.readthedocs.io/en/latest/api_endpoints.html)
 
 - `POST /login/` *(that is, `/api/v4/rest-auth/login/`)*
   - Req: `"email"`, `"password"`, 
-  - Res: `"key"` *(By TokenAuthentication. Currently ignorable)*
+  - Res: `"key"`
   - Note: ~~`username`~~ is not required
 - `POST /logout/`
 - `POST /registration/`
@@ -80,9 +88,13 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 ![images/class_req_options.png](images/class_req_options.png)
 
 - For `AnnotateOptions.annotator_name`
-  - `null`: defaults to `"chatpgt_ft0"`
-  - `"chatpgt_ft0"`: uses the pretrained ChatGPT model
-  - ~~`"user_chatgpt_%d`": uses the user's own OpenAI API key (`%d` starts with `0`.)~~ NOT IMPLEMENTED.
+  - `null`: defaults to `"dummy"`
+  - `"dummy"`: for test purposes
+  - `"chatpgt_ft0"`: uses the pretrained ChatGPT model (default fallback)
+    - `"chatgpt_gpt-3.5-turbo-untrained_0"`: Using untrained
+    - `"chatgpt_gpt-3.5-turbo-pretrained_0"`: Using pretrained
+    - `"chatgpt_gpt-4o-mini-untrained_0"`
+    - `"chatgpt_gpt-4o-mini-pretrained_0"`
 - On `/annotator/reannotate`, the fields of `AnnotateOptions`:
   - `.target_paragraphs`: only the first element is used.
   - The other fields can be null can be null (will use the previous one)

@@ -25,6 +25,8 @@ urlpatterns = [
 	path("v4/user/check", UserCheckViewV4.as_view(), name="api-v4-user-check"),
 	path("v4/user/available-openai-tokens", UserAvailableOpenaiTokensViewV4.as_view(), name="api-v4-user-available-openai-tokens"),
 	path("v4/user/get-temp-user", UserGetTempUserViewV4.as_view(), name="api-v4-user-get-temp-user"),
+	path("v4/user/key", UserKeyViewV4.as_view(), name="api-v4-user-key"),
+	path("v4/user/logout", UserLogoutViewV4.as_view(), name="api-v4-logout"),
 	#DEPRECATED
 	path("v4/user/openai-api-key", UserOpenaiApiKeyViewV4.as_view(), name="api-v4-user-openai-api-key"),
 ]

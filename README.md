@@ -4,7 +4,7 @@
 | --- | --- | --- | --- | --- |
 | 박찬진 | 컴퓨터과학전공 | 201910964 | 팀장 및 백엔드 등 | @parkchamchi |
 | 고준식 | 컴퓨터과학전공 | 201910921 | 백엔드 | @kojunsik |
-| 강병규 | 역사콘텐츠전공 | 201810001 | 프론트엔드 및 백엔드 | @KangByungky |
+| 강병규 | 역사콘텐츠전공 | 201810001 | 프론트엔드 | @KangByungky |
 | 이재웅 | 역사콘텐츠전공 | 201810027 | 프론트엔드 | @codingwoong |
 | 최재영 | 역사콘텐츠전공 | 201810035 | 프론트엔드 | @yhs06285 |
 
@@ -38,3 +38,4 @@
 - [Week 25: Impl. of iter-3 #8](docs/weekly/week25.md)
 - [Week 26: Impl. of iter-3 #9](docs/weekly/week26.md)
 - [Week 27: Deployment #1](docs/weekly/week27.md)
+- [Week 28: Deployment #1](docs/weekly/week28.md)

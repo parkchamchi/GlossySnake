@@ -82,6 +82,7 @@ MIDDLEWARE = [
 
 	#Orig.
 	'django.middleware.security.SecurityMiddleware',
+	"whitenoise.middleware.WhiteNoiseMiddleware",
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
@@ -89,6 +90,8 @@ MIDDLEWARE = [
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 #TODO: SHOULD BE ALTERED ON DEPLOYMENT
 CORS_ALLOWED_ORIGINS = (
@@ -98,7 +101,10 @@ CORS_ALLOWED_ORIGINS = (
 	"http://127.0.0.1:56122",
 	"http://127.0.0.1:56123",
 )
+CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:56122"]
+
+SESSION_COOKIE_SAMESITE = 'None' #TODO: reconsider
 
 ROOT_URLCONF = 'GlossySnakeBE.urls'
 

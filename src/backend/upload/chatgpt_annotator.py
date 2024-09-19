@@ -38,12 +38,15 @@ class CannotParseException(ChatgptGlossFetcherException):
 	pass
 class InitialLineNotFoundException(ChatgptGlossFetcherException):
 	pass
+class NumberNotMatchingException(ChatgptGlossFetcherException):
+	pass
 
 #Following PoC.
 class ChatgptAnnotator(Annotator):
-	def __init__(self, use_pretrained_model=True, user_openai_api_key=None):
-		self.annotator_name = "chatgpt_ft0"
-		self.gloss_fetcher = ChatgptGlossFetcher(use_pretrained_model=use_pretrained_model, user_openai_api_key=user_openai_api_key) #TODO: pretrained parameter
+	def __init__(self, annotator_name, token_usage_callback): #, user_openai_api_key=None):
+		self.annotator_name = annotator_name
+		use_pretrained_model = "pretrained" in annotator_name
+		self.gloss_fetcher = ChatgptGlossFetcher(use_pretrained_model=use_pretrained_model, model=annotator_name, token_usage_callback=token_usage_callback)
 
 	def put_gloss(self, p: Paragraph):
 		#First get the token strings. This ignores the delimiters like newlines, which may be negative for the performance. (TODO: check)
@@ -57,7 +60,12 @@ class ChatgptAnnotator(Annotator):
 		glosses = []
 		previ = -1
 		for endi in chunks:
-			print(f"[{previ+1}:{endi+1}] out of {len(token_strs)} (len: {endi-previ})")
+			the_len = endi-previ
+			if the_len <= 0:
+				print("warning: the_len <= 0)")
+				previ = endi
+				continue
+			print(f"[{previ+1}:{endi+1}] out of {len(token_strs)} (len: {the_len})")
 			chunk_strs = token_strs[previ+1:endi+1]
 			chunk_glosses = self.gloss_fetcher.try_fetch_gloss(chunk_strs)
 			glosses += chunk_glosses
@@ -103,7 +111,12 @@ class ChatgptAnnotator(Annotator):
 
 		previ = -1
 		for previ, endi in chunks_for_reannotation:
-			print(f"[{previ+1}:{endi+1}] out of {len(tokens_wo_delimiters)} (len: {endi-previ})")
+			the_len = endi-previ
+			if the_len <= 0:
+				print("warning: the_len <= 0")
+				previ = endi
+				continue
+			print(f"[{previ+1}:{endi+1}] out of {len(tokens_wo_delimiters)} (len: {the_len})")
 
 			# R: if the target in the chunk? (TODO: now redundant, delete this code later) #TODO: it returns chucks with no token to reannotate. fix this.
 			if not any([
@@ -172,7 +185,7 @@ class ChatgptAnnotator(Annotator):
 
 		return end_sents
 	
-	def chunckize_for_reannotation(self, reannotate_bools: List[bool], margin=16) -> List[Tuple[int, int]]:
+	def chunckize_for_reannotation(self, reannotate_bools: List[bool], margin=16, min_margin=4) -> List[Tuple[int, int]]:
 		# R: ret.s [(p0, e0), ...] for [p0+1:e0+1], ... (see reput_gloss)
 		# TODO: also has to receive which ones are to be reannotated
 
@@ -189,7 +202,7 @@ class ChatgptAnnotator(Annotator):
 				lastone = chunks[-1][1]
 				
 				#Take care of the margin; this ensures that the context is included.
-				if i < lastone-margin:
+				if i < lastone - min_margin:
 					#Included in the last chunk; ignore this `i`
 					continue
 
@@ -222,24 +235,33 @@ class GlossFetcher:
 		return [[f"dummy{i}"] for i in range(length)]
 
 class ChatgptGlossFetcher(GlossFetcher):
-	def __init__(self, chatgpt_gloss_options=None, use_pretrained_model=False, ignore_incomplete_res=True, max_token_ratio=3, user_openai_api_key=None):
+	def __init__(self, chatgpt_gloss_options=None, use_pretrained_model=False, ignore_incomplete_res=True, max_token_ratio=3, model="gpt-4o-mini", token_usage_callback=None): #, user_openai_api_key=None):
+		self.ignore_incomplete_res = ignore_incomplete_res
+		self.chatgpt_ft0_model = "chatgpt_gpt-4o-mini-pretrained_0"
+
+		#`"model"` should consist of alphanumerals and underscores.
+		if model == "chatgpt_ft0":
+			print("Using the pretrained model.")
+			self.model = os.getenv("PRETRAINED_MODEL_" + self.chatgpt_ft0_model)
+			use_pretrained_model = True
+		elif use_pretrained_model:
+			print("Using the pretrained model.")
+			self.model = os.getenv("PRETRAINED_MODEL_" + model)
+		else:
+			print("Using the general model.")
+			self.model = model.replace("chatgpt_", "").replace("-untrained_0", "") #TODO: ad hoc
+		if not self.model:
+			raise ValueError(f"Unknown model: {self.model}")
+		
+		#Should be done after setting self.model
 		if chatgpt_gloss_options is None:
 			chatgpt_gloss_options = ChatgptGlossOptions.get_default_obj(is_trained=use_pretrained_model)
 		self.chatgpt_gloss_options = chatgpt_gloss_options
-		self.ignore_incomplete_res = ignore_incomplete_res
-		self.user_openai_api_key = user_openai_api_key
-
-		#self.use_pretrained_model = use_pretrained_model
-		if use_pretrained_model:
-			print("Using the pretrained model.")
-			self.model = os.getenv("PRETRAINED_MODEL")
-		else:
-			print("Using the general model.")
-			self.model = "gpt-3.5-turbo"
 
 		#For token usage predicting
 		self.model_encoding = tiktoken.encoding_for_model(self.model)
 		self.max_token_ratio = max_token_ratio #Limit the token usage to (question) * this_value
+		self.token_usage_callback = token_usage_callback
 		
 	def try_fetch_gloss(self, token_strs: List[str], outer_retry=2, inner_retry=3, reannotation_gloss_strs=None) -> List[List[str]]:
 		print(f"Trying to fetch {len(token_strs)} glosses")
@@ -284,7 +306,7 @@ class ChatgptGlossFetcher(GlossFetcher):
 		for row in messages:
 			max_tokens += len(self.model_encoding.encode(row["content"]))
 		max_tokens *= self.max_token_ratio
-		max_tokens = max(max_tokens, 4096)
+		max_tokens = min(max_tokens, 4096)
 		print(f"W/ {max_tokens} max_tokens")
 
 		print(messages)
@@ -295,7 +317,9 @@ class ChatgptGlossFetcher(GlossFetcher):
 			max_tokens=max_tokens,
 		)
 
-		print("token usage:", list(response["usage"].values()))
+		token_usage = response["usage"]["total_tokens"]
+		print("token usage:", token_usage)
+		self.token_usage_callback(token_usage)
 
 		res = response["choices"][0]["message"]["content"]
 		self.last_res_text = res
@@ -385,6 +409,16 @@ class ChatgptGlossFetcher(GlossFetcher):
 
 		#token_strs_idx = 0 #Expected orig_word
 		outres = []
+
+		print("token_strs:", token_strs)
+		print("res:", res)
+		for i, (orig_txt, (ret_i, [ret_txt, ret_gloss])) in enumerate(zip(token_strs, res.items())):
+			print(i, ret_i, orig_txt, ret_txt, ret_gloss)
+			if i != ret_i:
+				raise NumberNotMatchingException(f"`{ret_i}:` line not found.")
+			if orig_txt != ret_txt:
+				raise NumberNotMatchingException(f"Expected `{i}: {orig_txt} ||` but got `{i}: {ret_txt} || `. The number has to be exact. Rewrite as `{i}: {orig_txt} ||`.")
+		#TODO replace the code below with this loop
 
 		#Pass 1: iter. by res
 		#for orig_word_in_res, glosses in res.items():

@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glossy Snake</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <b>Glossy Snake</b>
+        </div>
+        <button class="login-button" onclick="openLogin()">Login</button>
+        <div id="loginPopup" class="popup-overlay">
+            <div class="popup-content">
+                <span class="close-btn" onclick="closeloginPopup()">&times;</span>
+                <h2>Login</h2>
+                <form>
+                    <input type="ID" placeholder="ID" id="loginId">
+                    <input type="Password" placeholder="Password" id="loginPassword">
+                    <input type="button" value="Login" onclick="onLoginButtonClicked()">
+                    <input type="button" value="Go Sign Up" onclick="openSignUp()">
+                </form>
+            </div>
+        </div>
+
+        <div id="signUpPopup" class="popup-overlay">
+            <div class="popup-content">
+                <span class="close-btn" onclick="closeSignUp()">&times;</span>
+                <h2>Sign Up</h2>
+                <form>
+                    <input type="text" placeholder="Username을 입력해주세요." id="signUpUsername">
+                    <input type="email" placeholder="Email을 입력해주세요." id="signUpEmail">
+                    <input type="password" placeholder="Password를 입력해주세요." id="signUpPassword">
+                    <input type="password" placeholder="Password를 한 번 더 입력해주세요." id="signUpPasswordConfirm">
+                    <input type="button" value="Sign Up" onclick="onSignUpButtonClicked()">
+                </form>
+            </div>
+        </div>
+        
+
+        <div id="warningMessage" class="warning-box">
+            WARNING: The backend returned an error (Only shown when an event occurs.)
+            <span onclick="this.parentElement.style.display='none'" class="close">✖</span>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <div class="input-group">
+                    <label for="originalSelect">Original Language</label>
+                    <select id="originalSelect" name="Original">
+                        <option value="Deutsch">Deutsch</option>
+                        <option value="French">French</option>
+                        <option value="English" selected>English</option>
+                        <option value="korean">Korean</option>
+                    </select>
+                </div>
+                <textarea id="corpus" class="input-textarea" placeholder="The corpus insert textarea"></textarea>
+
+                <div class="input-group">
+                    <label for="glossSelect">Gloss Language</label>
+                    <select id="glossSelect" name="Gloss">
+                        <option value="Deutsch">Deutsch</option>
+                        <option value="French">French</option>
+                        <option value="English" selected>English</option>
+                        <option value="korean">Korean</option>
+                    </select>
+                </div>
+
+                <button onclick="onUploadButtonClicked()">Upload</button>
+            </div>
+
+            <div class="section">
+                <h3>Result</h3>
+                <textarea id="output" class="output-textarea" readonly></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript">
+        function openLogin() {
+            var loginPopup = document.getElementById("loginPopup");
+            loginPopup.style.visibility = "visible";
+            loginPopup.style.opacity = "1";
+        }
+
+        function closeloginPopup() {
+            var loginPopup = document.getElementById("loginPopup");
+            loginPopup.style.visibility = "hidden";
+            loginPopup.style.opacity = "0";
+        }
+
+        function openSignUp() {
+            var signUpPopup = document.getElementById("signUpPopup");
+            signUpPopup.style.visibility = "visible";
+            signUpPopup.style.opacity = "1";
+        }
+
+        function closeSignUp() {
+            var signUpPopup = document.getElementById("signUpPopup");
+            signUpPopup.style.visibility = "hidden";
+            signUpPopup.style.opacity = "0";
+        }
+
+        function onLoginButtonClicked() {
+            const id = document.getElementById('loginId').value;
+            const password = document.getElementById('loginPassword').value;
+
+            fetch('http://glossysnake.com/api/v4/rest-auth/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: id,
+                    password: password,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                closeloginPopup();  // 로그인 후 팝업 닫기
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                document.getElementById("warningMessage").style.display = "block";
+            });
+        }
+
+        function onSignUpButtonClicked() {
+            const username = document.getElementById('signUpUsername').value;
+            const email = document.getElementById('signUpEmail').value;
+            const password = document.getElementById('signUpPassword').value;
+            const passwordConfirm = document.getElementById('signUpPasswordConfirm').value;
+
+            if (password !== passwordConfirm) {
+                alert('Passwords do not match.');
+                return;
+            }
+
+            fetch('http://glossysnake.com/api/v4/rest-auth/registration/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    password1: password,
+                    password2: passwordConfirm,
+                }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();  // JSON 형식일 경우
+                } else {
+                    return response.text();  // JSON이 아니면 텍스트로 처리
+                }
+            })
+            .then(data => {
+                try {
+                    // JSON일 경우 처리
+                    console.log('Success:', data);
+                } catch (error) {
+                    // 텍스트일 경우 처리
+                    console.log('Non-JSON Response:', data);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+            
+        function sendRequest() {
+            let method = "POST";
+            let data = { headers: {} }; // data 객체를 초기화합니다. headers를 빈 객체로 초기화합니다.
+
+            let endpoint = document.getElementById('endpoint').value;
+
+            let originalValue = document.getElementById('originalSelect').value;
+            if (originalValue == null) {
+                console.log("originalValue가 null상태입니다");
+            } else if (originalValue == undefined) {
+                console.log("originalValue가 undefined상태입니다");
+            } else {
+                console.log("Selected Original Character: ", originalValue);
+            }
+
+            let glossValue = document.getElementById('glossSelect').value;
+            if (glossValue == null) {
+                console.log("glossValue가 null상태입니다");
+            } else if (glossValue == undefined) {
+                console.log("glossValue가 undefined상태입니다");
+            } else {
+                console.log("Selected Gloss Character: ", glossValue);
+            }
+
+            let delimeterValue = document.getElementById('delimeter').value;
+            if (delimeterValue == null) {
+                console.log("delimeterValue가 null상태입니다");
+            } else if (delimeterValue == undefined) {
+                console.log("delimeterValue가 undefined상태입니다");
+            } else {
+                console.log("Selected Delimeter: ", delimeterValue);
+            }
+
+            let corpus = document.getElementById('corpus').value;
+            if (corpus == null) {
+                console.log("corpus가 null상태입니다");
+            } else if (corpus == undefined) {
+                console.log("corpus가 undefined상태입니다");
+            } else {
+                console.log("Input Text: ", corpus);
+            }
+
+            //Send a POST request to Backend
+            let full_url = endpoint + "/api/v4/upload";
+            console.log('Fetching URL:', full_url);
+
+            const csrftoken = (document.cookie.match(/^(?:.*;)?\s*csrftoken\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1];
+            if (!csrftoken) {
+                console.log("POST: no csrftoken.");
+            } else {
+                data.headers["X-CSRFToken"] = csrftoken; // CSRF 토큰을 헤더에 추가
+                console.log("CSRF Token:", csrftoken); // CSRF 토큰 확인
+            }
+
+            fetch(full_url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...data.headers
+                },
+                
+                
+                body: JSON.stringify({
+                    text: corpus,
+                    original: originalValue,
+                    gloss: glossValue,
+                    delimeter: delimeterValue 
+                }),                
+            })
+      
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                document.getElementById('output').textContent = JSON.stringify(data);
+                document.getElementById("shown3Message").style.display = "block";
+                document.getElementById("scrollMessage").style.display = "block";
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("warningMessage").style.display = "block";
+            });
+        }
+
+    }
+
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header {
+            font-size: 30px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .warning-box {
+            width: 600px;
+            padding: 1px;
+            border: 1px solid;
+            background-color: crimson;
+            display: none;
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+
+        .section {
+            width: 48%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f1f1f1;
+            box-sizing: border-box;
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 6.5px;
+        }
+
+        .input-group select,
+        .input-textarea,
+        .output-textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .input-textarea {
+            resize: none;
+        }
+
+        .output-textarea {
+            height: auto;
+            min-height: 147px;
+            resize: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .login-button {
+            border: none;
+            background-color: #1900ff;
+            font-size: 15px;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s ease;
+        }
+
+        .popup-content {
+            width: 400px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .popup-content h2 {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .popup-content input[type="ID"],
+        .popup-content input[type="Password"] {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+
+        .popup-content input[type="button"] {
+            text-align: center;
+            font-weight: bold;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 3px;
+            background-color: #febe98;
+            color: #000000;
+            cursor: pointer;
+        }
+
+        .popup-content input[type="button"]:hover {
+            background-color: #ffb285;
+        }
+
+        .popup-content .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+    </style>
+
+
+    <script>
+        // Backend interaction for login
+        function onLoginButtonClicked() {
+            const id = document.getElementById('loginId').value;
+            const password = document.getElementById('loginPassword').value;
+
+            fetch('http://glossysnake.com/api/v4/rest-auth/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: id,
+                    password: password,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                closeloginPopup();  // Close the popup on success
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                document.getElementById("warningMessage").style.display = "block";
+            });
+        }
+
+        // Backend interaction for signup
+        function onSignUpButtonClicked() {
+            const username = document.getElementById('signUpUsername').value;
+            const email = document.getElementById('signUpEmail').value;
+            const password = document.getElementById('signUpPassword').value;
+            const passwordConfirm = document.getElementById('signUpPasswordConfirm').value;
+
+            if (password !== passwordConfirm) {
+                alert('Passwords do not match.');
+                return;
+            }
+
+            fetch('http://glossysnake.com/api/v4/rest-auth/registration/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    password1: password,
+                    password2: passwordConfirm,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                closeSignUp();  // Close the popup on success
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                document.getElementById("warningMessage").style.display = "block";
+            });
+        }
+
+        // Backend interaction for uploading text
+        function onUploadButtonClicked() {
+            const original = document.getElementById('originalSelect').value;
+            const gloss = document.getElementById('glossSelect').value;
+            const corpus = document.getElementById('corpus').value;
+
+            fetch('http://glossysnake.com/api/v4/upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: corpus,
+                    original: original,
+                    gloss: gloss
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Upload success:', data);
+                document.getElementById('output').textContent = JSON.stringify(data);
+            })
+            .catch(error => {
+                console.error('Upload error:', error);
+                document.getElementById("warningMessage").style.display = "block";
+            });
+        }
+    </script>
+    
+    <script>
+        // Function to get CSRF token from cookies
+        function getCSRFToken() {
+            let csrfToken = null;
+            if (document.cookie) {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith('csrftoken=')) {
+                        csrfToken = cookie.substring('csrftoken='.length, cookie.length);
+                        break;
+                    }
+                }
+            }
+            return csrfToken;
+        }
+
+        // Modify fetch requests to include the CSRF token
+        function onLoginButtonClicked() {
+            const id = document.getElementById('loginId').value;
+            const password = document.getElementById('loginPassword').value;
+
+            fetch('http://glossysnake.com/api/v4/rest-auth/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()  // CSRF token included here
+                },
+                body: JSON.stringify({
+                    username: id,
+                    password: password,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                closeloginPopup();  // Close the popup on success
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                document.getElementById("warningMessage").style.display = "block";
+            });
+        }
+
+        function onSignUpButtonClicked() {
+            const username = document.getElementById('signUpUsername').value;
+            const email = document.getElementById('signUpEmail').value;
+            const password = document.getElementById('signUpPassword').value;
+            const passwordConfirm = document.getElementById('signUpPasswordConfirm').value;
+
+            if (password !== passwordConfirm) {
+                alert('Passwords do not match.');
+                return;
+            }
+
+            fetch('http://glossysnake.com/api/v4/rest-auth/registration/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()  // CSRF token included here
+                },
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    password1: password,
+                    password2: passwordConfirm,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                closeSignUp();  // Close the popup on success
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                document.getElementById("warningMessage").style.display = "block";
+            });
+        }
+
+        function onUploadButtonClicked() {
+            const original = document.getElementById('originalSelect').value;
+            const gloss = document.getElementById('glossSelect').value;
+            const corpus = document.getElementById('corpus').value;
+
+            fetch('http://glossysnake.com/api/v4/upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()  // CSRF token included here
+                },
+                body: JSON.stringify({
+                    text: corpus,
+                    original: original,
+                    gloss: gloss
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Upload success:', data);
+                document.getElementById('output').textContent = JSON.stringify(data);
+            })
+            .catch(error => {
+                console.error('Upload error:', error);
+                document.getElementById("warningMessage").style.display = "block";
+            });
+        }
+    </script>
+
+</body>
+    
+
+</html>

@@ -8,6 +8,7 @@ import warnings
 
 import os
 from typing import List, Tuple, Dict
+import re
 
 dotenv.load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -40,6 +41,27 @@ class InitialLineNotFoundException(ChatgptGlossFetcherException):
 	pass
 class NumberNotMatchingException(ChatgptGlossFetcherException):
 	pass
+
+def filter_alphabets(string):
+	return re.sub(r'[^a-zA-Z]', '', string)
+
+#Returns True if they share the half of the alphabets
+def loose_comparison(orig_txt, ret_txt):
+	filtered_orig = filter_alphabets(orig_txt)
+	filtered_ret = filter_alphabets(ret_txt)
+
+	if not filtered_orig:
+		return True
+
+	set_orig = set(filtered_orig)
+	set_ret = set(filtered_ret)
+	
+	intersection = set_orig & set_ret
+	union = set_orig | set_ret
+	
+	ratio = len(intersection) / len(union) if len(union) > 0 else 0
+	
+	return ratio >= 0.5
 
 #Following PoC.
 class ChatgptAnnotator(Annotator):
@@ -412,41 +434,22 @@ class ChatgptGlossFetcher(GlossFetcher):
 
 		print("token_strs:", token_strs)
 		print("res:", res)
-		for i, (orig_txt, (ret_i, [ret_txt, ret_gloss])) in enumerate(zip(token_strs, res.items())):
-			print(i, ret_i, orig_txt, ret_txt, ret_gloss)
+		for i, (orig_txt, (ret_i, res_value)) in enumerate(zip(token_strs, res.items())):
 			if i != ret_i:
 				raise NumberNotMatchingException(f"`{ret_i}:` line not found.")
-			if orig_txt != ret_txt:
-				raise NumberNotMatchingException(f"Expected `{i}: {orig_txt} ||` but got `{i}: {ret_txt} || `. The number has to be exact. Rewrite as `{i}: {orig_txt} ||`.")
-		#TODO replace the code below with this loop
-
-		#Pass 1: iter. by res
-		#for orig_word_in_res, glosses in res.items():
-		for i, the_list in res.items(): #{i: [orig_word, g0, ...]} #Now only g0 is considered
-			if len(the_list) < 1:
+			
+			if len(res_value) <= 0:
 				raise UnidentifiableTokenInResException(f"Empty line: {i}.") #Not likely.
-			orig_word_in_res = the_list[0]
+			if len(res_value) == 1:
+				#gloss not returned; just put !UNKNOWN
+				res_value.append(TOKEN_UNKNOWN)
+			
+			[ret_txt, ret_gloss] = res_value[:2]
+			print(i, ret_i, orig_txt, ret_txt, ret_gloss)
 
-			#Find the word in token_strs
-			#try:
-				#token_strs_idx = token_strs.index(orig_word_in_res, token_strs_idx)
-			#except ValueError:
-			if orig_word_in_res not in token_strs:
-				raise UnidentifiableTokenInResException(f"Unidentifiable: `{orig_word_in_res}`. This token was not in the original token list.")
-
-			#Check the len of the glosses
-			if len(the_list) < 2:
-				#raise IncompleteGlossesPerTokenException(f"Incorrenct number of gloss detected. (There should be one and no gloss shall be empty")
-				# Ignore this case: {i: [orig_word, ]}
-				the_list.append(TOKEN_UNKNOWN)
-
-			#elif len(glosses) != 1:
-			#	raise IncompleteGlossesPerTokenException(f"Incorrenct number of gloss detected. (There should be one and no gloss shall be empty")
-			#token_strs_idx += 1
-
-			gloss = the_list[1] #not used
-
-
+			if not loose_comparison(orig_txt, ret_txt):
+				raise NumberNotMatchingException(f"Expected `{i}: {orig_txt} ||` but got `{i}: {ret_txt} || `. The number has to be exact. Rewrite as `{i}: {orig_txt} ||`.")
+		
 		#Pass 2: iter. by orig token_str
 		outres = []
 		if reannotation:
@@ -455,7 +458,7 @@ class ChatgptGlossFetcher(GlossFetcher):
 			reannotation_indices = [i for i, e in enumerate(reannotation_gloss_strs) if e == TOKEN_TO_REANNOTATE]
 			print(reannotation_indices)
 
-		for i, token_str in enumerate(token_strs): #Not this `i`
+		for i, _ in enumerate(token_strs): #Not this `i`
 			g = None
 
 			if reannotation and i not in reannotation_indices:

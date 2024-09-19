@@ -8,7 +8,7 @@ class User(AbstractUser):
 	email = models.EmailField(unique=True)
 	is_temp_user = models.BooleanField(default=False)
 
-	available_openai_tokens = models.IntegerField(default=10_000)
+	available_openai_tokens = models.IntegerField(default=50_000)
 
 	#API Keys TODO: DEPRECATED
 	openai_api_key = models.CharField(null=True, max_length=128)

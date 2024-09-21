@@ -7,7 +7,6 @@
 	export default {
 		props: {
 			corpus_id: {
-				type: Number,
 				required: true,
 			},
 			corpus: {

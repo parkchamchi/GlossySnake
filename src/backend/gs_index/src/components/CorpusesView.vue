@@ -1,6 +1,7 @@
 <script>
 	import { EventBus } from "../EventBus.js";
 	import { GsApi } from "../GsApi.js"
+	import sampleCorpuses from "../sampleCorpuses.json"
 	import Corpus from "./Corpus.vue"
 
 	export default {
@@ -11,14 +12,14 @@
 			return {
 				api: new GsApi(),
 
-				corpuses: [],
+				corpuses: [...sampleCorpuses],
 			};
 		},
 		methods: {
 			async updateCorpuses() {
 				const res = await this.api.submit("/corpuses/");
 				const data = await res.json();
-				this.corpuses = data;
+				this.corpuses = [...sampleCorpuses, ...data];
 			},
 		},
 		created() {

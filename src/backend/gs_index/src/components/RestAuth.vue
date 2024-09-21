@@ -9,6 +9,16 @@
 				email: null,
 			}
 		},
+		computed: {
+			userinfo() {
+				if (!this.email)
+					return "Log in.";
+				else if (this.email.includes("@example.com"))
+					return this.email.replace("@example.com", "");
+				else
+					return this.email;
+			},
+		},
 		methods: {
 			meow() {
 				console.log("meow");
@@ -67,10 +77,19 @@
 
 <template>
 	<div id="frontend_auth_div">
-		<p>{{ email }}</p>
-		<button @click="logout()"
+		<p class="userinfo_p">{{ userinfo }}</p>
+		<p @click="logout()"
 			class="btn">
 			Logout
-		</button>
+		</p>
 	</div>
 </template>
+
+<style scoped>
+	.userinfo_p {
+		//display: inline;
+		font-size: 80%;
+		font-style: italic;
+		margin: 0;
+	}
+</style>

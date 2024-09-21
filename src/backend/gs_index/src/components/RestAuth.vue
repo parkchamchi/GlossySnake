@@ -87,7 +87,6 @@
 
 <style scoped>
 	.userinfo_p {
-		//display: inline;
 		font-size: 80%;
 		font-style: italic;
 		margin: 0;

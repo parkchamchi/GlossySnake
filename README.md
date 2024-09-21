@@ -1,10 +1,10 @@
 # GlossySnake: A Justification
 
-We are to read to the grave. To argue on whether one's language limit his world he has to read on that matter, be it a Wikiepdia article or a hardcover. *Written* language acquisition then becomes his interest.
+We are to read to the grave. To argue on whether one's language limit his world he has to read on that matter, be it a Wikipedia article or a hardcover. *Written* language acquisition then becomes his interest.
 
 ## Motivations for learning foreign languages.
 
-In the 21st century one can argue that English speaker can acquire most of the informations that matter, both ancient and contemporary. While this argument might not too far from being true, foreign language is worth learning for:
+In the 21st century one can argue that a English speaker can acquire most of the informations that matter, both ancient and contemporary. While this argument might not be too far from being true, foreign languages are worth learning for:
 
 - Literatures
   - For subtle nuances: For those who consider that [the corresponding English sentence of `"Aujourd'hui, maman est morte."` is `"Aujourd'hui, maman est morte."`.](https://www.newyorker.com/books/page-turner/lost-in-translation-what-the-first-line-of-the-stranger-should-be)
@@ -18,7 +18,7 @@ In the 21st century one can argue that English speaker can acquire most of the i
 
 ## Language learning methods.
 
-But how do we learn of *foreign* language? The *self-learner* can use:
+But how do we learn *foreign* language? The *self-learner* can use:
 
 *Also read: [Language pedagogy, Wikipedia](https://en.wikipedia.org/wiki/Language_pedagogy)*
 
@@ -41,24 +41,24 @@ The most known example of this method would be *Lingua Latina per se Illustrata*
 
 ## The Hamiltonian method?
 
-After learning using the direct method, with materials like *LLPSI*. the Italian *Athenaze*, *L'italiano Secondo Il Metodo Natura*, the learner is tempted to learn actual texts in the target language (It's not that the Direct method corpora are abundant anyway). So he reads other texts like *Vulgata*, *L'Étranger*, etc. But a obstacle arises: **the vocabulary**. Indexing a dictionary or searching Wiktionary is, especially when repeated, becomes but a chore.
+After learning using the direct method, with materials like *LLPSI*. the Italian *Athenaze*, *L'italiano Secondo Il Metodo Natura*, the learner is tempted to learn actual texts in the target language (It's not that the Direct method corpora are abundant anyway). So he reads other texts like *Vulgata*, *L'Étranger*, etc. But an obstacle arises: **the vocabulary**. Indexing a dictionary or searching Wiktionary is, especially when repeated, becomes but a chore.
 
 ![/docs/proposal/images/example_aesop.png](/docs/proposal/images/example_aesop.png)
 
 - An example of the Interlinear gloss. *Æsop’s Fables, as Romanized By Phædrus: with a Literal Interlinear Translation* (1832)
 
-A straightfoward solution is the [*Interlinear gloss*](https://en.wikipedia.org/wiki/Interlinear_gloss): simply, annotate the *gloss betweeen the lines*. This is widely used in the linguistic papers, often with grammatical labels. But it also has been used for language learning: and it was strongly advocated by [James Hamilton (1769-1829)](https://en.wikipedia.org/wiki/James_Hamilton_(language_teacher)), to the point where the *Hamiltonian System* became synonimous with the Interlinear gloss for language learning.
+A straightfoward solution is the [*Interlinear gloss*](https://en.wikipedia.org/wiki/Interlinear_gloss): simply, to annotate the *gloss betweeen the lines*. This is widely used in the linguistic papers, often with grammatical labels. But it also has been used for language learning: and it was strongly advocated by [James Hamilton (1769-1829)](https://en.wikipedia.org/wiki/James_Hamilton_(language_teacher)), to the point where the *Hamiltonian System* became synonymous with the Interlinear translation for language learning.
 
 James Hamilton opposed the Grammar-translation method above and asserted on learning the language *by the heart* -- a phrase that's repeating on [his book defending his system, *The History, Principles, Practice, and Results of the Hamiltonian System* (1829)](https://books.google.co.kr/books/about/The_History_Principles_Practice_and_Resu.html?id=7ZVMhyBftuMC&redir_esc=y).
 
 Hamilton argues this system -- that is more than a synonym of the Interlinear translation.
 
 1. To *teach*, instead of *ordering to learn*
-2. Translate at once, instead of making htem get a grammar by heart. To quote for these two principles *(p.7)*:
+2. Translate at once, instead of making them get a grammar by heart. To quote for these two principles *(p.7)*:
 > I taught, instead of ordering to learn; and, secondly, I taught my pupils to translate at once, instead of making them get a grammar by heart. I had tried to parse also, as well as translate, as D'Angeli had done with me, but I found this would do only with linguists: the grammar was incomprehensible at this period to the greater number of my pupils; I therefore deferred it till they had taken half the course: by that time ,as they had met in their reading all the inflexions of the verbs, and changes of the other declinable parts of speech, thousands of times, they found grammar an easy task. I then gave them two or three lectures on grammar generally, but particularly the verbs, of which I gave them a copy, and from this period my pupils read at their own home, and in class learned the use of the words they had acquired in reading they read the English Gospel of St. John into French, first after me, in precisely the same manner as I had taught them first to translate French into English, but with this essential difference, my translation into French was a free translation -- in simple but correct language, which they afterwards wrote; and in the correcting of which I gave them the details of the principles or rules of grammar, and thus taught them to write and speak correctly.
 3. Analytical translation: as opposed to the *literal translations*. The words are *analyzed* within the context.
 4. "The words of all languages have, with few exceptions, one meaning only, and should be translated generally by the same word, which should stand for its representative at all times, and all places."
-5. The simple sounds of all languages being, with *few exceptions*, identically the same, it must be as easy for an English to pronounce French as English, when *taught*, and *vice versâ*.
+5. "The simple sounds of all languages being, with *few exceptions*, identically the same, it must be as easy for an Englishman to pronounce French as English, when *taught*, and *vice versâ*."
 
 Some points are indeed arguable, but focusing on the *analystic keys* was insightful. As implied by my word "defending", the system was attacked by others, especially by the advocates of the Grammar-translation method.
 
@@ -86,7 +86,7 @@ To quote Hamilton more *(p. 39)*:
 -- READING, the most valuable gift of the Divinity, has been sacrificed to the acquirement of what never constituted real learning, and which constitutes it now less than ever; and to the contemptible vanity of being supposed a classical scholar, often without the shadow of a title to it.
 
 *(p. 54)*:
-> But there are two objections to this improvement : first, this mode will not teach him grammar! Those who make this objection cannot see the wood for trees! to analyze a phrase word for word, to translate it by corresponding parts of speech, and to point out the grammatical construction of the phrase-the mutual dependance of all the words of a sentence on each other , is not this the very essence of grammar ? Could Horace or Virgil do more ? -- Ay, but the rules ? Horace and Virgil knew none of these rules. But the examiners at the University do, and insist on the knowledge of them, though they do not insist on an extensive knowledge of the meaning of words.
+> But there are two objections to this improvement : first, this mode will not teach him grammar! Those who make this objection cannot see the wood for trees! to analyze a phrase word for word, to translate it by corresponding parts of speech, and to point out the grammatical construction of the phrase-the mutual dependance of all the words of a sentence on each other, is not this the very essence of grammar? Could Horace or Virgil do more? -- Ay, but the rules? Horace and Virgil knew none of these rules. But the examiners at the University do, and insist on the knowledge of them, though they do not insist on an extensive knowledge of the meaning of words.
 
 *(p.57)*:
 > if he can continue to make his pupil wade through Grammars, Exercise Books, and Dictionaries for years, for the attainment of what I have here proved may be obtained by a far easier, more certain, more effectual, more pleasing mode, in a few months?
@@ -95,7 +95,7 @@ And much more. *Also read: [The New Old Way of Learning Languages, The American 
 
 ## Back to the Interlinear gloss
 
-We agree with Mr. Hamilton's insights, but this project disregarded some points, including rearranged word orders. So this project's initial reference to Hamiltonian System had to be removed. The concept of machine-generated and non-proof-read glossing would be enough to render Mr. Hamilton aghast. I did not, by any means, try to par with the quality of authentic Hamiltonian corpora.
+We agree with Mr. Hamilton's insights, but this project disregarded some points, including the rearranged word orders. So this project's initial reference to the Hamiltonian System had to be removed. The concept of machine-generated and non-proof-read glossing would be enough to render Mr. Hamilton aghast. I did not, by any means, try to par with the quality of authentic Hamiltonian corpora.
 
 ## Back to *the Project*
 
@@ -103,9 +103,9 @@ My first exposure to the Interlinear translation was [the app Legentibus](https:
 
 - If I remember correctly, one corpus was [*Epitome Historiæ Scaræ*](https://books.google.co.kr/books?id=D5NQAAAAYAAJ&printsec=frontcover&hl=ko&source=gbs_ge_summary_r&cad=0#v=onepage&q&f=false). Also the website had a dedicated page for the Interlinear translation, but I can't find the said page right now. If you wish to learn Latin I'll say that this app is worth $10 a month.
 
-This method taught me that learning language can be more than going through boring grammar exercies or paying Duiolingo, Inc. for not much effective outcomes. After all, especially as with dead languages, the goal is *to read*. But to advance was hindered, by the limited corpora: including the paywalled texts. So as usual this became my new problem-solving project. The subobject is to read [*Die Leiden des jungen Werther* (1774)](https://www.projekt-gutenberg.org/goethe/werther/werther.html), whose copy I bought and gave up after reading a page.
+This method taught me that learning language can be more than going through boring grammar exercies or paying Duiolingo, Inc. for not much effective outcomes. After all, especially as with dead languages, the goal is *to read*. But to advance was hindered, by the limited corpora: including the paywalled texts. So as usual this became my new problem-solving project. The subobject was to read [*Die Leiden des jungen Werther* (1774)](https://www.projekt-gutenberg.org/goethe/werther/werther.html), whose copy I bought and gave up after reading a page.
 
-- To read the first German I'd recommand Kaufmann's bilingual edition of *Faust*.
+- To read the first German I'd recommend Kaufmann's bilingual edition of *Faust*.
 
 ### The LLM.
 
@@ -194,7 +194,7 @@ With an accompanied example. These long prompt was needed for the set structure,
 
 #### Fine-tuning of ChatGPT
 
-To lessen the token usage and failure rates, the [fine-tuning](https://platform.openai.com/docs/guides/fine-tuning) was needed. Thankfully the corpora to be grinded to the machine was all of the public domain. The texts used are:
+To lessen the token usage and failure rates, the [fine-tuning](https://platform.openai.com/docs/guides/fine-tuning) was needed. Thankfully the corpora to be grinded to the machine were all of the public domain. The texts used are:
 
 - Aesop's Fables as Romanized by Phaedrus with Literal Interlinear Translation (1833)
 - Eduard in Schottland, oder die Nacht eines Flüchtlings (1804)
@@ -248,8 +248,8 @@ Deployed on AWS, with the domain `glossysnake.com` (soon to be on https...)
 - SSL
 - Not actual accounts
 - No convenient token usage tracking
-- Not parallelized; too slow to be used in the production
-- etc., etc., etc.
+- Not parallelized; too slow to be used.
+- etc., etc., etc. It's not yet for the production.
 
 ### The frontend.
 
@@ -283,7 +283,7 @@ Pretty okay. The literal translations like `"Not free not!"`, `"Thou thyself goe
 
 In the age of the FadAI and unfortunately much more to come the importance to hold onto the classical corpora is only increasing. With the acquisition of *the Languages* (French, German, Latin and Greek) we can develop immunity against the *mass*- and machine-generated slops.
 
-* Only through the good written souls one can find his soul's meaning.
+* Only through good written souls one can find his soul's meaning.
 
 *Chanjin Park a.k.a. "Chamchi"*
 

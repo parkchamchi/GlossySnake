@@ -44,7 +44,7 @@
 		<textarea v-model="originalText"
 			class="context_input auto-resize field_input"
 			name="frontend_original_text"
-			spellcheck="true"
+			spellcheck="false"
 			autofocus
 			placeholder="Original Text"
 			id="frontend_original_text_textarea"></textarea>

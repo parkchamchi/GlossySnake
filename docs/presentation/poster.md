@@ -1,21 +1,25 @@
-# 단어 단위 번역 서비스
-TODO: 09/22
+# Interlinear translation 웹앱
 
 ## 개요
-외국어 테스트를 입력받아 단어 단위로 분해 후 번역물을 주석으로 제공하는 웹서비스를 제작한다.
+외국어 텍스트를 Interlinear translation 말뭉치로 변환시키고 이용할 수 있는 웹 서비스
+
 
 ## 프로젝트 소개
-문장 단위가 아닌 단어 단위로 번역된 말뭉치는 언어학습에 용이하여 19세기부터 학습용도로 사용되었다. 현재도 이러한 방법을 사용한 서비스가 있지만 말뭉치가 제한되어있어 접근성이 낮았다.<br>
-이에 최근 발달한 자연어 처리 기술을 이용하여 이에 특화된 서비스를 제작하기로 하였다. 사용자가 원하는 외국어 텍스트를 입력하게 하고 이를 분해하여 문맥을 고려해 번역물을 제공하였다.
+문장이 아닌 단어를 단위로 주석을 제공하는 언어학습 문헌은 19세기부터 사용되었지만 제한된 말뭉치의 양으로 인해 접근성이 낮았다. 이를 해소하기 위해 LLM을 이용하여 주석을 자동화하고 JSON을 쉽게 시각화 및 다운로드할 수 있게 하였다.
+
 ### 시스템 아키텍처
-TODO: 다이어그램 만들기
+![/docs/presentation/images/sysarch.png](/docs/presentation/images/sysarch.png)
 
 ## 구현 결과
-자연어 처리는 범용적이고 효율적인 gpt-3.5-turbo와 gpt-4o-mini를 파인튜닝하여 사용하였다. 파인튜닝 데이터는 이러한 언어학습 방법론을 사용한 퍼블릭 도메인 말뭉치를 사용했다.<br>
-백엔드는 Django를 사용했으며, 이 API와 상호작용하는 프론트엔드는 Vue.js 프레임워크를 사용하였다. 배포는 AWS를 통해 진행되었다.<br>
-사용자는 기본 제공되는 게스트 계정이나 회원가입된 계정 안에 자신의 말뭉치를 업로드 및 가공할 수 있으며, 이를 단어 당 조작할 수 있도록 하였다. 이렇게 가공된 말뭉치는 JSON형태로 다운로드 및 다시 업로드할 수 있게 하였다.
-### 화면
-TODO: 각종 스크린샷. 3개 정도
+주석을 다는 자연어 처리는 ChatGPT 4o-mini를 파인튜닝하여 사용하였고, 말뭉치를 가공하는 백엔드는 Django로 작성되고 AWS에서 deploy되었다. 백엔드와 REST API를 통해 통신하는 프론트엔드는 Vue.js로 작성되었다. 
+사용자는 원하는 텍스트나 이미 가공된 JSON 파일을 업로드하고, 프론트엔드에서 이를 Interlinear translation이 적용된 실제 문헌과 비슷한 형태로 표시한다. 가공된 말뭉치는 JSON형태로 다운로드할 수도 있다.
+
+### 업로드 화면
+![/docs/presentation/images/fig_upload.png](/docs/presentation/images/fig_upload.png)
+### 제공 말뭉치 화면
+![/docs/presentation/images/fig_annotated_corpus.png](/docs/presentation/images/fig_annotated_corpus.png)
+### 모델 선택 화면
+![/docs/presentation/images/fig_annotator_select.png](/docs/presentation/images/fig_annotator_select.png)
 
 ## 기대효과
-19세기 퍼블릭 도메인 문헌과 유료 서비스에 제한되어 있던 단어 단위 번역 언어교수법 (Interlinear gloss; Hamiltonian System)을 사용자가 원하는 말뭉치로 사용할 수 있게 하여 접근성을 높이고 이에 특화된 UI를 제공하여 편리성을 높였다. 이렇게 하여 효율적인 언어학습을 가능케 한다.
+19세기 퍼블릭 도메인 문헌과 유료 서비스에 제한되어 있던 Interlinear translation 언어학습을 자연어처리로 자동화하여 쉽게 접근할 수 있고 이에 맞게 포맷된 JSON을 획득할 수 있다.

@@ -79,7 +79,7 @@
 	<div id="frontend_auth_div">
 		<p class="userinfo_p">{{ userinfo }}</p>
 		<p @click="logout()"
-			class="btn">
+			class="btn logout_button">
 			Logout
 		</p>
 	</div>
@@ -90,5 +90,8 @@
 		font-size: 80%;
 		font-style: italic;
 		margin: 0;
+	}
+	.logout_button {
+		font-size: 80%;
 	}
 </style>

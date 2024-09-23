@@ -201,9 +201,19 @@ To lessen the token usage and failure rates, the [fine-tuning](https://platform.
 - Selections from the German Poets, with interlinear translations (1853)
 - Cornelius Nepos, adapted to the Hamiltonian system by an interlinear and analytical translation (189?)
 
-And on the base model `gpt-3.5-turbo` and later `gpt-4o-mini` the JSONL of 1MB was fed. (I intend to release this data to the public soon.) By the nature of these corpora the output introduces archaisms like "thy"s, but this would be a feature *bonus*.
+And on the base model `gpt-3.5-turbo` and later `gpt-4o-mini` the JSONL of 1MB was fed. ([Data](/src/tools/data/gs_240918.jsonl)) By the nature of these corpora the output introduces archaisms like "thy"s, but this would be a feature *bonus*.
 
 ![/docs/presentation/images/sysarch.png](/docs/presentation/images/sysarch.png)
+
+#### Comparison of the models
+| *Time (relative)* | gpt-3.5-turbo | gpt-4o-mini |
+| --- | --- | --- |
+| default | *100%* | 99.9% |
+| fine-tuned | 87.8 % | 88.8% |
+
+Used the 24 poems of *Winterrise*, and used the median value.
+- `gpt-4o-mini` is 5 times cheaper.
+- Fine-tuned models also use less tokens.
 
 ### The corpus preprocessing.
 

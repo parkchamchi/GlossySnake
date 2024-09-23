@@ -78,7 +78,7 @@ Hamilton, replying to this article, responds to the attacks his system *(p.31)*:
 
 To quote Hamilton more *(p. 39)*:
 > -- READING, whose effects mankind seem to be utterly unaware of; \
--- READING, the only real -- the only effectual source of instruction;
+-- READING, the only real -- the only effectual source of instruction;\
 -- READING, the pure spring of nine-tenths of our intellectual enjoyments, -- the only cure for all our ignorances; \
 -- READING, without which noman ever yet possessed extensive information; \
 -- READING, which alone constitutes the difference between the blockhead and the man of learning; \

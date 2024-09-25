@@ -27,7 +27,7 @@
 		},
 		methods: {
 			async abort() {
-				this.api.submit("/task/" + this.task_id + "/abort");
+				this.api.submit("/tasks/" + this.task_id + "/abort");
 			},
 		}
 	}

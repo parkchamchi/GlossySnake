@@ -13,6 +13,10 @@
 				type: Object,
 				required: true,
 			},
+			remote: {
+				type: Boolean,
+				default: false,
+			}
 		},
 		components: {
 			Paragraph,
@@ -59,6 +63,10 @@
 					'btn-light': !pr,
 				};
 			},
+
+			header() {
+				return (this.remote) ? "REMOTE" : "LOCAL";
+			}
 		},
 		methods: {
 			toggleCorpusVisibility() {
@@ -141,22 +149,24 @@
 <template>
 	<div class='corpus_wrapper'>
 		<hr>
-		<h4 @click="toggleCorpusVisibility()">{{ "CORPUS: " + corpus_id }}</h4>
+		<h4 @click="toggleCorpusVisibility()">{{ header + ": " + corpus_id }}</h4>
 		<div v-if="isCorpusVisible" class="corpus">
 			<span class="corpus_buttons_span">
 				<button class="corpus_button btn btn-light" @click="download()">Download</button>
 
-				<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide()">Divide</button>
-				<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide('\\n\\n')">Divide (for poems)</button>
+				<span v-if="remote">
+					<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide()">Divide</button>
+					<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide('\\n\\n')">Divide (for poems)</button>
 
-				<button :class="['corpus_button', 'btn', parseButtonClass]" @click="parse()">Parse</button>
+					<button :class="['corpus_button', 'btn', parseButtonClass]" @click="parse()">Parse</button>
 
-				<button :class="['corpus_button', 'btn', annotateButtonClass]" @click="annotate([-1])">
-					Annotate
-				</button>
-				<button :class="['corpus_button', 'btn', annotateButtonClass]" @click="annotate(null)">
-					Annotate (Reset)
-				</button>
+					<button :class="['corpus_button', 'btn', annotateButtonClass]" @click="annotate([-1])">
+						Annotate
+					</button>
+					<button :class="['corpus_button', 'btn', annotateButtonClass]" @click="annotate(null)">
+						Annotate (Reset)
+					</button>
+				</span>
 			</span>
 			<br>
 
@@ -168,6 +178,7 @@
 				:key="index"
 				:p="p"
 				:index="index"
+				:remote=remote
 				@annotateP="onAnnotateP"
 				@reannotateP="onReannotateP" />
 		</div>

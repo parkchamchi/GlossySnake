@@ -12,14 +12,15 @@
 			return {
 				api: new GsApi(),
 
-				corpuses: [...sampleCorpuses],
+				localCorpuses: [...sampleCorpuses],
+				remoteCorpuses: [],
 			};
 		},
 		methods: {
 			async updateCorpuses() {
 				const res = await this.api.submit("/corpuses/");
 				const data = await res.json();
-				this.corpuses = [...sampleCorpuses, ...data];
+				this.remoteCorpuses = data;
 			},
 		},
 		created() {
@@ -33,9 +34,15 @@
 
 <template>
 	<div>
-		<Corpus v-for="(corpus, index) in corpuses"
+		<Corpus v-for="(corpus, index) in localCorpuses"
 			:key="index"
 			:corpus=corpus.corpuses_history.at(-1)
-			:corpus_id=corpus.corpus_id />
+			:corpus_id=corpus.corpus_id
+			:remote=false />
+		<Corpus v-for="(corpus, index) in remoteCorpuses"
+			:key="index"
+			:corpus=corpus.corpuses_history.at(-1)
+			:corpus_id=corpus.corpus_id 
+			:remote=true />
 	</div>
 </template>

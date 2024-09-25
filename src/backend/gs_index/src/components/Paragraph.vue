@@ -11,13 +11,17 @@
 				type: Number,
 				required: true,
 			},
+			remote: {
+				type: Boolean,
+				default: false,
+			}
 		},
 		components: {
 			Token,
 		},
 		computed: {
 			isAnnotateButtonVisible() {
-				return !this.p.is_delimiter && this.p.tokens && this.p.tokens.length
+				return this.remote && !this.p.is_delimiter && this.p.tokens && this.p.tokens.length
 			}
 		},
 		data() {

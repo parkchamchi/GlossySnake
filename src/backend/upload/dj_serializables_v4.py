@@ -238,7 +238,7 @@ class TaskInfoV4(models.Model):
 		self.save()
 
 	def is_valid_to_abort(self):
-		return self.status not in [TaskStatusV4.READY, TaskStatusV4.RUNNING]
+		return self.status not in [TaskStatusV4.READY.label, TaskStatusV4.RUNNING.label]
 
 	def get_logs(self):
 		warnings.warn("Not implemented.")

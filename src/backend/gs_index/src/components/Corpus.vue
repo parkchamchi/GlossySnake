@@ -151,8 +151,11 @@
 
 				<button :class="['corpus_button', 'btn', parseButtonClass]" @click="parse()">Parse</button>
 
-				<button :class="['corpus_button', 'btn', annotateButtonClass]" @click="annotate()">
+				<button :class="['corpus_button', 'btn', annotateButtonClass]" @click="annotate([-1])">
 					Annotate
+				</button>
+				<button :class="['corpus_button', 'btn', annotateButtonClass]" @click="annotate(null)">
+					Annotate (Reset)
 				</button>
 			</span>
 			<br>

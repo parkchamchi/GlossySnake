@@ -190,6 +190,16 @@ class AnnotatorAnnotateAPIViewV4(ManipulatorAPIViewV4):
 			if target_paragraphs:
 				assert all([type(tp) == int for tp in target_paragraphs])
 
+				if target_paragraphs == [-1]:
+					#annotate the non-`"ANNOTATED"`s
+					target_paragraphs = [
+						i
+						for i, p
+						in enumerate(corpus.paragraphs)
+						if not p.is_delimiter and p.pstate != "ANNOTATED"
+					]
+					print(target_paragraphs)
+
 			for i, p in enumerate(corpus.paragraphs):
 				if target_paragraphs:
 					if i not in target_paragraphs:

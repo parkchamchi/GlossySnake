@@ -30,6 +30,10 @@ end note
 note left of AnnotateOptions::target_paragraphs
 	can be null
 		(= all)
+	if `[-1]`,
+		targets
+		non-`ANNOTATED`
+		paragraphs.
 end note
 
 

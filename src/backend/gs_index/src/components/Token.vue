@@ -73,8 +73,8 @@
 	}
 
 	.token_txt, .gloss {
-		padding-left: 0.6em;
-		padding-right: 0;
+		padding-left: 0.25em;
+		padding-right: 0.25em;
 	}
 
 	li, .token_wrapper {

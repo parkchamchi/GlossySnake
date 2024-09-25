@@ -60,14 +60,21 @@
 <style scoped>
 	.token_txt {
 		font-size: 150%;
+		font-family: serif;
 	}
 
 	.gloss {
 		font-size: 90%;
 		/*font-style: italic;*/
 		font-family: monospace;
-		
 		text-align: center;
+
+		padding-top: 0.1em;
+	}
+
+	.token_txt, .gloss {
+		padding-left: 0.6em;
+		padding-right: 0;
 	}
 
 	li, .token_wrapper {

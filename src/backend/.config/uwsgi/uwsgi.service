@@ -3,7 +3,7 @@ Description=uWSGI service
 After=syslog.target
 
 [Service]
-ExecStart=/home/ec2-user/.venv_gs/bin/uwsgi -i /srv/GlossySnake/src/backend/.config/uwsgi/glossysnake.ini
+ExecStart=/home/ubuntu/.venv_gs/bin/uwsgi -i /srv/GlossySnake/src/backend/.config/uwsgi/glossysnake.ini
 
 Restart=always
 KillSignal=SIGQUIT

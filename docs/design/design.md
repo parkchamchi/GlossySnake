@@ -42,9 +42,6 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 - `GET /corpuses/`
   - Res: [`{"corpus_id", "corpuses_history"}`, ...]
 
-- `GET /user/check`
-  - Res: `"is_auth"`, `"email"`, `"key"`
-  - Note: No authentication required.
 - `GET /user/available-openai-tokens`
   - Res: `"available-openai-tokens"`
 - `GET /user/get-temp-user`
@@ -147,7 +144,11 @@ class Annotator:
 ## Deprecated
 
 ### v4
-#### `openai_api_key`
+- `GET /user/check`
+  - Res: `"is_auth"`, `"email"`, `"key"`
+  - Note: No authentication required.
+  - Not used anymore as the session auth is deprecated
+
 - `GET /user/openai_api_key`
   - Res: `"openai_api_key"`
   - Note: can be null. (if not set)

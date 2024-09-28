@@ -6,17 +6,15 @@
 		data() {
 			return {
 				api: new GsApi(),
-				email: null,
+				loggedin: false,
 			}
 		},
 		computed: {
 			userinfo() {
-				if (!this.email)
+				if (!this.loggedin)
 					return "Log in.";
-				else if (this.email.includes("@example.com"))
-					return this.email.replace("@example.com", "");
 				else
-					return this.email;
+					return "Guest."
 			},
 		},
 		methods: {
@@ -24,11 +22,11 @@
 				console.log("meow");
 			},
 			async getTempUser() {
-				const res = await this.api.submit("/user/get-temp-user");
+				const res = await this.api.submit("/user/get-temp-user", "GET", null, false);
 				const data = await res.json();
 				const success = data.success;
 				if (success) {
-					this.key = data.key;
+					GsApi._key = data.key;
 					return true;
 				}
 				else {
@@ -37,34 +35,23 @@
 				}
 			},
 			async updateUser() {
-				const orig_email = this.email;
-				const res = await this.api.submit("/user/check");
-				let user = await res.json();
-				
-				const is_auth = user.is_auth;
-				if (!is_auth) {
-					await this.getTempUser();
-					const success = await this.api.submit("/user/check");
-					if (!success) {
+				if (!GsApi._key) {
+					const res = await this.getTempUser();
+					if (!res) {
 						console.error("could not get the temp user.");
 						return;
 					}
-
-					//Recheck
-					const res = await this.api.submit("/user/check");
-					user = await res.json();
 				}
 
-				if (orig_email != user.email) {
-					this.email = user.email;
-				}
+				this.loggedin = true;
 				EventBus.emit("updateCorpuses");
 				EventBus.emit("updateTasks");
 			},
 			async logout() {
 				this.api.submit("/user/logout")
 					.then(() => {
-						this.email = null;
+						GsApi._key = null;
+						this.loggedin = false;
 						this.updateUser();
 					});
 			},

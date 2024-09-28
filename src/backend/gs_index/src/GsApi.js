@@ -25,7 +25,7 @@ GsApi.prototype.jsonHelper = async function (target) {
 	}
 }
 
-GsApi.prototype.submit = async function (endpoint, method="GET", query=null) {
+GsApi.prototype.submit = async function (endpoint, method="GET", query=null, auth=true) {
 	const uri = this.uri(endpoint);
 
 	let data = {
@@ -38,11 +38,16 @@ GsApi.prototype.submit = async function (endpoint, method="GET", query=null) {
 	if (method != "GET") {
 		data.body = JSON.stringify(query);
 
+		/*
 		//POST: set CSRF too
 		const csrftoken = (document.cookie.match(/^(?:.*;)?\s*csrftoken\s*=\s*([^;]+)(?:.*)?$/)||[,null])[1]
 		if (!csrftoken)
 			console.log("POST: no csrftoken.");
 		data.headers["X-CSRFToken"] = csrftoken;
+		*/
+	}
+	if (auth) {
+		data.headers["Authorization"] = "Token " + GsApi._key;
 	}
 
 	const res = await fetch(uri, data);

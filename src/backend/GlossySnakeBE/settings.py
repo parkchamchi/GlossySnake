@@ -109,7 +109,7 @@ CSRF_TRUSTED_ORIGINS = [
 	"https://parkchamchi.github.io",
 ]
 
-SESSION_COOKIE_SAMESITE = 'None' #TODO: reconsider
+SESSION_COOKIE_SAMESITE = 'Strict'
 
 ROOT_URLCONF = 'GlossySnakeBE.urls'
 

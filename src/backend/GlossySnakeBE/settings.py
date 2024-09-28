@@ -108,8 +108,18 @@ CSRF_TRUSTED_ORIGINS = [
 	"http://127.0.0.1:56122",
 	"https://parkchamchi.github.io",
 ]
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
 
-SESSION_COOKIE_SAMESITE = 'Strict'
+	"authentication",
+)
+
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 ROOT_URLCONF = 'GlossySnakeBE.urls'
 

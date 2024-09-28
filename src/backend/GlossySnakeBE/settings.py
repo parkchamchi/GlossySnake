@@ -104,7 +104,10 @@ CORS_ALLOWED_ORIGINS = (
 	"https://parkchamchi.github.io",
 )
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:56122"]
+CSRF_TRUSTED_ORIGINS = [
+	"http://127.0.0.1:56122",
+	"https://parkchamchi.github.io",
+]
 
 SESSION_COOKIE_SAMESITE = 'None' #TODO: reconsider
 

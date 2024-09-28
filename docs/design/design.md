@@ -5,16 +5,6 @@
 ### UI
 ![images/frontend_main_ui.png](images/frontend_main_ui.png)
 
-Proof-of-Concept 참조.
-
-- `Preview` 버튼은 문단과 관련된 기능을 위한 것임. (`UC003` & `UC004` 참조)
-  - 구현 전에는 버튼이 눌리면 에러 메세지를 띄울 것.
-- 메세지창은 제거하지 않으면 계속 쌓임.
-
-### Tokens
-- Token은 클릭으로 선택/비선택을 toggle할 수 있음.
-- Token에 마우스를 hover하면 희미한 회색의 버튼 (역삼각형 모양)이 뜨며, 이를 누르면 "수정" 등의 액션 (cf. `UC012`)이 있는 드롭다운이 나타나야 함.
-
 ## Backend
 
 ### Endpoints
@@ -84,6 +74,8 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 ### Serializable
 ![images/class_serializable.png](images/class_serializable.png)
 
+- Reserved `Token.gloss`: `"!UNKNOWN"`
+
 ### Req. options
 ![images/class_req_options.png](images/class_req_options.png)
 
@@ -134,6 +126,8 @@ class Annotator:
 ## Seq.
 ![images/seq_general.png](images/seq_general.png)
 
+- Note: The parallelistic behavior is not yet implemented.
+
 ## ER
 ![images/er_dj_serializables.png](images/er_dj_serializables.png)
 
@@ -143,11 +137,12 @@ class Annotator:
 
 - **email**
 - password
-- ~~username~~ *(not used)*
 ### Token infos
 - available_openai_tokens
-### ~~API key infos~~ NOT IMPLEMENTED.
-- personal_openai_key *(TODO: take care of this sensitive data)*
+
+## Samples
+- Served in https://parkchamchi.github.io/GlossySnake/samples/v1/
+- The `index.json` serves `{"filenames": [...]}`
 
 ## Deprecated
 

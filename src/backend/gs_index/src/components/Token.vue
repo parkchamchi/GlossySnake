@@ -85,6 +85,7 @@
 	.token_wrapper {
 		display: inline-block;
 		margin-right: 1px;
+		background-color: #ffffff;
 	}
 
 	.selected-token {

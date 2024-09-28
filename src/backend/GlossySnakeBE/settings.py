@@ -108,7 +108,7 @@ CSRF_TRUSTED_ORIGINS = [
 	"http://127.0.0.1:56122",
 	"https://parkchamchi.github.io",
 ]
-CORS_ALLOW_HEADERS = (
+CORS_ALLOW_HEADERS = [
     "accept",
     "authorization",
     "content-type",
@@ -116,8 +116,8 @@ CORS_ALLOW_HEADERS = (
     "x-csrftoken",
     "x-requested-with",
 
-	"authentication",
-)
+	"authorization",
+]
 
 SESSION_COOKIE_SAMESITE = 'Lax'
 

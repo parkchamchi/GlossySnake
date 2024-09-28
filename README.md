@@ -271,7 +271,7 @@ Since the project's goal is to *nicely wrap* what LLM API gives, the frontend de
 
 Forget what's written above. Why would you care that the text is broken down into `Corpus`, `Paragraph`, and `Token`? Hell, how *else* would it be implemented as? What matters is the following applications -- and that any corpus can be machine-glossed automatically likewise.
 
-[These are included on the frontend. (Not working copy)](https://parkchamchi.github.io/glossysnake)
+[These are included on the frontend.](https://parkchamchi.github.io/GlossySnake/)
 
 ### *Winterreise*
 

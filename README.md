@@ -299,7 +299,9 @@ In the age of the FadAI and unfortunately much more to come the importance to ho
 
 *2024.09.21*
 
-# A $ \LaTeX $ Proof-of-Concept
+# A LaTeX Proof-of-Concept
 ![/src/tools/latex/werther.png](/src/tools/latex/werther.png)
 
 [The PDF file of *Die Leiden des jungen Werther* (1774)](/src/tools/latex/werther.pdf)
+
+*2024.09.29*

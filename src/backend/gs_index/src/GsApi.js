@@ -4,7 +4,7 @@ export function GsApi() {
 
 };
 
-GsApi.prototype.host = "https://glossysnake.com";
+GsApi.prototype.host = "https://api.glossysnake.com";
 GsApi.prototype.api = "/api/v4"
 
 GsApi.prototype.uri = function (endpoint) {

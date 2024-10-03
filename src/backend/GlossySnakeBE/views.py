@@ -5,9 +5,11 @@ from rest_framework.response import Response
 class IndexPageView(TemplateView):
 	template_name = "index.html"
 
+"""
 class VueIndexPageView(TemplateView):
 	template_name = "vue.html"
-	
+"""
+
 #Dummy v1.
 import string
 

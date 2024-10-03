@@ -455,8 +455,8 @@ class UserGetTempUserViewV4(APIView):
 
 	def get(self, request, *args, **kwargs):
 		try:
-			_ = User.get_temp_user(request=request)
-			key = get_auth_key(request.user)
+			user = User.get_temp_user()
+			key = get_auth_key(user)
 
 			return Response(
 				{

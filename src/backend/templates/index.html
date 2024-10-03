@@ -27,14 +27,16 @@
 					onclick="onFrontendUserGetTempUserButtonClicked()">
 					/user/get-temp-user
 				</button>
+
+				<p id="frontend_user_email_p"></p>
+
+				<!--
 				<button id="frontend_user_check_button"
 					class="rest_auth_buttons btn btn-secondary"
 					onclick="onFrontendUserCheckButtonClicked()">
 					/user/check
 				</button>
-				<p id="frontend_user_email_p"></p>
 
-				<!--
 				<button id="frontend_registration_button"
 					class="rest_auth_buttons btn btn-secondary"
 					onclick="onFrontendRestAuthRegistrationButtonClicked(getDummyUser(0))">
@@ -62,7 +64,6 @@
 					onclick="onFrontendRestAuthLogoutButtonClicked()">
 					/rest-auth/logout/
 				</button>
-				-->
 
 				<hr>
 				<button id="frontend_user_available_openai_tokens_button"
@@ -70,6 +71,7 @@
 					onclick="onFrontendUserAvailableOpenaiTokensButtonClicked()">
 					/user/available-openai-tokens
 				</button>
+				-->
 
 				<hr>
 				<label for="frontend_annotator_name">annotator_name:</label>
@@ -94,6 +96,7 @@
 			<hr>
 			
 			<div id="frontend_corpuses_div">
+				<p>Not logged in.</p>
 			</div>
 			<hr>
 			
@@ -347,9 +350,6 @@
 
 		window.onload = function () {
 			onEndpointChanged();
-			if (!submit._key) {
-				onFrontendUserGetTempUserButtonClicked();
-			}
 		}
 
 		function getReqs(endpoint) {
@@ -519,7 +519,7 @@
 
 			//Ignore non-auth endpoints if not logged in
 			const AUTH_ENDPOINTS = ["auth", "/user/check", "/user/get-temp-user"];
-			if (!isUserEmailPFilled() && !AUTH_ENDPOINTS.some(endpoint => uri.includes(endpoint))) {
+			if (!submit._key && !AUTH_ENDPOINTS.some(endpoint => uri.includes(endpoint))) {
 				console.log("Ignoring " + uri + " as not logged in.");
 				return;
 			}
@@ -785,7 +785,7 @@
 
 		function setCorpusesDiv() {
 			//If no logged in, just return
-			if (!isUserEmailPFilled()) {
+			if (!submit._key) {
 				//TODO: fill here
 				console.log("Returning since not logged in.");
 				return;
@@ -799,7 +799,7 @@
 
 		function setTasksDiv() {
 			//If no logged in, just return
-			if (!isUserEmailPFilled()) {
+			if (!submit._key) {
 				//TODO: fill here
 				console.log("Returning since not logged in.");
 				return;
@@ -847,6 +847,9 @@
 			if (!event.detail.url.endsWith("/user/check"))
 				return;
 
+			console.log("/user/check is deprecated!")
+
+			/*
 			const json = await event.detail.json;
 			const is_auth = json.is_auth;
 			const user_email = json.email;
@@ -865,6 +868,7 @@
 				setCorpusesDiv();
 				setTasksDiv();
 			}
+			*/
 		}
 		document.addEventListener("response_event", onRestAuthUserResponse);
 
@@ -891,7 +895,13 @@
 			if (success) {
 				//Update the Email field
 				submit._key = json.key;
-				onFrontendUserCheckButtonClicked();
+				//onFrontendUserCheckButtonClicked(); //DEPRECATED
+
+				const p = document.getElementById("frontend_user_email_p");
+				p.innerText = "Guest.";
+
+				setCorpusesDiv();
+				setTasksDiv();
 			}
 			else {
 				console.error("/user/get-temp-user: !success")
@@ -1129,7 +1139,7 @@
 		function onFrontendUserCheckButtonClicked() {
 			selectEndpoint("/user/check");
 			makeQuery();
-			submit();
+			submit(false);
 		}
 
 		function User(password, email) {
@@ -1168,11 +1178,13 @@
 			submit();
 		}
 
+		/*
 		function isUserEmailPFilled() {
 			const p = document.getElementById("frontend_user_email_p");
 			user_email = p.innerText;
 			return user_email != "";
 		}
+		*/
 
 		function clearUserEmailP() {
 			const p = document.getElementById("frontend_user_email_p");

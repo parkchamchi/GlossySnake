@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.contrib.auth import login
 
 import uuid
 
@@ -20,11 +19,10 @@ class User(AbstractUser):
 		self.available_openai_tokens -= x
 
 	@staticmethod
-	def get_temp_user(request):
+	def get_temp_user():
 		#Logs in.
 		temp_user = TempUser.get()
-		login(request, temp_user, backend="django.contrib.auth.backends.ModelBackend")
-		return temp_user.email
+		return temp_user
 	
 class TempUser(User):
 	@classmethod

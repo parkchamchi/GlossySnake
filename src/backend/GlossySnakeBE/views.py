@@ -8,7 +8,6 @@ class IndexPageView(TemplateView):
 """
 class VueIndexPageView(TemplateView):
 	template_name = "vue.html"
-"""
 
 #Dummy v1.
 import string
@@ -50,7 +49,6 @@ def make_dummy_result(outstring):
 
 	return out
 
-"""
 class AnnotateAPIViewV1(views.APIView):
 	def get(self, request):
 		return Response(make_dummy_result("ERROR: GOT `GET` NOT `POST`"))

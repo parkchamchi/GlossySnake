@@ -26,6 +26,5 @@ urlpatterns = [
 	path("api/v4/rest-auth/", include("dj_rest_auth.urls")), # /login, /logout, /user, ...
 	path("api/v4/rest-auth/registration/", include("dj_rest_auth.registration.urls")),
 
-	#path("v1/glosses/annotate", AnnotateAPIViewV1.as_view()), #deprecated dummy
 	path("api/", include('upload.urls')), #cf. design doc
 ]

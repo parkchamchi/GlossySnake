@@ -45,7 +45,7 @@
 	<div v-if="!is_delimiter"
 		:class="['token_wrapper', 'card', { 'selected-token': isSelected }]"
 		@click="toggle()">
-		<ul class="list-group list-group-flush">
+		<ul class="token_ul list-group list-group-flush">
 			<li class="list-group-item token_txt">{{ txt }}</li>
 			<li class="list-group-item gloss">{{ gloss }}</li>
 		</ul>
@@ -85,7 +85,10 @@
 	.token_wrapper {
 		display: inline-block;
 		margin-right: 1px;
-		background-color: #ffffff;
+	}
+
+	.token_wrapper, .token_ul, .token_txt, .gloss {
+		background: none;
 	}
 
 	.selected-token {

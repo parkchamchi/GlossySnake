@@ -7,6 +7,7 @@
 			return {
 				api: new GsApi(),
 				originalText: "",
+				toRemote: true,
 			}
 		},
 		methods: {
@@ -59,6 +60,13 @@
 
 		<p>...or the JSON file</p>
 		<input type="file" id="json_file_input" @change="onJsonFileInput">
+		<br>
+		<br>
+
+		<input v-model="toRemote" 
+			type="checkbox" name="toRemote" id="toRemote_input" class="form-check-input"
+			checked disabled> <!-- TODO -->
+		<label for="toRemote_input" class="form-check-label">To the Server</label>
 	</div>
 </template>
 

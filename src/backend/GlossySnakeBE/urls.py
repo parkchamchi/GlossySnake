@@ -20,9 +20,7 @@ from django.urls import path, include
 from .views import IndexPageView, VueIndexPageView
 
 urlpatterns = [
-	path("", VueIndexPageView.as_view()),
-	path("js", IndexPageView.as_view()),
-	path("vue", VueIndexPageView.as_view()),
+	path("", IndexPageView.as_view()),
 	path("admin/", admin.site.urls),
 	path("api-auth/", include("rest_framework.urls")),
 	path("api/v4/rest-auth/", include("dj_rest_auth.urls")), # /login, /logout, /user, ...

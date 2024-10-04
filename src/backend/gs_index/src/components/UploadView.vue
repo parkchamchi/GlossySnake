@@ -2,35 +2,31 @@
 	import { GsApi } from "../GsApi.js"
 	import { EventBus } from "../EventBus.js";
 	import { Corpus } from "../serializables.js";
+	import { sharedState } from '../sharedState.js';
 
 	export default {
 		data() {
 			return {
 				api: new GsApi(),
 				originalText: "",
-				toRemote: true,
 			}
 		},
 		methods: {
 			async onUploadButtonClicked() {
-				if (this.toRemote)
+				if (sharedState.toRemote)
 					this.uploadOriginalTextRemote();
 				else
 					this.uploadOriginalTextLocal();
 			},
 			async onJsonFileInput(event) {
-				let file = event.target.files[0];
-				let content = await file.text();
-				content = JSON.parse(content);
+				const file = event.target.files[0];
+				const content = await file.text();
+				const corpus = JSON.parse(content);
 
-				//TODO: repeats
-				this.api.submit("/upload", "POST", {
-					"corpus": content,
-				})
-					.then((res) => res.json())
-					.then((json) => {
-						EventBus.emit("addAlert", { message: "Uploaded corpus " + json.corpus_id });
-					});
+				if (sharedState.toRemote)
+					this.uploadJsonFileRemote(corpus);
+				else
+					this.uploadJsonFileLocal(corpus);
 			},
 
 			async uploadOriginalTextRemote() {
@@ -42,10 +38,23 @@
 						EventBus.emit("addAlert", { message: "Uploaded corpus " + json.corpus_id });
 					});
 			},
+			async uploadJsonFileRemote(corpus) {
+				this.api.submit("/upload", "POST", {
+					"corpus": corpus,
+				})
+					.then((res) => res.json())
+					.then((json) => {
+						EventBus.emit("addAlert", { message: "Uploaded corpus " + json.corpus_id });
+					});
+			},
 
 			async uploadOriginalTextLocal() {
-				const corpus_id = "the corpus id";
+				const corpus_id = "the corpus id (TODO)";
 				const corpus = Corpus.init_with_txt(this.originalText);
+				EventBus.emit("addLocalCorpus", {corpus_id, corpus});
+			},
+			async uploadJsonFileLocal(corpus) {
+				const corpus_id = "the corpus id (JSON) (TODO)";
 				EventBus.emit("addLocalCorpus", {corpus_id, corpus});
 			}
 		}
@@ -75,12 +84,6 @@
 		<p>...or the JSON file</p>
 		<input type="file" id="json_file_input" @change="onJsonFileInput">
 		<br>
-		<br>
-
-		<input v-model="toRemote" 
-			type="checkbox" name="toRemote" id="toRemote_input" class="form-check-input"
-			checked disabled> <!-- TODO -->
-		<label for="toRemote_input" class="form-check-label">To the Server</label>
 	</div>
 </template>
 

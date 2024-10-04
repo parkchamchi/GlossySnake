@@ -3,6 +3,7 @@
 	import { sharedState } from "../sharedState.js";
 	import { EventBus } from "../EventBus.js";
 	import { Parser } from "../parser.js";
+	import { get_annotator } from "../annotator.js"
 	import Paragraph from "./Paragraph.vue";
 
 	export default {
@@ -67,7 +68,10 @@
 
 			header() {
 				return (this.remote) ? "REMOTE" : "LOCAL";
-			}
+			},
+			shouldShowManipulatorButtons() {
+				return (this.remote && sharedState.toRemote) || (!this.remote && !sharedState.toRemote);
+			},
 		},
 		methods: {
 			toggleCorpusVisibility() {
@@ -96,16 +100,10 @@
 					return this.parseLocal();
 			},
 			async annotate(target_paragraphs=null) {
-				this.api.submit("/annotator/annotate", "POST", {
-					corpus_id: this.corpus_id,
-					annotate_options: {
-						annotator_name: this.sharedState.annotator_name,
-						lang_from: this.sharedState.lang_from,
-						lang_to: this.sharedState.lang_to,
-
-						target_paragraphs: target_paragraphs,
-					},
-				});
+				if (sharedState.toRemote)
+					return this.annotateRemote(target_paragraphs);
+				else
+					return this.annotateLocal(target_paragraphs);
 			},
 			async reannotate(target_paragraphs, target_tokens) {
 				if (!target_tokens) {
@@ -118,20 +116,10 @@
 					return;
 				}
 
-				//Ignores annotator_name, etc.
-				this.api.submit("/annotator/reannotate", "POST", {
-					corpus_id: this.corpus_id,
-					annotate_options: {
-						annotator_name: this.sharedState.annotator_name,
-						lang_from: this.sharedState.lang_from,
-						lang_to: this.sharedState.lang_to,
-						
-						target_paragraphs: target_paragraphs,
-					},
-					reannotate_options: {
-						target_tokens: target_tokens,
-					},
-				});
+				if (sharedState.toRemote)
+					return this.reannotateRemote(target_paragraphs, target_tokens);
+				else
+					return this.reannotateLocal(target_paragraphs, target_tokens);
 			},
 
 			async divideRemote(p_delim) {
@@ -150,13 +138,82 @@
 					},
 				});
 			},
+			async annotateRemote(target_paragraphs) {
+				this.api.submit("/annotator/annotate", "POST", {
+					corpus_id: this.corpus_id,
+					annotate_options: {
+						annotator_name: this.sharedState.annotator_name,
+						lang_from: this.sharedState.lang_from,
+						lang_to: this.sharedState.lang_to,
 
+						target_paragraphs: target_paragraphs,
+					},
+				});
+			},
+			async reannotateRemote(target_paragraphs, target_tokens) {
+				this.api.submit("/annotator/reannotate", "POST", {
+					corpus_id: this.corpus_id,
+					annotate_options: {
+						annotator_name: this.sharedState.annotator_name,
+						lang_from: this.sharedState.lang_from,
+						lang_to: this.sharedState.lang_to,
+						
+						target_paragraphs: target_paragraphs,
+					},
+					reannotate_options: {
+						target_tokens: target_tokens,
+					},
+				});
+			},
+		
 			async divideLocal(p_delim) {
 				Parser.divide_into_paragraphs(this.corpus, [p_delim]);
 			},
 			async parseLocal() {
 				for (const p of this.corpus.paragraphs)
 					Parser.parse_paragraph(p);
+			},
+			async annotateLocal(target_paragraphs) {
+				const annotator = get_annotator("dummy"); //TODO
+				const lang_from = sharedState.lang_from;
+				const lang_to = sharedState.lang_to;
+				
+				if (target_paragraphs) {
+					//skip assert
+
+					if (target_paragraphs.length == 1 && target_paragraphs[0] == -1) {
+						//annotate the non-`"ANNOTATED"`s
+						target_paragraphs = this.corpus.paragraphs
+							.map((p, i) => ({ p, i }))
+							.filter(({ p }) => !p.is_delimiter && p.pstate != "ANNOTATED")
+							.map(({ i }) => i);
+					}
+					console.log(target_paragraphs);
+				}
+
+				for (const [i, p] of this.corpus.paragraphs.entries()) {
+					if (target_paragraphs)
+						if (!target_paragraphs.includes(i))
+							continue;
+
+					annotator.annotate(p, lang_from, lang_to);
+				}
+			},
+			async reannotateLocal(target_paragraphs, target_tokens) {
+				const annotator = get_annotator("dummy"); //TODO
+				const lang_from = sharedState.lang_from;
+				const lang_to = sharedState.lang_to;
+
+				//Below is a translation from python...
+				//Should be against a paragraph, not a corpus
+				const target_paragraph_idx = target_paragraphs[0];
+				const target_p = this.corpus.paragraphs[target_paragraph_idx];
+
+				//Ineffective.
+				if (!lang_from) lang_from = target_p.annotator_info_obj.lang_from;
+				if (!lang_to) lang_to = target_p.annotator_info_obj.lang_to;
+
+				annotator.reannotate(target_p, lang_from, lang_to, target_tokens);
 			},
 
 			onAnnotateP(p_index) {
@@ -177,13 +234,11 @@
 			<span class="corpus_buttons_span">
 				<button class="corpus_button btn btn-light" @click="download()">Download</button>
 
-				<span v-if="(remote && sharedState.toRemote) || (!remote && !sharedState.toRemote)">
+				<span v-if="shouldShowManipulatorButtons">
 					<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide()">Divide</button>
 					<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide('\\n\\n')">Divide (for poems)</button>
 
 					<button :class="['corpus_button', 'btn', parseButtonClass]" @click="parse()">Parse</button>
-				</span>
-				<span v-if="(remote && sharedState.toRemote)">
 					<button :class="['corpus_button', 'btn', annotateButtonClass]" @click="annotate([-1])">
 						Annotate
 					</button>

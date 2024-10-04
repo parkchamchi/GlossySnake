@@ -1,5 +1,6 @@
 <script>
 	import Token from "./Token.vue";
+	import { sharedState } from "../sharedState.js";
 
 	export default {
 		props: {
@@ -21,7 +22,10 @@
 		},
 		computed: {
 			isAnnotateButtonVisible() {
-				return this.remote && !this.p.is_delimiter && this.p.tokens && this.p.tokens.length
+				return /*this.remote &&*/ !this.p.is_delimiter && this.p.tokens && this.p.tokens.length
+			},
+			shouldShowManipulatorButtons() { //See Corpus.vue
+				return (this.remote && sharedState.toRemote) || (!this.remote && !sharedState.toRemote);
 			}
 		},
 		data() {
@@ -49,7 +53,7 @@
 
 <template>
 	<div class='paragraph_wrapper'>
-		<span v-if="isAnnotateButtonVisible" class="paragraph_annotate_buttons_span">
+		<span v-if="isAnnotateButtonVisible && shouldShowManipulatorButtons" class="paragraph_annotate_buttons_span">
 			<button class="corpus_button btn btn-light" @click="annotateP(index)">
 				Annotate
 			</button>

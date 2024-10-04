@@ -177,12 +177,13 @@
 			<span class="corpus_buttons_span">
 				<button class="corpus_button btn btn-light" @click="download()">Download</button>
 
-				<span>
+				<span v-if="(remote && sharedState.toRemote) || (!remote && !sharedState.toRemote)">
 					<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide()">Divide</button>
 					<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide('\\n\\n')">Divide (for poems)</button>
 
 					<button :class="['corpus_button', 'btn', parseButtonClass]" @click="parse()">Parse</button>
-
+				</span>
+				<span v-if="(remote && sharedState.toRemote)">
 					<button :class="['corpus_button', 'btn', annotateButtonClass]" @click="annotate([-1])">
 						Annotate
 					</button>

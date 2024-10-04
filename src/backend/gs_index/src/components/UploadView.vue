@@ -1,6 +1,7 @@
 <script>
 	import { GsApi } from "../GsApi.js"
 	import { EventBus } from "../EventBus.js";
+	import { Corpus } from "../serializables.js";
 
 	export default {
 		data() {
@@ -12,13 +13,10 @@
 		},
 		methods: {
 			async onUploadButtonClicked() {
-				this.api.submit("/upload", "POST", {
-					"original_text": this.originalText,
-				})
-					.then((res) => res.json())
-					.then((json) => {
-						EventBus.emit("addAlert", { message: "Uploaded corpus " + json.corpus_id });
-					});
+				if (this.toRemote)
+					this.uploadOriginalTextRemote();
+				else
+					this.uploadOriginalTextLocal();
 			},
 			async onJsonFileInput(event) {
 				let file = event.target.files[0];
@@ -33,6 +31,22 @@
 					.then((json) => {
 						EventBus.emit("addAlert", { message: "Uploaded corpus " + json.corpus_id });
 					});
+			},
+
+			async uploadOriginalTextRemote() {
+				this.api.submit("/upload", "POST", {
+					"original_text": this.originalText,
+				})
+					.then((res) => res.json())
+					.then((json) => {
+						EventBus.emit("addAlert", { message: "Uploaded corpus " + json.corpus_id });
+					});
+			},
+
+			async uploadOriginalTextLocal() {
+				const corpus_id = "the corpus id";
+				const corpus = Corpus.init_with_txt(this.originalText);
+				EventBus.emit("addLocalCorpus", {corpus_id, corpus});
 			}
 		}
 	}

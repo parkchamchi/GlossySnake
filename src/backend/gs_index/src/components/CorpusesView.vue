@@ -35,24 +35,30 @@
 			async getRemoteSampleCorpus(filename) {
 				fetch(this.sampleHost+filename)
 					.then((data) => data.json())
-					.then((json) => {
-						this.localCorpuses.push({
-							"corpus_id": filename.replace(".corpus.json", ""),
-							"corpuses_history": [json],
-						});
+					.then((corpus) => {
+						const corpus_id = filename.replace(".corpus.json", "");
+						this.addLocalCorpus({corpus_id, corpus});
 					})
 					.then(() => {
-						this.remoteSampleFilenames.pop(filename);
+						this.remoteSampleFilenames = this.remoteSampleFilenames.filter(f => f !== filename)
 					});
 			},
+			async addLocalCorpus({corpus_id, corpus}) {
+				this.localCorpuses.push({
+					"corpus_id": corpus_id,
+					"corpuses_history": [corpus],
+				});
+			}
 		},
 		created() {
 			EventBus.on("updateCorpuses", this.updateCorpuses); // Listen for the error event
+			EventBus.on("addLocalCorpus", this.addLocalCorpus); // From UploadView
 
 			this.getRemoteSamples();
 		},
 		beforeDestroy() {
 			EventBus.off("updateCorpuses", this.updateCorpuses); // Clean up the event listener
+			EventBus.off("addLocalCorpus", this.addLocalCorpus); // From UploadView
 		},
 	}
 </script>

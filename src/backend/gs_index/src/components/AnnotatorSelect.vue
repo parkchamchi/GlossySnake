@@ -69,5 +69,6 @@
 			type="checkbox" name="toRemote" id="toRemote_input" class="form-check-input"
 			checked>
 		<label for="toRemote_input" class="form-check-label">To the remote server</label>
+		<p>Don't turn this off yet (WIP)</p>
 	</div>
 </template>

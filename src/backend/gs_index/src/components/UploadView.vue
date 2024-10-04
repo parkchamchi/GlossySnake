@@ -14,9 +14,9 @@
 		methods: {
 			async onUploadButtonClicked() {
 				if (sharedState.toRemote)
-					this.uploadOriginalTextRemote();
+					return this.uploadOriginalTextRemote();
 				else
-					this.uploadOriginalTextLocal();
+					return this.uploadOriginalTextLocal();
 			},
 			async onJsonFileInput(event) {
 				const file = event.target.files[0];
@@ -24,9 +24,9 @@
 				const corpus = JSON.parse(content);
 
 				if (sharedState.toRemote)
-					this.uploadJsonFileRemote(corpus);
+					return this.uploadJsonFileRemote(corpus);
 				else
-					this.uploadJsonFileLocal(corpus);
+					return this.uploadJsonFileLocal(corpus);
 			},
 
 			async uploadOriginalTextRemote() {

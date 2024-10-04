@@ -1,4 +1,4 @@
-export { Corpus };
+export { Corpus, Paragraph, Token, AnnotatorInfo };
 
 class Token {
 	constructor(txt, gloss, is_delimiter) {

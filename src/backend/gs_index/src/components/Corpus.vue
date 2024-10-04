@@ -2,6 +2,7 @@
 	import { GsApi } from "../GsApi.js"
 	import { sharedState } from "../sharedState.js";
 	import { EventBus } from "../EventBus.js";
+	import { Parser } from "../parser.js";
 	import Paragraph from "./Paragraph.vue";
 
 	export default {
@@ -83,20 +84,16 @@
 				a.click();
 			},
 			async divide(p_delim='\n') {
-				this.api.submit("/parser/divide", "POST", {
-					corpus_id: this.corpus_id,
-					divide_options: {
-						p_delims: [p_delim],
-					},
-				});
+				if (sharedState.toRemote)
+					return this.divideRemote(p_delim);
+				else
+					return this.divideLocal(p_delim);
 			},
 			async parse() {
-				this.api.submit("/parser/parse", "POST", {
-					corpus_id: this.corpus_id,
-					parse_options: {
-						t_delims: null,
-					},
-				});
+				if (sharedState.toRemote)
+					return this.parseRemote();
+				else
+					return this.parseLocal();
 			},
 			async annotate(target_paragraphs=null) {
 				this.api.submit("/annotator/annotate", "POST", {
@@ -136,6 +133,32 @@
 					},
 				});
 			},
+
+			async divideRemote(p_delim) {
+				this.api.submit("/parser/divide", "POST", {
+					corpus_id: this.corpus_id,
+					divide_options: {
+						p_delims: [p_delim],
+					},
+				});
+			},
+			async parseRemote() {
+				this.api.submit("/parser/parse", "POST", {
+					corpus_id: this.corpus_id,
+					parse_options: {
+						t_delims: null,
+					},
+				});
+			},
+
+			async divideLocal(p_delim) {
+				Parser.divide_into_paragraphs(this.corpus, [p_delim]);
+			},
+			async parseLocal() {
+				for (const p of this.corpus.paragraphs)
+					Parser.parse_paragraph(p);
+			},
+
 			onAnnotateP(p_index) {
 				this.annotate([p_index]);
 			},
@@ -154,7 +177,7 @@
 			<span class="corpus_buttons_span">
 				<button class="corpus_button btn btn-light" @click="download()">Download</button>
 
-				<span v-if="remote">
+				<span>
 					<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide()">Divide</button>
 					<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide('\\n\\n')">Divide (for poems)</button>
 

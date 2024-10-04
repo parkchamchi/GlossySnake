@@ -1,6 +1,6 @@
 <template>
 	<h1>GlossySnake</h1>
-	<p>INDEX PAGE <span class="index_version_span">Vue.js version | <a href="js">JS version</a> | <a href="https://github.com/parkchamchi/GlossySnake">Repo</a></span></p>
+	<p>INDEX PAGE | <a href="https://github.com/parkchamchi/GlossySnake">Repo</a></p>
 </template>
 
 <style scoped>

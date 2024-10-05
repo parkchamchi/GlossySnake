@@ -60,7 +60,7 @@ class Parser {
 			paragraph_delimiters.includes(f),
 			"",
 			f,
-			null
+			new AnnotatorInfo()
 		));
 
 		// Store the paragraph delimiters

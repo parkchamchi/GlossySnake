@@ -1,16 +1,8 @@
 //Follows annotator.py
 
-export { get_annotator, TOKEN_UNKNOWN };
+export { Annotator, TOKEN_UNKNOWN };
 
 const TOKEN_UNKNOWN = "!UNKNOWN";
-
-function get_annotator(annotator_name, token_usage_callback) {
-	if (annotator_name && annotator_name.startsWith("chatgpt_")) {
-		alert("TODO");
-	}
-
-	return new Annotator();
-}
 
 class Annotator {
 	constructor() {

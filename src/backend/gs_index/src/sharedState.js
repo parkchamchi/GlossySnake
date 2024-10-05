@@ -5,5 +5,5 @@ export const sharedState = reactive({
 	lang_from: 'German',
 	lang_to: 'English',
 
-	toRemote: true,
+	toRemote: false,
 });

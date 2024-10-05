@@ -3,7 +3,7 @@
 	import { sharedState } from "../sharedState.js";
 	import { EventBus } from "../EventBus.js";
 	import { Parser } from "../parser.js";
-	import { get_annotator } from "../annotator.js"
+	import { get_annotator } from "../get_annotator.js"
 	import Paragraph from "./Paragraph.vue";
 
 	export default {
@@ -174,7 +174,7 @@
 					Parser.parse_paragraph(p);
 			},
 			async annotateLocal(target_paragraphs) {
-				const annotator = get_annotator("dummy"); //TODO
+				const annotator = get_annotator(sharedState.annotator_name); //TODO
 				const lang_from = sharedState.lang_from;
 				const lang_to = sharedState.lang_to;
 				
@@ -200,7 +200,7 @@
 				}
 			},
 			async reannotateLocal(target_paragraphs, target_tokens) {
-				const annotator = get_annotator("dummy"); //TODO
+				const annotator = get_annotator(sharedState.annotator_name); //TODO
 				const lang_from = sharedState.lang_from;
 				const lang_to = sharedState.lang_to;
 

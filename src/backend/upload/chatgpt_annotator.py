@@ -131,12 +131,12 @@ class ChatgptAnnotator(Annotator):
 		# R: ret.s [(p0, e0), ...] for [p0+1:e0+1], ... (to match above)
 		print(f"Chunks_for_reannotation: {chunks_for_reannotation}")
 
-		previ = -1
+		#previ = -1
 		for previ, endi in chunks_for_reannotation:
 			the_len = endi-previ
 			if the_len <= 0:
 				print("warning: the_len <= 0")
-				previ = endi
+				#previ = endi
 				continue
 			print(f"[{previ+1}:{endi+1}] out of {len(tokens_wo_delimiters)} (len: {the_len})")
 
@@ -148,7 +148,7 @@ class ChatgptAnnotator(Annotator):
 				if previ+1 <= idx
 			]):
 				print("Skipping this chunk...")
-				previ = endi
+				#previ = endi
 				raise RuntimeError("chunckize_for_reannotation() returned invalid chunks")
 				#continue
 
@@ -157,7 +157,7 @@ class ChatgptAnnotator(Annotator):
 			chunck_glosses = [t.gloss for t in chunk_tokens]
 			chunk_glosses = self.gloss_fetcher.try_fetch_gloss(chunk_strs, reannotation_gloss_strs=chunck_glosses)
 
-			previ = endi
+			#previ = endi #this is ineffective, ignore...
 			print(f"Chunk: {chunk_glosses} (len: {len(chunk_glosses)})")
 	
 			for token, gloss in zip(chunk_tokens, chunk_glosses):

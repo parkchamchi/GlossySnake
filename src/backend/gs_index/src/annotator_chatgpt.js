@@ -36,12 +36,12 @@ class ChatgptAnnotator extends Annotator {
 	constructor(annotator_name, token_usage_callback) {
 		super();
 		this.annotator_name = annotator_name;
-		this.glossFetcher = new GlossFetcher(true);
+		this.glossFetcher = new ChatgptGlossFetcher(true);
 	}
 
 	put_gloss(p) {
 		// First, get the token strings. This ignores the delimiters.
-		const tokensWithoutDelimiters = p.tokens.filter(token => !token.isDelimiter);
+		const tokensWithoutDelimiters = p.tokens.filter(token => !token.is_delimiter);
 		const tokenStrs = tokensWithoutDelimiters.map(token => token.txt);
 
 		// Since the ChatGPT has a length limit, chunk it
@@ -87,7 +87,7 @@ class ChatgptAnnotator extends Annotator {
 		// Iterate over the paragraph tokens
 		for (let i = 0; i < p.tokens.length; i++) {
 			const token = p.tokens[i];
-			if (token.isDelimiter) {
+			if (token.is_delimiter) {
 				continue;
 			}
 
@@ -254,5 +254,90 @@ class GlossFetcher {
 
 	tryFetchGloss(tokenStrs) {
 		return this.fetchGloss(tokenStrs);
+	}
+}
+
+class ChatgptGlossFetcher extends GlossFetcher {
+	tryFetchGloss(tokenStrs, outerRetry=2, innerRetry=3, reannotationGlossStrs=null) {
+		console.log(`Trying to fetch ${tokenStrs.length} glosses`);
+
+		const reannotation = Array.isArray(reannotationGlossStrs);
+		let query;
+		if (reannotation) {
+			console.log(`Reannotating: ${reannotationGlossStrs}`);
+
+			query = this.makeQueryReannotation(tokenStrs, reannotationGlossStrs);
+		}
+		else {
+			query = this.makeQuery(tokenStrs);
+		}
+
+		const origMessages = [
+			...this.getChat(reannotation),
+			{"role": "user", "content": query},
+		];
+		this.lastResText = "";
+
+		for (let tryI = 0; tryI < outerRetry; tryI++) {
+			console.log(`----------Try A${tryI}`);
+			let messages = [...origMessages];
+
+			for (let tryJ = 0; tryJ < innerRetry; tryJ++) {
+				console.log(`--------------------Try B${tryJ}`);
+
+				try {
+					return this.fetchGloss(tokenStrs, messages, reannotationGlossStrs);
+				} catch (exc) {
+					console.log(`Exception: ${exc}. Retrying.`);
+					console.log(`lastResText: ${this.lastResText}`);
+					messages += [
+						{"role": "assistant", "content": this.last_res_text},
+						{"role": "user", "content": `
+							Got an error, probably by a malformatted result.
+							\`\`\` ${exc} \`\`\`
+						`},
+					];
+				}
+			}
+
+			throw Error(`Failed after ${outerRetry}*${innerRetry} retries.`)
+		}
+	}
+
+	fetchGloss0(tokenStrs) {
+
+	}
+
+	makeQuery(tokenStrs) {
+		let q = "";
+		for (const [i, t] of tokenStrs.entries())
+			q += `${i}: ${t}\n`;
+
+		return q;
+	}
+
+	getChat(reannotation, fullPrompt) {
+		let content;
+		let glossInsts;
+
+		if (!fullPrompt) {
+			glossInsts = "English translation";
+
+			if (!reannotation) {
+				content = `
+					Parse this corpus (Interlinear gloss). 
+					${glossInsts}
+				`;
+			}
+			else {
+				content = `Reannotate the input. A series of words will be given, which form a part of sentences. Some lines will have \`${TOKEN_TO_REANNOTATE}\` on its right side, which is to be re-annotated. Return only lines with \`${TOKEN_TO_REANNOTATE}\`, with ${TOKEN_TO_REANNOTATE} itself replaced following the context.`;
+			}
+
+			return [
+				{"role": "system", "content": content}
+			];
+		}
+
+		throw Error("Not implemented");
 	}
 }

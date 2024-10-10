@@ -312,7 +312,7 @@ class ChatgptGlossFetcher extends GlossFetcher {
 	async fetchGloss(tokenStrs, messages, reannotationGlossStrs=false) {
 		console.log(`Fetching ${tokenStrs} glosses`);
 
-		console.log(messages);
+		console.log("messages:", messages);
 
 		return fetch("https://api.openai.com/v1/chat/completions", {
 			method: "POST",
@@ -343,7 +343,7 @@ class ChatgptGlossFetcher extends GlossFetcher {
 			const parsedLength = Object.keys(parsed).length;
 			if (parsedLength != tokenStrs.length) {
 				console.log("parsed:", parsed)
-				console.warn(`${tokenStrs.length} lines expected but got ${parsedLength} lines.`);
+				//console.warn(`${tokenStrs.length} lines expected but got ${parsedLength} lines.`);
 			}
 
 			//Check validity
@@ -409,7 +409,7 @@ class ChatgptGlossFetcher extends GlossFetcher {
 
 		console.log("token_strs:", tokenStrs);
 		console.log("res:", res);
-		for (let i = 0; i < tokenStrs.length; i++) {
+		for (let i = 0; i < res.length; i++) {
 			const origTxt = tokenStrs[i];
 			const [retI, resValue] = Object.entries(res)[i];
 
@@ -436,11 +436,12 @@ class ChatgptGlossFetcher extends GlossFetcher {
 
 		// Pass 2: iter. by orig token_str
 		let outres = [];
+		let reannotationIndices;
 		if (reannotation) {
 			// orig_gloss_strs_copy = reannotation_gloss_strs.slice();
-			console.log(reannotationGlossStrs);
-			const reannotationIndices = reannotationGlossStrs.map((e, i) => e === TOKEN_TO_REANNOTATE ? i : -1).filter(i => i !== -1);
-			console.log(reannotation_indices);
+			console.log("reannotationGlossStrs:", reannotationGlossStrs);
+			reannotationIndices = reannotationGlossStrs.map((e, i) => e === TOKEN_TO_REANNOTATE ? i : -1).filter(i => i !== -1);
+			console.log("reannotationIndices", reannotationIndices);
 
 			// TODO: why does this happen (likely chunking error)
 			if (reannotationIndices.length === 0) {
@@ -452,7 +453,7 @@ class ChatgptGlossFetcher extends GlossFetcher {
 		for (let i = 0; i < tokenStrs.length; i++) { // Not this `i`
 			let g = null;
 
-			if (reannotation && !reannotation_indices.includes(i)) {
+			if (reannotation && !reannotationIndices.includes(i)) {
 				g = TOKEN_TO_IGNORE;
 			} else {
 				if (!(i in res)) {
@@ -468,9 +469,11 @@ class ChatgptGlossFetcher extends GlossFetcher {
 		return outres;
 	}
 
-	getChat(reannotation, fullPrompt) {
+	getChat(reannotation) {
 		let content;
 		let glossInsts;
+
+		const fullPrompt = sharedState.fullPrompt;
 
 		if (!fullPrompt) {
 			glossInsts = "English translation";
@@ -489,7 +492,132 @@ class ChatgptGlossFetcher extends GlossFetcher {
 				{"role": "system", "content": content}
 			];
 		}
+		else { //fullPrompt
+			glossInsts = `
+				The gloss is expected to be a translation of the token.
+				The grammatical elements need not be specified
+				but can be naturally expressed
+				(e.g. taking a genetive word as \`of ...\`)
+			`;
+			const example = [
+				["Ceux", "Those"],
+				["que", "whom"],
+				["vous", "you"],
+				["oubliez", "forget"],
+				["ne", "not"],
+				["vous", "you"],
+				["oublieront", "will forget"],
+				["pas", "not"]
+			];	
+			const newline = '\n';
 
-		throw Error("Not implemented");
+			if (!reannotation) {
+				const lenTokens = example.length;
+
+				return [
+					{ role: "system", content: `
+						Parse this corpus (Interlinear gloss).
+		
+						The user will tokenize and enumerate the raw input, as:
+							\`Je suis.\`
+						to
+						\`\`\`
+							0: Je
+							1: suis.
+						\`\`\`
+		
+
+						You are to respond with 
+						\`\`\`
+							i: original_word ${GLOSS_DELIMITER} gloss
+						\`\`\`.
+						Here, the glosses are delimited with \`${GLOSS_DELIMITER}\`.
+						No line should be skipped. Otherwise it will raise an error.
+		
+						For example, if the gloss should be then translation to English,
+						the response shall be:
+						\`\`\`
+							0: Je ${GLOSS_DELIMITER} I
+							1: suis. ${GLOSS_DELIMITER} am.
+						\`\`\`
+		
+						Since the output text is to be processed by other program,
+						the structure of the output is important.
+		
+						The numbers should correspond to the original token.
+						No line shall be omitted!
+						\`\`\`
+							0: Je
+							1: le
+							2: sais.
+						\`\`\`
+						\`\`\`
+							0: Je ${GLOSS_DELIMITER} I
+							1: le ${GLOSS_DELIMITER} it
+							2: sais. ${GLOSS_DELIMITER} know
+						\`\`\`
+		
+						The output should only consist of the gloss block (\`\`\`...\`\`\`) and any other notes will be ignored.
+					` },
+					{ role: "user",	content: `
+						e.g. \`i: "original_word ${GLOSS_DELIMITER} gloss\`
+						Since there are ${lenTokens} tokens in the input, ${lenTokens} lines of output is expected.
+						i.e. the last line be \`${lenTokens - 1}: ...\`
+		
+						\`gloss\` is:
+						${glossInsts}
+		
+						\`\`\`
+						${example.map((t, i) => `${i}: ${t[0]}`).join(newline)}
+						\`\`\`
+					` },
+					{ role: "assistant", content: `
+						\`\`\`
+						${example.map((t, i) => `${i}: ${t[0]} ${GLOSS_DELIMITER} ${t[1]}`).join(newline)}
+						\`\`\`
+					` }
+				];
+			}
+			else {
+				const toReannotates = [1, 2];
+
+				return [
+					{ role: "system", content: `
+						Re-annotate this corpus (Interlinear gloss).
+		
+						The user will tokenize and enumerate the raw input, as:
+						\`\`\`
+							0: als ${GLOSS_DELIMITER} as
+							1: dieses ${GLOSS_DELIMITER} ${TOKEN_TO_REANNOTATE}
+							2: Herz. ${GLOSS_DELIMITER} heart.
+						\`\`\`
+						You have to find lines with \`${TOKEN_TO_REANNOTATE}\` and give new translations, as:
+						\`\`\`
+							1: dieses ${GLOSS_DELIMITER} this
+						\`\`\`
+						Here, \`${TOKEN_TO_REANNOTATE}\` was replaced by your reannotation.
+		
+						The structure of the output is important and no line shall be omitted.
+					` },
+					{ role: "user",	content: `
+						e.g. \`i: "original_word ${GLOSS_DELIMITER} gloss\`
+						Since there are ${toReannotates.length} \`${TOKEN_TO_REANNOTATE}\` tokens in the input, ${toReannotates.length} lines of output are expected.
+						i.e. the last line be \`${toReannotates[toReannotates.length - 1]}: ...\`
+		
+						\`gloss\` is:
+						${glossInsts}
+		
+						\`\`\`
+						${example.map((t, i) => `${i}: ${t[0]} ${GLOSS_DELIMITER} ${i in toReannotates ? TOKEN_TO_REANNOTATE : t[1]}`).join(newline)}
+						\`\`\`
+					` },
+					{ role: "assistant", content: `
+						\`\`\`
+						${example.filter((t, i) => toReannotates.includes(i)).map((t, i) => `${i}: ${t[0]} ${GLOSS_DELIMITER} ${t[1]}`).join(newline)}
+						\`\`\`
+					` }
+				];
+			}
+		}
 	}
 }

@@ -7,9 +7,9 @@ export const sharedState = reactive({
 
 	toRemote: false,
 
-	//TODO: REMOVE THESE
 	openaiApiKey: null,
 	openaiModel: null,
 	outerRetry: 2,
 	innerRetry: 3,
+	fullPrompt: false,
 });

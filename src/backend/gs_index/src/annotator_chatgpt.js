@@ -4,6 +4,7 @@ export { ChatgptAnnotator };
 
 import { Annotator } from "./annotator.js";
 import { AnnotatorInfo } from "./serializables.js";
+import { sharedState } from "./sharedState.js";
 
 const GLOSS_DELIMITER = "||"
 const TOKEN_TO_REANNOTATE = "!TO_REANNOTATE" //local
@@ -33,13 +34,13 @@ function looseComparison(origTxt, retTxt) {
 }
 
 class ChatgptAnnotator extends Annotator {
-	constructor(annotator_name, token_usage_callback) {
+	constructor(annotator_name) {
 		super();
 		this.annotator_name = annotator_name;
 		this.glossFetcher = new ChatgptGlossFetcher(true);
 	}
 
-	put_gloss(p) {
+	async put_gloss(p) {
 		// First, get the token strings. This ignores the delimiters.
 		const tokensWithoutDelimiters = p.tokens.filter(token => !token.is_delimiter);
 		const tokenStrs = tokensWithoutDelimiters.map(token => token.txt);
@@ -60,7 +61,7 @@ class ChatgptAnnotator extends Annotator {
 			}
 			console.log(`[${previousIndex + 1}:${endIndex + 1}] out of ${tokenStrs.length} (len: ${length})`);
 			const chunkStrs = tokenStrs.slice(previousIndex + 1, endIndex + 1);
-			const chunkGlosses = this.glossFetcher.tryFetchGloss(chunkStrs);
+			let chunkGlosses = await this.glossFetcher.tryFetchGloss(chunkStrs);
 			glosses = glosses.concat(chunkGlosses);
 
 			previousIndex = endIndex;
@@ -75,7 +76,7 @@ class ChatgptAnnotator extends Annotator {
 		p.annotator_info_obj = new AnnotatorInfo(this.annotator_name, this.lang_from, this.lang_to);
 	}
 
-	reput_gloss(p, target_tokens) {
+	async reput_gloss(p, target_tokens) {
 		// R: Initially taking the `put_gloss` as a backbone... TODO: generalize these
 		console.log("reput_gloss: target_tokens:", target_tokens);
 
@@ -128,7 +129,7 @@ class ChatgptAnnotator extends Annotator {
 			const chunkTokens = tokensWithoutDelimiters.slice(previousIndex + 1, endIndex + 1);
 			const chunkStrs = chunkTokens.map(t => t.txt);
 			const chunkGlosses = chunkTokens.map(t => t.gloss);
-			const fetchedGlosses = this.glossFetcher.tryFetchGloss(chunkStrs, { reannotationGlossStrs: chunkGlosses });
+			const fetchedGlosses = await this.glossFetcher.tryFetchGloss(chunkStrs, chunkGlosses);
 
 			//previousIndex = endIndex;
 			console.log(`Chunk: ${fetchedGlosses} (len: ${fetchedGlosses.length})`);
@@ -242,7 +243,7 @@ class GlossFetcher {
 		this.dummy = dummy;
 	}
 
-	fetchGloss(tokenStrs) {
+	async fetchGloss(tokenStrs) {
 		if (!this.dummy) {
 			throw new Error("NotImplementedError");
 		}
@@ -252,14 +253,17 @@ class GlossFetcher {
 		return Array.from({ length }, (_, i) => [`dummy${i}`]);
 	}
 
-	tryFetchGloss(tokenStrs) {
-		return this.fetchGloss(tokenStrs);
+	async tryFetchGloss(tokenStrs) {
+		return await this.fetchGloss(tokenStrs);
 	}
 }
 
-class ChatgptGlossFetcher extends GlossFetcher {
-	tryFetchGloss(tokenStrs, outerRetry=2, innerRetry=3, reannotationGlossStrs=null) {
+class ChatgptGlossFetcher extends GlossFetcher {	
+	async tryFetchGloss(tokenStrs, reannotationGlossStrs=null) {
 		console.log(`Trying to fetch ${tokenStrs.length} glosses`);
+
+		const innerRetry = sharedState.innerRetry;
+		const outerRetry = sharedState.outerRetry;
 
 		const reannotation = Array.isArray(reannotationGlossStrs);
 		let query;
@@ -286,12 +290,13 @@ class ChatgptGlossFetcher extends GlossFetcher {
 				console.log(`--------------------Try B${tryJ}`);
 
 				try {
-					return this.fetchGloss(tokenStrs, messages, reannotationGlossStrs);
+					return await this.fetchGloss(tokenStrs, messages, reannotationGlossStrs);
 				} catch (exc) {
 					console.log(`Exception: ${exc}. Retrying.`);
 					console.log(`lastResText: ${this.lastResText}`);
-					messages += [
-						{"role": "assistant", "content": this.last_res_text},
+					messages = [
+						...messages,
+						{"role": "assistant", "content": this.lastResText},
 						{"role": "user", "content": `
 							Got an error, probably by a malformatted result.
 							\`\`\` ${exc} \`\`\`
@@ -304,8 +309,48 @@ class ChatgptGlossFetcher extends GlossFetcher {
 		}
 	}
 
-	fetchGloss0(tokenStrs) {
+	async fetchGloss(tokenStrs, messages, reannotationGlossStrs=false) {
+		console.log(`Fetching ${tokenStrs} glosses`);
 
+		console.log(messages);
+
+		return fetch("https://api.openai.com/v1/chat/completions", {
+			method: "POST",
+			headers: {
+				"content-type": "application/json",
+				"Authorization": `Bearer ${sharedState.openaiApiKey}`, //TODO
+			},
+			body: JSON.stringify({
+				"model": sharedState.openaiModel,
+				messages,
+			})
+		})
+		.then((res) => {
+			return res.json();
+		})
+		.then((json) => {
+			const tokenUsage = json.usage.total_tokens;
+			console.log("token usage:", tokenUsage);
+
+			const content = json.choices[0].message.content;
+			this.lastResText = content;
+
+			//console.log(content); //```0: ... || ...```
+
+			let parsed = this.parseRes(content);
+
+			//Check completeness
+			const parsedLength = Object.keys(parsed).length;
+			if (parsedLength != tokenStrs.length) {
+				console.log("parsed:", parsed)
+				console.warn(`${tokenStrs.length} lines expected but got ${parsedLength} lines.`);
+			}
+
+			//Check validity
+			parsed = this.validateRes(tokenStrs, parsed, reannotationGlossStrs);
+
+			return parsed;
+		});
 	}
 
 	makeQuery(tokenStrs) {
@@ -314,6 +359,113 @@ class ChatgptGlossFetcher extends GlossFetcher {
 			q += `${i}: ${t}\n`;
 
 		return q;
+	}
+
+	makeQueryReannotation(tokenStrs, tokenGlosses) {
+		let q = "";
+		for (const [i, [txt, gloss]] of tokenStrs.map((t, i) => [i, [t, tokenGlosses[i]]])) {
+			q += `${i}: ${txt} ${GLOSS_DELIMITER} ${gloss}\n`;
+		}
+		return q;
+	}
+
+	parseRes(res) {
+		const origRes = [...res];
+
+		try {
+			// Discard the codeblock
+			if (res.includes("```")) {
+				res = res.split("```")[1];
+			}
+			else if (!res.includes("0:")) {
+				throw new Error("The first line (`0: ...`) could not be found. Reformat the reply and answer again.");
+			} else {
+				res = res.substring(res.indexOf("0:"));
+			}
+		
+			// Split lines
+			let lines = res.split('\n').filter(line => line.trim() !== "");
+		
+			// Parse the linenum
+			lines = lines.map(line => line.split(':', 2));
+		
+			// Parse the glosses
+			let parsedRes = {};
+			lines.forEach(line => {
+				const lineNum = parseInt(line[0].trim(), 10);
+				const glosses = line[1].split(GLOSS_DELIMITER).map(g => g.trim()).filter(g => g !== "");
+				parsedRes[lineNum] = glosses;
+			});
+		
+			return parsedRes;
+		} catch (error) {
+			console.error(origRes);
+			throw new Error("Could not parse the output. The output should be in the codeblock (``` 0: ... ```) and additional notes are not needed.");
+		}
+	}
+
+	validateRes(tokenStrs, res, reannotationGlossStrs) {
+		const reannotation = Array.isArray(reannotationGlossStrs);
+
+		console.log("token_strs:", tokenStrs);
+		console.log("res:", res);
+		for (let i = 0; i < tokenStrs.length; i++) {
+			const origTxt = tokenStrs[i];
+			const [retI, resValue] = Object.entries(res)[i];
+
+			if (!reannotation && i !== parseInt(retI)) {
+				throw new Error(`\`${retI}:\` line not found.`);
+			}
+
+			if (resValue.length <= 0) {
+				throw new Error(`Empty line: ${i}.`); // Not likely.
+			}
+			if (resValue.length === 1) {
+				// gloss not returned; just put !UNKNOWN
+				resValue.push(TOKEN_UNKNOWN);
+			}
+
+			const [retTxt, retGloss] = resValue.slice(0, 2);
+			//console.log(i, retI, origTxt, retTxt, retGloss);
+
+			// TODO: reannotation case
+			if (!reannotation && !looseComparison(origTxt, retTxt)) {
+				throw new Error(`Expected \`${i}: ${origTxt} ||\` but got \`${i}: ${retTxt} ||\`. The number has to be exact. Rewrite as \`${i}: ${orig_txt} ||\`.`);
+			}
+		}
+
+		// Pass 2: iter. by orig token_str
+		let outres = [];
+		if (reannotation) {
+			// orig_gloss_strs_copy = reannotation_gloss_strs.slice();
+			console.log(reannotationGlossStrs);
+			const reannotationIndices = reannotationGlossStrs.map((e, i) => e === TOKEN_TO_REANNOTATE ? i : -1).filter(i => i !== -1);
+			console.log(reannotation_indices);
+
+			// TODO: why does this happen (likely chunking error)
+			if (reannotationIndices.length === 0) {
+				console.log("TODO: reannotation_indices == []");
+				return Array(tokenStrs.length).fill(TOKEN_TO_IGNORE);
+			}
+		}
+
+		for (let i = 0; i < tokenStrs.length; i++) { // Not this `i`
+			let g = null;
+
+			if (reannotation && !reannotation_indices.includes(i)) {
+				g = TOKEN_TO_IGNORE;
+			} else {
+				if (!(i in res)) {
+					g = TOKEN_UNKNOWN;
+				} else {
+					g = res[i][1];
+				}
+			}
+
+			outres.push(g);
+		}
+
+		return outres;
 	}
 
 	getChat(reannotation, fullPrompt) {

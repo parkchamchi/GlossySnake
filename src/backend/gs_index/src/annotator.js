@@ -9,13 +9,13 @@ class Annotator {
 		this.annotator_name = "DUMMYGLOSS";
 	}
 
-	annotate(p, lang_from, lang_to) {
+	async annotate(p, lang_from, lang_to) {
 		this.lang_from = lang_from;
 		this.lang_to = lang_to;
 
 		if (!p.is_delimiter) {
 			if (p.tokens && p.tokens.length > 0)
-				this.put_gloss(p);
+				await this.put_gloss(p);
 			p.state = "ANNOTATED";
 
 			p.annotator_info_obj.lang_from = this.lang_from
@@ -24,17 +24,17 @@ class Annotator {
 		}
 	}
 
-	reannotate(p, lang_from, lang_to, target_tokens) {
+	async reannotate(p, lang_from, lang_to, target_tokens) {
 		this.lang_from = lang_from;
 		this.lang_to = lang_to;
 
 		if (p.is_delimiter)
 			return;
 
-		this.reput_gloss(p, target_tokens);
+		await this.reput_gloss(p, target_tokens);
 	}
 
-	put_gloss(p) {
+	async put_gloss(p) {
 		for (const token of p.tokens) {
 			if (token.is_delimiter)
 				continue;
@@ -42,7 +42,7 @@ class Annotator {
 		}
 	}
 
-	reput_gloss(p, target_tokens) {
+	async reput_gloss(p, target_tokens) {
 		for (const [i, t] of p.tokens.entries()) {
 			if (!target_tokens.includes(i))
 				continue;

@@ -196,7 +196,7 @@
 						if (!target_paragraphs.includes(i))
 							continue;
 
-					annotator.annotate(p, lang_from, lang_to);
+					await annotator.annotate(p, lang_from, lang_to);
 				}
 			},
 			async reannotateLocal(target_paragraphs, target_tokens) {
@@ -213,7 +213,7 @@
 				if (!lang_from) lang_from = target_p.annotator_info_obj.lang_from;
 				if (!lang_to) lang_to = target_p.annotator_info_obj.lang_to;
 
-				annotator.reannotate(target_p, lang_from, lang_to, target_tokens);
+				await annotator.reannotate(target_p, lang_from, lang_to, target_tokens);
 			},
 
 			onAnnotateP(p_index) {

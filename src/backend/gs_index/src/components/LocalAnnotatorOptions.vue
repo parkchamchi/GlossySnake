@@ -3,9 +3,7 @@
 
 	export default {
 		data() {
-			return {
-				...sharedState,
-			};
+			return sharedState;
 		},
 		watch: {
 			openaiApiKey() {
@@ -36,6 +34,27 @@
 				sharedState.outerRetry = this.outerRetry;
 				sharedState.innerRetry = this.innerRetry;
 				sharedState.fullPrompt = this.fullPrompt;
+			},
+			exportData() {
+				console.log("test");
+				const dataStr = JSON.stringify(sharedState, null, 2);
+				const blob = new Blob([dataStr], { type: 'application/json' });
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = 'sharedState.json';
+				a.click();
+				URL.revokeObjectURL(url);
+			},
+			async importData(event) {
+				const file = event.target.files[0];
+				const content = await file.text();
+				const importedState = JSON.parse(content);
+								
+				Object.keys(importedState).forEach(key => {
+					if (sharedState.hasOwnProperty(key))
+						sharedState[key] = importedState[key];
+				});
 			},
 		},
 	}
@@ -91,8 +110,16 @@
 				/>
 				<label class="form-check-label" for="fullPrompt">Full Prompt</label>
 			</div>
+		</div>
+		<div class="row">
 			<div class="col-md-2 d-flex align-items-center">
-				<p><a href="https://github.com/parkchamchi/GlossySnake/blob/master/docs/design/local.md">Info</a></p>
+				<button class="btn btn-link mt-3"><a href="https://github.com/parkchamchi/GlossySnake/blob/master/docs/design/local.md">Info</a></button>
+			</div>
+			<div class="col-md-2 d-flex align-items-center">
+				<button class="btn btn-link mt-3" @click="exportData">Export</button>
+			</div>
+			<div class="col-md-2 d-flex align-items-center">
+				<input type="file" @change="importData" class="form-control">
 			</div>
 		</div>
 	</div>

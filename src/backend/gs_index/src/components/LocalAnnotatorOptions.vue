@@ -5,7 +5,6 @@
 		data() {
 			return {
 				...sharedState,
-				visibility: false,
 			};
 		},
 		watch: {
@@ -25,6 +24,11 @@
 				this.emitChange();
 			},
 		},
+		computed: {
+			visibility() {
+				return !sharedState.toRemote;
+			},
+		},
 		methods: {
 			emitChange() {
 				sharedState.openaiApiKey = this.openaiApiKey;
@@ -33,15 +37,12 @@
 				sharedState.innerRetry = this.innerRetry;
 				sharedState.fullPrompt = this.fullPrompt;
 			},
-			toggleVisibility() {
-				this.visibility = !this.visibility;
-			}
-		}
+		},
 	}
 </script>
 
 <template>
-	<h4 @click="toggleVisibility">Local Annotator Options</h4>
+	<h4>Local Annotator Options</h4>
 	<div v-if="visibility" 
 		class="container mt-3">
 		<div class="row">
@@ -89,6 +90,9 @@
 					v-model="fullPrompt"
 				/>
 				<label class="form-check-label" for="fullPrompt">Full Prompt</label>
+			</div>
+			<div class="col-md-2 d-flex align-items-center">
+				<p><a href="https://github.com/parkchamchi/GlossySnake/blob/master/docs/design/local.md">Info</a></p>
 			</div>
 		</div>
 	</div>

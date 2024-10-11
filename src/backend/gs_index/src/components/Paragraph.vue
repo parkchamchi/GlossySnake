@@ -25,7 +25,7 @@
 				return /*this.remote &&*/ !this.p.is_delimiter && this.p.tokens && this.p.tokens.length
 			},
 			shouldShowManipulatorButtons() { //See Corpus.vue
-				return (this.remote && sharedState.toRemote) || (!this.remote && !sharedState.toRemote);
+				return (this.remote && sharedState.toRemote) || (!this.remote && !sharedState.toRemote && sharedState.openaiApiKey); //TODO: dup. w/ Corpus.vue
 			}
 		},
 		data() {

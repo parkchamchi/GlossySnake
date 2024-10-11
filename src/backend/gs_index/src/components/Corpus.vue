@@ -70,7 +70,7 @@
 				return (this.remote) ? "REMOTE" : "LOCAL";
 			},
 			shouldShowManipulatorButtons() {
-				return (this.remote && sharedState.toRemote) || (!this.remote && !sharedState.toRemote);
+				return (this.remote && sharedState.toRemote) || (!this.remote && !sharedState.toRemote && sharedState.openaiApiKey);
 			},
 		},
 		methods: {

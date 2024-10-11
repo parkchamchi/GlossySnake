@@ -3,7 +3,10 @@
 
 	export default {
 		data() {
-			return sharedState;
+			return {
+				...sharedState,
+				visibility: false,
+			};
 		},
 		watch: {
 			openaiApiKey() {
@@ -30,13 +33,17 @@
 				sharedState.innerRetry = this.innerRetry;
 				sharedState.fullPrompt = this.fullPrompt;
 			},
+			toggleVisibility() {
+				this.visibility = !this.visibility;
+			}
 		}
 	}
 </script>
 
-
 <template>
-	<div class="container mt-3">
+	<h4 @click="toggleVisibility">Local Annotator Options</h4>
+	<div v-if="visibility" 
+		class="container mt-3">
 		<div class="row">
 			<div class="col-md-2">
 				<label for="openaiApiKey">OpenAI API Key</label>

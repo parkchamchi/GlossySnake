@@ -8,8 +8,8 @@ export const sharedState = reactive({
 	toRemote: false,
 
 	openaiApiKey: null,
-	openaiModel: null,
+	openaiModel: "gpt-4o-mini",
 	outerRetry: 2,
 	innerRetry: 3,
-	fullPrompt: false,
+	fullPrompt: true,
 });

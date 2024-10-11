@@ -2,6 +2,7 @@
 	import Header from "./components/Header.vue"
 	import RestAuth from "./components/RestAuth.vue"
 	import AnnotatorSelect from "./components/AnnotatorSelect.vue"
+	import LocalAnnotatorOptions from "./components/LocalAnnotatorOptions.vue"
 	import CorpusesView from "./components/CorpusesView.vue"
 	import UploadView from "./components/UploadView.vue"
 	import AlertsView from "./components/AlertsView.vue"
@@ -9,7 +10,7 @@
 
 	export default {
 		components: {
-			Header, RestAuth, AnnotatorSelect,
+			Header, RestAuth, AnnotatorSelect, LocalAnnotatorOptions,
 			CorpusesView, UploadView, AlertsView,
 			TasksView,
 		},
@@ -30,6 +31,8 @@
 		<RestAuth />
 		<hr>
 		<AnnotatorSelect />
+		<hr>
+		<LocalAnnotatorOptions />
 		<hr>
 		<CorpusesView />
 		<hr>

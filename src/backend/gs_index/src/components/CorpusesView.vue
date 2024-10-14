@@ -13,11 +13,19 @@
 				api: new GsApi(),
 				sampleHost: "https://parkchamchi.github.io/GlossySnake/samples/v1/",
 
-				localCorpuses: [...sampleCorpuses],
+				localCorpuses: JSON.parse(localStorage.getItem("localCorpuses")) || [...sampleCorpuses],
 				remoteCorpuses: [],
 
 				remoteSampleFilenames: [],
 			};
+		},
+		watch: {
+			localCorpuses: {
+				handler(newValue) {
+					localStorage.setItem("localCorpuses", JSON.stringify(newValue))
+				},
+				deep: true,
+			}
 		},
 		methods: {
 			async updateCorpuses() {

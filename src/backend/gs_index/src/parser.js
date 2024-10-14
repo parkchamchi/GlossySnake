@@ -1,6 +1,6 @@
 export { Parser };
 
-import { Paragraph, Token } from "./serializables.js";
+import { Paragraph, Token, AnnotatorInfo } from "./serializables.js";
 
 const STRING_WHITESPACE = ' \t\n\r\x0b\x0c';
 

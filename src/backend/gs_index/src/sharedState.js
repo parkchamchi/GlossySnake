@@ -1,5 +1,7 @@
 import { reactive } from 'vue';
 
+const savedState = JSON.parse(localStorage.getItem('sharedState')) || {};
+
 export const sharedState = reactive({
 	annotator_name: 'chatgpt_ft0',
 	lang_from: 'German',
@@ -12,4 +14,6 @@ export const sharedState = reactive({
 	outerRetry: 2,
 	innerRetry: 3,
 	fullPrompt: true,
+
+	...savedState, //Load
 });

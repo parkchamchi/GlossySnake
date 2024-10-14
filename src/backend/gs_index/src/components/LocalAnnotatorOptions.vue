@@ -1,5 +1,6 @@
 <script>
 	import { sharedState } from '../sharedState.js';
+	import { watch } from 'vue';
 
 	export default {
 		data() {
@@ -57,6 +58,15 @@
 				});
 			},
 		},
+		mounted() {
+			watch(
+				() => sharedState,
+				(newState) => {
+					localStorage.setItem("sharedState", JSON.stringify(newState));
+				},
+				{ deep: true }
+			);
+		}
 	}
 </script>
 

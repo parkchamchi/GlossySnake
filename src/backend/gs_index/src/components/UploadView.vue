@@ -49,13 +49,16 @@
 			},
 
 			async uploadOriginalTextLocal() {
-				const corpus_id = "the corpus id (TODO)";
+				const corpus_id = this.makeTitle(this.originalText);
 				const corpus = Corpus.init_with_txt(this.originalText);
 				EventBus.emit("addLocalCorpus", {corpus_id, corpus});
 			},
 			async uploadJsonFileLocal(corpus) {
-				const corpus_id = "the corpus id (JSON) (TODO)";
+				const corpus_id = this.makeTitle(corpus.original_text);
 				EventBus.emit("addLocalCorpus", {corpus_id, corpus});
+			},
+			makeTitle(str, maxlen=16) {
+				return str.substring(0, maxlen);
 			}
 		}
 	}

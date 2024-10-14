@@ -185,12 +185,13 @@ class ChatgptAnnotator extends Annotator {
 			endSents.push(target);
 		}
 
+		endSents.shift();
 		const lastTokenIndex = tokenStrs.length - 1;
 		if (!endSents.includes(lastTokenIndex)) {
 			endSents.push(lastTokenIndex);
 		}
 
-		return endSents.slice(1); // Exclude the first element
+		return endSents; // Exclude the first element
 	}
 
 	chunkizeForReannotation(reannotateBools, margin = 16, minMargin = 4) {

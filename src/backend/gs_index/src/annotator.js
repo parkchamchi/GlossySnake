@@ -16,7 +16,7 @@ class Annotator {
 		if (!p.is_delimiter) {
 			if (p.tokens && p.tokens.length > 0)
 				await this.put_gloss(p);
-			p.state = "ANNOTATED";
+			p.pstate = "ANNOTATED";
 
 			p.annotator_info_obj.lang_from = this.lang_from
 			p.annotator_info_obj.lang_to = this.lang_to

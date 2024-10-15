@@ -2,7 +2,7 @@
 
 export { ChatgptAnnotator };
 
-import { Annotator } from "./annotator.js";
+import { Annotator, TOKEN_UNKNOWN } from "./annotator.js";
 import { AnnotatorInfo } from "./serializables.js";
 import { sharedState } from "./sharedState.js";
 

@@ -311,7 +311,7 @@ class ChatgptGlossFetcher extends GlossFetcher {
 	}
 
 	async fetchGloss(tokenStrs, messages, reannotationGlossStrs=false) {
-		console.log(`Fetching ${tokenStrs} glosses`);
+		console.log(`Fetching ${tokenStrs.length} glosses`);
 
 		console.log("messages:", messages);
 

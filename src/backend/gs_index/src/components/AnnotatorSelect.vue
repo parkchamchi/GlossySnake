@@ -51,6 +51,7 @@
 				<select v-model="lang_from" name="lang_from" id="lang_from_select" class="form-control">
 					<option value="French">French</option>
 					<option value="German">German</option>
+					<option value="Latin">Latin</option>
 				</select>
 			</div>
 			<div class="col-md-4">

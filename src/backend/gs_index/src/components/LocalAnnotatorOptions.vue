@@ -19,6 +19,9 @@
 			innerRetry() {
 				this.emitChange();
 			},
+			maxGloss() {
+				this.emitChange();
+			},
 			fullPrompt() {
 				this.emitChange();
 			},
@@ -34,6 +37,7 @@
 				sharedState.openaiModel = this.openaiModel;
 				sharedState.outerRetry = this.outerRetry;
 				sharedState.innerRetry = this.innerRetry;
+				sharedState.maxGloss = this.maxGloss;
 				sharedState.fullPrompt = this.fullPrompt;
 			},
 			exportData() {
@@ -111,6 +115,16 @@
 					id="innerRetry"
 					v-model="innerRetry"
 					min="1"
+				/>
+			</div>
+			<div class="col-md-2">
+				<label for="maxGloss">Max Gloss</label>
+				<input
+					type="number"
+					class="form-control"
+					id="maxGloss"
+					v-model="maxGloss"
+					min="40"
 				/>
 			</div>
 			<div class="col-md-2 d-flex align-items-center">

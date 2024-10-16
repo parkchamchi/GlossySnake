@@ -150,9 +150,10 @@ class ChatgptAnnotator extends Annotator {
 		}
 	}
 
-	chunkize(tokenStrs, maxGloss=80) {
+	chunkize(tokenStrs) {
 		// Returns the end indices
 		const endChars = ['.', '!', '?'];
+		const maxGloss = sharedState.maxGloss;
 
 		// Find indices of tokens that contain end characters
 		let idxWithEndChars = [];
@@ -168,11 +169,12 @@ class ChatgptAnnotator extends Annotator {
 			// Find x where x in (last, last + maxGloss]
 			const last = endSents[endSents.length - 1];
 
+			//console.log(last, maxGloss, last+maxGloss, tokenStrs.length)
 			if (last + maxGloss > tokenStrs.length)
 				break;
 
 			idxWithEndChars = idxWithEndChars.filter(e => e > maxGloss);
-			let targets = idxWithEndChars.filter(e => e > maxGloss);
+			let targets = idxWithEndChars.filter(e => e <= maxGloss);
 
 			let target;
 			if (targets.length === 0)
@@ -192,7 +194,7 @@ class ChatgptAnnotator extends Annotator {
 		return endSents; // Exclude the first element
 	}
 
-	chunkizeForReannotation(reannotateBools, margin = 16, minMargin = 4) {
+	chunkizeForReannotation(reannotateBools, margin=16, minMargin=4) {
 		// R: returns [(p0, e0), ...] for [p0+1:e0+1], ... (see reput_gloss)
 		// TODO: also has to receive which ones are to be reannotated
 

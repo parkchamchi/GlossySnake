@@ -13,6 +13,7 @@ export const sharedState = reactive({
 	openaiModel: "gpt-4o-mini",
 	outerRetry: 2,
 	innerRetry: 3,
+	maxGloss: 80,
 	fullPrompt: true,
 
 	...savedState, //Load

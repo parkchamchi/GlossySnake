@@ -10,6 +10,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout master branch
@@ -36,8 +38,6 @@ jobs:
           ls -la
 
       - name: Deploy to GitHub Pages
-        permissions:
-          contents: write
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: success()

@@ -36,6 +36,8 @@ jobs:
           ls -la
 
       - name: Deploy to GitHub Pages
+        permissions:
+          contents: write
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: success()

@@ -21,10 +21,14 @@ jobs:
           node-version: '14'
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd src/backend/gs_index
+          npm install
 
       - name: Build the project
-        run: npm run build
+        run: |
+          cd src/backend/gs_index
+          npm run build
 
       - name: Deploy to GitHub Pages
         if: success()
@@ -38,12 +42,13 @@ jobs:
           cd gh-pages
 
           # Copy the built files to the gh-pages branch
-          cp -r ../dist/gs_index/index.html ./
-          cp -r ../dist/gs_index/favicon.ico ./
+          cp -r ../src/backend/gs_index/dist/index.html ./
+          cp -r ../src/backend/gs_index/dist/favicon.ico ./
           rm -rf ./GlossySnake/static/*
-          cp -r ../dist/gs_index/GlossySnake/static/* ./GlossySnake/static/
+          cp -r ../src/backend/gs_index/dist/GlossySnake/static/* ./GlossySnake/static/
 
           # Commit and push the changes
           git add .
           git commit -m "Update GitHub Pages with the latest build from master"
           git push origin gh-pages
+          

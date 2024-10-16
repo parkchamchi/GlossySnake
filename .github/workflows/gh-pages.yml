@@ -49,8 +49,8 @@ jobs:
           # Copy the built files to the gh-pages branch
           cp -r ../src/backend/gs_index/dist/index.html ./
           cp -r ../src/backend/gs_index/dist/favicon.ico ./
-          rm -rf ./GlossySnake/static/*
-          cp -r ../src/backend/gs_index/dist/GlossySnake/static/* ./GlossySnake/static/
+          rm -rf ./static/*
+          cp -r ../src/backend/gs_index/dist/GlossySnake/static/* ./static/
 
           # Commit and push the changes
           git add .

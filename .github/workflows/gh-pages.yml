@@ -30,6 +30,11 @@ jobs:
           cd src/backend/gs_index
           npm run build
 
+      - name: List build directory contents
+        run: |
+          cd src/backend/gs_index/dist
+          ls -la
+
       - name: Deploy to GitHub Pages
         if: success()
         run: |

@@ -100,6 +100,7 @@
 					class="form-control"
 					id="outerRetry"
 					v-model="outerRetry"
+					min="1"
 				/>
 			</div>
 			<div class="col-md-2">
@@ -109,6 +110,7 @@
 					class="form-control"
 					id="innerRetry"
 					v-model="innerRetry"
+					min="1"
 				/>
 			</div>
 			<div class="col-md-2 d-flex align-items-center">

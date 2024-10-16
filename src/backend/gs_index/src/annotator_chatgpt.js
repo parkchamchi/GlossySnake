@@ -386,13 +386,16 @@ class ChatgptGlossFetcher extends GlossFetcher {
 			let lines = res.split('\n').filter(line => line.trim() !== "");
 		
 			// Parse the linenum
-			lines = lines.map(line => line.split(':', 2));
+			//lines = lines.map(line => line.split(':', 2));
 		
 			// Parse the glosses
 			let parsedRes = {};
 			lines.forEach(line => {
-				const lineNum = parseInt(line[0].trim(), 10);
-				const glosses = line[1].split(GLOSS_DELIMITER).map(g => g.trim()).filter(g => g !== "");
+				//const lineNum = parseInt(line[0].trim(), 10);
+				//const glosses = line[1].split(GLOSS_DELIMITER).map(g => g.trim()).filter(g => g !== "");
+				const [lineNumStr, glossStr] = line.match(/^(\d+):\s*(.*)$/).slice(1, 3);
+				const lineNum = parseInt(lineNumStr.trim(), 10);
+				const glosses = glossStr.split(GLOSS_DELIMITER).map(g => g.trim()).filter(g => g !== "");
 				parsedRes[lineNum] = glosses;
 			});
 		

@@ -56,7 +56,11 @@
 					"corpus_id": corpus_id,
 					"corpuses_history": [corpus],
 				});
-			}
+			},
+
+			clearCorpuses() {
+				this.localCorpuses = [...sampleCorpuses];
+			},
 		},
 		created() {
 			EventBus.on("updateCorpuses", this.updateCorpuses); // Listen for the error event
@@ -72,6 +76,7 @@
 </script>
 
 <template>
+	<p @click="clearCorpuses">[Clear]</p>
 	<div v-if="remoteSampleFilenames.length > 0">
 		<h4>Get a sample:</h4>
 		<p v-for="(filename, index) in remoteSampleFilenames"

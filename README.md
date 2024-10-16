@@ -305,3 +305,15 @@ In the age of the FadAI and unfortunately much more to come the importance to ho
 [The PDF file of *Die Leiden des jungen Werther* (1774)](/src/tools/latex/werther.pdf)
 
 *2024.09.29*
+
+# From here
+The project has achieved its initial goal, and I plan to go further:
+## To a serverless service
+The current codebase is backend-heavy and is not sustainable. I've migrated the annotator to the frontend side so it can be more versatile.
+I also plan to reform the frontend.
+## Code cleanup
+The Python annotator code and the translated Javascript was not much changed from the Proof-of-Concept code. This inefficient and undocumented codebase became hard to maintain. I plan to rewrite the code in more structured way.
+## "Natural Language Processing"
+I have to disclose, albeit it may be obvious, that I'm not versed with the NLP. *Parsing* of the ChatGPT output (badly) works for now but I plan to go forward too. I'm (re-)learning NLP again and hope to test a fitting approach. There appears to be many papers regarding the application of NLP to the interlinear gloss, espeically for philological interests, so I'd suggest to myself to get in touch with 'em.
+
+*24.10.16*

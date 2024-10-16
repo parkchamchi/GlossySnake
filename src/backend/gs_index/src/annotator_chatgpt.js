@@ -155,7 +155,7 @@ class ChatgptAnnotator extends Annotator {
 		const endChars = ['.', '!', '?'];
 
 		// Find indices of tokens that contain end characters
-		const idxWithEndChars = [];
+		let idxWithEndChars = [];
 		for (let i = 0; i < tokenStrs.length; i++) {
 			const tokenStr = tokenStrs[i];
 			if (endChars.some(ch => tokenStr.includes(ch))) {
@@ -171,16 +171,14 @@ class ChatgptAnnotator extends Annotator {
 			if (last + maxGloss > tokenStrs.length)
 				break;
 
-			// Clear out the previous ones
-			const filteredEndChars = idxWithEndChars.filter(e => e > last);
-			const targets = filteredEndChars.filter(e => e <= last + maxGloss);
+			idxWithEndChars = idxWithEndChars.filter(e => e > maxGloss);
+			let targets = idxWithEndChars.filter(e => e > maxGloss);
 
 			let target;
-			if (targets.length === 0) {
+			if (targets.length === 0)
 				target = last + maxGloss;
-			} else {
+			else
 				target = Math.max(...targets);
-			}
 
 			endSents.push(target);
 		}
@@ -305,9 +303,9 @@ class ChatgptGlossFetcher extends GlossFetcher {
 					];
 				}
 			}
-
-			throw Error(`Failed after ${outerRetry}*${innerRetry} retries.`)
 		}
+
+		throw Error(`Failed after ${outerRetry}*${innerRetry} retries.`);
 	}
 
 	async fetchGloss(tokenStrs, messages, reannotationGlossStrs=false) {
@@ -410,7 +408,7 @@ class ChatgptGlossFetcher extends GlossFetcher {
 
 		console.log("token_strs:", tokenStrs);
 		console.log("res:", res);
-		for (let i = 0; i < res.length; i++) {
+		for (let i = 0; i < tokenStrs.length; i++) {
 			const origTxt = tokenStrs[i];
 			const [retI, resValue] = Object.entries(res)[i];
 
@@ -431,7 +429,7 @@ class ChatgptGlossFetcher extends GlossFetcher {
 
 			// TODO: reannotation case
 			if (!reannotation && !looseComparison(origTxt, retTxt)) {
-				throw new Error(`Expected \`${i}: ${origTxt} ||\` but got \`${i}: ${retTxt} ||\`. The number has to be exact. Rewrite as \`${i}: ${orig_txt} ||\`.`);
+				throw new Error(`Expected \`${i}: ${origTxt} ||\` but incorrectly got \`${i}: ${retTxt} ||\`. The pair of the number and the text (${i}, ${origTxt}) has to be exact. Rewrite including \`${i}: ${origTxt} ||\`.`);
 			}
 		}
 
@@ -457,7 +455,7 @@ class ChatgptGlossFetcher extends GlossFetcher {
 			if (reannotation && !reannotationIndices.includes(i)) {
 				g = TOKEN_TO_IGNORE;
 			} else {
-				if (!(i in res)) {
+				if (!res.hasOwnProperty(i)) {
 					g = TOKEN_UNKNOWN;
 				} else {
 					g = res[i][1];

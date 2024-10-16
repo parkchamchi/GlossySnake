@@ -76,6 +76,11 @@
 		padding-left: 0.25em;
 		padding-right: 0.25em;
 	}
+	@media (prefers-color-scheme: dark) {
+		.token_txt, .gloss {
+			color: white;
+		}
+	}
 
 	li, .token_wrapper {
 		border: none;

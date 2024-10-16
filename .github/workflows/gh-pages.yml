@@ -1,0 +1,49 @@
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'src/backend/gs_index/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout master branch
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        if: success()
+        run: |
+          # Configure git
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          # Clone the gh-pages branch
+          git clone --branch=gh-pages https://github.com/${{ github.repository }} gh-pages
+          cd gh-pages
+
+          # Copy the built files to the gh-pages branch
+          cp -r ../dist/gs_index/index.html ./
+          cp -r ../dist/gs_index/favicon.ico ./
+          rm -rf ./GlossySnake/static/*
+          cp -r ../dist/gs_index/GlossySnake/static/* ./GlossySnake/static/
+
+          # Commit and push the changes
+          git add .
+          git commit -m "Update GitHub Pages with the latest build from master"
+          git push origin gh-pages

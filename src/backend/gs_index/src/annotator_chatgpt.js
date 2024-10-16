@@ -369,7 +369,7 @@ class ChatgptGlossFetcher extends GlossFetcher {
 	}
 
 	parseRes(res) {
-		const origRes = [...res];
+		const origRes = res;
 
 		try {
 			// Discard the codeblock

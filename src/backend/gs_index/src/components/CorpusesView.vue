@@ -76,7 +76,7 @@
 </script>
 
 <template>
-	<p @click="clearCorpuses">[Clear]</p>
+	<p @click="clearCorpuses">[Clear data]</p>
 	<div v-if="remoteSampleFilenames.length > 0">
 		<h4>Get a sample:</h4>
 		<p v-for="(filename, index) in remoteSampleFilenames"

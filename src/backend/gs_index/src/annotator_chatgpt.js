@@ -415,7 +415,11 @@ class ChatgptGlossFetcher extends GlossFetcher {
 		console.log("res:", res);
 		for (let i = 0; i < tokenStrs.length; i++) {
 			const origTxt = tokenStrs[i];
-			const [retI, resValue] = Object.entries(res)[i];
+			
+			const entries = Object.entries(res);
+			if (reannotation && i >= entries.length)
+				break;
+			const [retI, resValue] = entries[i];
 
 			if (!reannotation && i !== parseInt(retI)) {
 				throw new Error(`\`${retI}:\` line not found.`);

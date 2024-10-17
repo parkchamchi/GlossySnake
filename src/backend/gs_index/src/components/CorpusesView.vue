@@ -47,9 +47,9 @@
 						const corpus_id = filename.replace(".corpus.json", "");
 						this.addLocalCorpus({corpus_id, corpus});
 					})
-					.then(() => {
+					/*.then(() => {
 						this.remoteSampleFilenames = this.remoteSampleFilenames.filter(f => f !== filename)
-					});
+					})*/;
 			},
 			async addLocalCorpus({corpus_id, corpus}) {
 				this.localCorpuses.push({

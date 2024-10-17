@@ -29,6 +29,7 @@
 				sharedState,
 
 				showPre: false,
+				mounted: false,
 			}
 		},
 		computed: {
@@ -229,6 +230,10 @@
 				this.reannotate([p_index], target_tokens);
 			},
 		},
+
+		mounted() {
+			this.mounted = true;
+		}
 	}
 </script>
 
@@ -236,7 +241,7 @@
 	<div class='corpus_wrapper'>
 		<hr>
 		<h4 @click="toggleCorpusVisibility()">{{ header + ": " + corpus_id }}</h4>
-		<div v-if="isCorpusVisible" class="corpus">
+		<div v-if="mounted && isCorpusVisible" class="corpus">
 			<span class="corpus_buttons_span">
 				<button class="corpus_button btn btn-light" @click="download()">Download</button>
 

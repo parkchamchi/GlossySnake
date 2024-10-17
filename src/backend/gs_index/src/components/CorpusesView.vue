@@ -1,6 +1,7 @@
 <script>
 	import { EventBus } from "../EventBus.js";
 	import { GsApi } from "../GsApi.js"
+	import { sharedState } from "../sharedState.js";
 	import sampleCorpuses from "../sampleCorpuses.json"
 	import Corpus from "./Corpus.vue"
 
@@ -52,8 +53,17 @@
 					})*/;
 			},
 			async addLocalCorpus({corpus_id, corpus}) {
+				//corpus_id to be unique and not ""
+				let unique_corpus_id = corpus_id;
+				if (unique_corpus_id == "") unique_corpus_id = "Corpus";
+				
+				const existingIds = new Set(this.localCorpuses.map(c => c.corpus_id));
+				let counter = 1;
+				while (existingIds.has(unique_corpus_id))
+					unique_corpus_id = `${corpus_id} (${counter++})`;
+				
 				this.localCorpuses.push({
-					"corpus_id": corpus_id,
+					"corpus_id": unique_corpus_id,
 					"corpuses_history": [corpus],
 				});
 			},
@@ -67,6 +77,9 @@
 			EventBus.on("addLocalCorpus", this.addLocalCorpus); // From UploadView
 
 			this.getRemoteSamples();
+		},
+		mounted() {
+			sharedState.currentOpenCorpus = "";
 		},
 		beforeDestroy() {
 			EventBus.off("updateCorpuses", this.updateCorpuses); // Clean up the event listener

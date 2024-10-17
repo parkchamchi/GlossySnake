@@ -30,7 +30,6 @@
 
 				showPre: false,
 				mounted: false,
-				fixedHeader: false,
 			}
 		},
 		computed: {
@@ -84,11 +83,6 @@
 					sharedState.currentOpenCorpus = "";
 				else
 					sharedState.currentOpenCorpus = this.corpus_id;
-
-				if (this.fixedHeader) {
-					this.fixedHeader = false;
-					setTimeout(() => this.scrollToOriginalHeader(), 500);
-				}
 			},
 			download() {
 				const json = JSON.stringify(this.corpus);
@@ -229,28 +223,15 @@
 				await annotator.reannotate(target_p, lang_from, lang_to, target_tokens);
 			},
 
-			// Debounce function to limit the rate of function execution
-			debounce(func, wait) {
-				let timeout;
-				return (...args) => {
-					clearTimeout(timeout);
-					timeout = setTimeout(() => func.apply(this, args), wait);
-				};
-			},
-			handleIntersection(entries) {
-				entries.forEach((entry) => 
-					this.fixedHeader = (
-						this.isCorpusVisible
-						&& !entry.isIntersecting
-						&& entry.boundingClientRect.top < 0
-					)
-				);
-			},
 			scrollToOriginalHeader() {
 				const headerElement = this.$refs.header;
 				headerElement.scrollIntoView({
 					behavior: 'smooth'
 				});
+			},
+			handleResizeOrScroll() {
+				if (this.isCorpusVisible)
+					this.scrollToOriginalHeader();
 			},
 
 			onAnnotateP(p_index) {
@@ -261,36 +242,33 @@
 			},
 		},
 
+		watch: {
+			isCorpusVisible(newval) {
+				document.body.style.overflow = (newval) ? 'hidden' : '';
+				this.scrollToOriginalHeader();
+			}
+		},
+
 		mounted() {
 			this.mounted = true;
 
-			//Header behavior
-			// Set up IntersectionObserver to track the visibility of the header
-			const observer = new IntersectionObserver(
-				this.debounce(this.handleIntersection, 100),
-				{ threshold: [0] }
-			);
-			observer.observe(this.$refs.header);
+			// Add event listeners for resize and scroll events
+			window.addEventListener('resize', this.handleResizeOrScroll);
+			window.addEventListener('scroll', this.handleResizeOrScroll);
 		},
 		beforeDestroy() {
-			// Clean up the IntersectionObserver
-			if (this.observer) {
-				this.observer.disconnect();
-			}
-		}
+			// Remove event listeners for resize and scroll events
+			window.removeEventListener('resize', this.handleResizeOrScroll);
+			window.removeEventListener('scroll', this.handleResizeOrScroll);
+		},
 	}
 </script>
 
 <template>
-	<div class='corpus_wrapper'>
+	<div :class="['corpus_wrapper', { 'full-screen': isCorpusVisible}]">
 		<hr>
 		<h4 @click="toggleCorpusVisibility()"
 			ref="header">{{ header + ": " + corpus_id }}
-		</h4>
-		<h4 @click="toggleCorpusVisibility()"
-			v-if="fixedHeader"
-			class="fixedHeader"
-			ref="fixedHeader">{{ header + ": " + corpus_id }}
 		</h4>
 		<div v-if="isCorpusVisible" class="corpus">
 			<span class="corpus_buttons_span">
@@ -327,6 +305,19 @@
 </template>
 
 <style scoped>
+	.corpus_wrapper {
+		display: flex;
+		flex-direction: column;
+		max-height: 100vh;
+	}
+	.full-screen {
+		height: 100vh;
+	}
+	.corpus {
+		flex: 1;
+		overflow-y: auto;
+	}
+
 	.corpus_buttons_span {
 		display: flex;
 		justify-content: flex-end;

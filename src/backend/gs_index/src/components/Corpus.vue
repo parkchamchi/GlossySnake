@@ -28,11 +28,14 @@
 				api: new GsApi(),
 				sharedState,
 
-				isCorpusVisible: false,
 				showPre: false,
 			}
 		},
 		computed: {
+			isCorpusVisible() {
+				return sharedState.currentOpenCorpus == this.corpus_id;
+			},
+
 			pseudoState() {
 				const psEmpty = !this.corpus.paragraphs || this.corpus.paragraphs.length <= 0;
 				if (psEmpty)
@@ -75,7 +78,10 @@
 		},
 		methods: {
 			toggleCorpusVisibility() {
-				this.isCorpusVisible = !this.isCorpusVisible;
+				if (sharedState.currentOpenCorpus == this.corpus_id)
+					sharedState.currentOpenCorpus = "";
+				else
+					sharedState.currentOpenCorpus = this.corpus_id;
 			},
 			download() {
 				const json = JSON.stringify(this.corpus);

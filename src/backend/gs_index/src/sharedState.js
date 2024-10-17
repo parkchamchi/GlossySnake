@@ -16,5 +16,7 @@ export const sharedState = reactive({
 	maxGloss: 80,
 	fullPrompt: true,
 
+	currentOpenCorpus: "",
+
 	...savedState, //Load
 });

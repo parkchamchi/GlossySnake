@@ -30,11 +30,12 @@
 
 				showPre: false,
 				mounted: false,
+				fixedHeader: false,
 			}
 		},
 		computed: {
 			isCorpusVisible() {
-				return sharedState.currentOpenCorpus == this.corpus_id;
+				return this.mounted && sharedState.currentOpenCorpus == this.corpus_id;
 			},
 
 			pseudoState() {
@@ -223,6 +224,25 @@
 				await annotator.reannotate(target_p, lang_from, lang_to, target_tokens);
 			},
 
+			// Debounce function to limit the rate of function execution
+			debounce(func, wait) {
+				let timeout;
+				return (...args) => {
+					clearTimeout(timeout);
+					timeout = setTimeout(() => func.apply(this, args), wait);
+				};
+			},
+
+			handleIntersection(entries) {
+				entries.forEach((entry) => 
+					this.fixedHeader = (
+						this.isCorpusVisible
+						&& !entry.isIntersecting
+						&& entry.boundingClientRect.top < 0
+					)
+				);
+			},
+
 			onAnnotateP(p_index) {
 				this.annotate([p_index]);
 			},
@@ -233,6 +253,20 @@
 
 		mounted() {
 			this.mounted = true;
+
+			//Header behavior
+			// Set up IntersectionObserver to track the visibility of the header
+			const observer = new IntersectionObserver(
+				this.debounce(this.handleIntersection, 100),
+				{ threshold: [0] }
+			);
+			observer.observe(this.$refs.header);
+		},
+		beforeDestroy() {
+			// Clean up the IntersectionObserver
+			if (this.observer) {
+				this.observer.disconnect();
+			}
 		}
 	}
 </script>
@@ -240,8 +274,15 @@
 <template>
 	<div class='corpus_wrapper'>
 		<hr>
-		<h4 @click="toggleCorpusVisibility()">{{ header + ": " + corpus_id }}</h4>
-		<div v-if="mounted && isCorpusVisible" class="corpus">
+		<h4 @click="toggleCorpusVisibility()"
+			ref="header">{{ header + ": " + corpus_id }}
+		</h4>
+		<h4 @click="toggleCorpusVisibility()"
+			v-if="fixedHeader"
+			class="fixedHeader"
+			ref="fixedHeader">{{ header + ": " + corpus_id }}
+		</h4>
+		<div v-if="isCorpusVisible" class="corpus">
 			<span class="corpus_buttons_span">
 				<button class="corpus_button btn btn-light" @click="download()">Download</button>
 
@@ -289,5 +330,17 @@
 	.corpus-pre {
 		max-width: 100%;
 		overflow: auto;
+	}
+
+	.fixedHeader {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		background-color: white;
+		z-index: 1000;
+
+		padding: 2%;
+		border-bottom: 1px solid lightgray;
 	}
 </style>

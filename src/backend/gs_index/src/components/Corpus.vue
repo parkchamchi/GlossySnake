@@ -84,6 +84,11 @@
 					sharedState.currentOpenCorpus = "";
 				else
 					sharedState.currentOpenCorpus = this.corpus_id;
+
+				if (this.fixedHeader) {
+					this.fixedHeader = false;
+					setTimeout(() => this.scrollToOriginalHeader(), 500);
+				}
 			},
 			download() {
 				const json = JSON.stringify(this.corpus);
@@ -232,7 +237,6 @@
 					timeout = setTimeout(() => func.apply(this, args), wait);
 				};
 			},
-
 			handleIntersection(entries) {
 				entries.forEach((entry) => 
 					this.fixedHeader = (
@@ -241,6 +245,12 @@
 						&& entry.boundingClientRect.top < 0
 					)
 				);
+			},
+			scrollToOriginalHeader() {
+				const headerElement = this.$refs.header;
+				headerElement.scrollIntoView({
+					behavior: 'smooth'
+				});
 			},
 
 			onAnnotateP(p_index) {
@@ -340,7 +350,7 @@
 		background-color: white;
 		z-index: 1000;
 
-		padding: 2%;
+		//padding: 2%;
 		border-bottom: 1px solid lightgray;
 	}
 </style>

@@ -19,10 +19,6 @@
 				type: Boolean,
 				default: false,
 			},
-			cursor: {
-				type: Number,
-				default: 0,
-			}
 		},
 		components: {
 			Paragraph,
@@ -32,7 +28,6 @@
 				api: new GsApi(),
 				sharedState,
 
-				currentP: this.cursor,
 				psPerScreen: 8,
 
 				showPre: false,
@@ -42,6 +37,16 @@
 		computed: {
 			isCorpusVisible() {
 				return this.mounted && sharedState.currentOpenCorpus == this.corpus_id;
+			},
+			currentP: {
+				get() {
+					if (!this.corpus.cursor)
+						this.corpus.cursor = 0;
+					return this.corpus.cursor;
+				},
+				set(value) {
+					this.corpus.cursor = value;
+				}
 			},
 			visibleParagraphs() {
 				const targets = Array.from({ length: this.psPerScreen }, (_, i) => this.currentP + i);

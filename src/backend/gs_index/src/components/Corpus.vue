@@ -18,6 +18,10 @@
 			remote: {
 				type: Boolean,
 				default: false,
+			},
+			cursor: {
+				type: Number,
+				default: 0,
 			}
 		},
 		components: {
@@ -28,6 +32,9 @@
 				api: new GsApi(),
 				sharedState,
 
+				currentP: this.cursor,
+				psPerScreen: 8,
+
 				showPre: false,
 				mounted: false,
 			}
@@ -35,6 +42,13 @@
 		computed: {
 			isCorpusVisible() {
 				return this.mounted && sharedState.currentOpenCorpus == this.corpus_id;
+			},
+			visibleParagraphs() {
+				const targets = Array.from({ length: this.psPerScreen }, (_, i) => this.currentP + i);
+				
+				return this.corpus.paragraphs.filter((_, i) => 
+					targets.includes(i)
+				);
 			},
 
 			pseudoState() {
@@ -233,6 +247,28 @@
 				if (this.isCorpusVisible)
 					this.scrollToOriginalHeader();
 			},
+			psPrev() {
+				let cp = this.currentP - this.psPerScreen;
+
+				if (cp >= 0) {
+					this.currentP = cp;
+					this.scrollToTop();
+				}
+			},
+			psNext() {
+				let cp = this.currentP + this.psPerScreen;
+
+				if (cp < this.corpus.paragraphs.length) {
+					this.currentP = cp;
+					this.scrollToTop();
+				}
+			},
+			scrollToTop() {
+				this.$nextTick(() => {
+					const corpusElement = this.$refs.corpus;
+					corpusElement.scrollTop = 0;
+				});
+			},
 
 			onAnnotateP(p_index) {
 				this.annotate([p_index]);
@@ -270,7 +306,11 @@
 		<h4 @click="toggleCorpusVisibility()"
 			ref="header">{{ header + ": " + corpus_id }}
 		</h4>
-		<div v-if="isCorpusVisible" class="corpus">
+		<div v-if="isCorpusVisible" class="pButtonsDiv">
+			<button class="btn" @click="psPrev"> << </button>
+			<button class="btn" @click="psNext"> >> </button>
+		</div>
+		<div v-if="isCorpusVisible" class="corpus" ref="corpus">
 			<span class="corpus_buttons_span">
 				<button class="corpus_button btn btn-light" @click="download()">Download</button>
 
@@ -293,7 +333,7 @@
 				class="corpus-pre">{{ JSON.stringify(corpus) }}</pre>
 
 			<h4>paragraphs</h4>
-			<Paragraph v-for="(p, index) in corpus.paragraphs"
+			<Paragraph v-for="(p, index) in visibleParagraphs"
 				:key="index"
 				:p="p"
 				:index="index"
@@ -331,17 +371,5 @@
 	.corpus-pre {
 		max-width: 100%;
 		overflow: auto;
-	}
-
-	.fixedHeader {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		background-color: white;
-		z-index: 1000;
-
-		//padding: 2%;
-		border-bottom: 1px solid lightgray;
 	}
 </style>

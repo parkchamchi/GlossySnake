@@ -43,7 +43,13 @@
 					return this.corpus.cursor;
 				},
 				set(value) {
-					this.corpus.cursor = value;
+					let actualValue = value;
+					if (value < 0)
+						actualValue = 0;
+					if (value >= this.corpus.paragraphs.length)
+						actualValue = this.corpus.paragraphs.length - 1;
+
+					this.corpus.cursor = actualValue;
 				}
 			},
 			visibleParagraphs() {
@@ -314,6 +320,8 @@
 		</h4>
 		<div v-if="isCorpusVisible" class="pButtonsDiv">
 			<button class="btn" @click="psPrev"> << </button>
+			<input v-model.number="currentP" type="number" class="form-control w-auto d-inline" :min="0" :max="corpus.paragraphs.length-1" />
+			<span>/{{ this.corpus.paragraphs.length - 1 }}</span>
 			<button class="btn" @click="psNext"> >> </button>
 		</div>
 		<div v-if="isCorpusVisible" class="corpus" ref="corpus">

@@ -55,7 +55,7 @@
 	<div class="container mt-3">
 		<div class="row">
 			<div class="col-md-2">
-				<label for="psPerScreen">Paragraphs per screen <em>(0 for inf)</em></label>
+				<label for="psPerScreen">Paragraphs per screen <br><em>(0 for inf)</em></label>
 				<input
 					type="number"
 					class="form-control"

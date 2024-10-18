@@ -13,8 +13,9 @@
 			return {
 				api: new GsApi(),
 				sampleHost: "https://parkchamchi.github.io/GlossySnake/samples/v1/",
+				db: null,
 
-				localCorpuses: JSON.parse(localStorage.getItem("localCorpuses")) || [...sampleCorpuses],
+				localCorpuses: [...sampleCorpuses],
 				remoteCorpuses: [],
 
 				remoteSampleFilenames: [],
@@ -23,7 +24,7 @@
 		watch: {
 			localCorpuses: {
 				handler(newValue) {
-					localStorage.setItem("localCorpuses", JSON.stringify(newValue))
+					this.saveCorpuses(newValue);
 				},
 				deep: true,
 			}
@@ -71,12 +72,64 @@
 			clearCorpuses() {
 				this.localCorpuses = [...sampleCorpuses];
 			},
+
+			openDB(name, version, upgradeCallback) {
+				return new Promise((resolve, reject) => {
+					const request = indexedDB.open(name, version);
+					request.onupgradeneeded = (event) => {
+						const db = event.target.result;
+						upgradeCallback(db);
+					};
+					request.onsuccess = (event) => {
+						resolve(event.target.result);
+					};
+					request.onerror = (event) => {
+						reject(event.target.error);
+					};
+				});
+			},
+			getCorpuses() {
+				return new Promise((resolve, reject) => {
+					const transaction = this.db.transaction(['corpuses'], 'readonly');
+					const store = transaction.objectStore('corpuses');
+					const request = store.getAll();
+					request.onsuccess = () => {
+						resolve(request.result);
+					};
+					request.onerror = event => {
+						reject(event.target.error);
+					};
+				});
+			},
+			saveCorpuses(newValue) {
+				const transaction = this.db.transaction(['corpuses'], 'readwrite');
+				const store = transaction.objectStore('corpuses');
+				store.clear();
+				newValue.forEach((corpus) => {
+					// Convert reactive data to plain objects
+					const plainCorpus = JSON.parse(JSON.stringify(corpus));
+					store.put(plainCorpus);
+				});
+				return transaction.complete;
+			},
 		},
-		created() {
+		async created() {
 			EventBus.on("updateCorpuses", this.updateCorpuses); // Listen for the error event
 			EventBus.on("addLocalCorpus", this.addLocalCorpus); // From UploadView
 
 			this.getRemoteSamples();
+
+			//Get DB
+			this.db = await this.openDB('corpusDB', 1, (db) => {
+				if (!db.objectStoreNames.contains('corpuses')) {
+					const store = db.createObjectStore('corpuses', { keyPath: 'id', autoIncrement: true });
+					// Initialize with sampleCorpuses
+					sampleCorpuses.forEach((corpus) => {
+						store.add(corpus);
+					});
+				}
+			});
+			this.localCorpuses = await this.getCorpuses() || [...sampleCorpuses];				
 		},
 		mounted() {
 			sharedState.currentOpenCorpus = "";

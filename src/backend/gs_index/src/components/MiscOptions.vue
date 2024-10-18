@@ -64,13 +64,11 @@
 					min="0"
 				/>
 			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-2 d-flex align-items-center">
-				<button class="btn btn-link mt-3" @click="exportData">Export</button>
-			</div>
 			<div class="col-md-2 d-flex align-items-center">
 				<input type="file" @change="importData" class="form-control">
+			</div>
+			<div class="col-md-2 d-flex align-items-center">
+				<button class="btn btn-link mt-3" @click="exportData">Export</button>
 			</div>
 		</div>
 	</div>

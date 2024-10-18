@@ -145,10 +145,11 @@
 	<p @click="clearCorpuses">[Clear data]</p>
 	<div v-if="remoteSampleFilenames.length > 0">
 		<h4>Get a sample:</h4>
-		<p v-for="(filename, index) in remoteSampleFilenames"
-			class="sampleLinkP"
-			@click="getRemoteSampleCorpus(filename)">
-			{{ filename }}
+		<p v-for="(filename, index) in remoteSampleFilenames" style="display: inline;">
+			<span @click="getRemoteSampleCorpus(filename)" class="sampleLinkP">
+				{{ filename }}
+			</span>
+			<span> | </span>
 		</p>
 	</div>
 
@@ -171,6 +172,7 @@
 		font-style: italic;
 		text-decoration: underline;
 		cursor: pointer;
+		display: inline;
 	}
 
 	.disabled{

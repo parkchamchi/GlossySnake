@@ -1,5 +1,6 @@
 import { reactive } from 'vue';
 
+//Load localStorage. It is set in `MiscOptions`
 const savedState = JSON.parse(localStorage.getItem('sharedState')) || {};
 
 export const sharedState = reactive({
@@ -17,6 +18,7 @@ export const sharedState = reactive({
 	fullPrompt: true,
 
 	currentOpenCorpus: "",
+	psPerScreen: 16,
 
 	...savedState, //Load
 });

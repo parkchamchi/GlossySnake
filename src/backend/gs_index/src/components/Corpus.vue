@@ -28,8 +28,6 @@
 				api: new GsApi(),
 				sharedState,
 
-				psPerScreen: 8,
-
 				showPre: false,
 				mounted: false,
 			}
@@ -54,6 +52,9 @@
 				return this.corpus.paragraphs.filter((_, i) => 
 					targets.includes(i)
 				);
+			},
+			psPerScreen() {
+				return (sharedState.psPerScreen > 0) ? sharedState.psPerScreen : this.corpus.paragraphs.length;
 			},
 
 			pseudoState() {

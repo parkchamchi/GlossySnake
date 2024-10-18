@@ -32,7 +32,7 @@
 
 <template>
 	<h3>Tasks</h3>
-	<div>
+	<div class="tasks">
 		<Task v-for="(task, index) in tasks"
 			:key="index"
 			:task_id="task.task_id"
@@ -40,3 +40,9 @@
 			:target_corpus_id="task.target_corpus_id" />
 	</div>
 </template>
+
+<style scoped>
+	.tasks {
+		min-height: 50vh;
+	}
+</style>

@@ -337,7 +337,6 @@
 			<pre v-if="showPre"
 				class="corpus-pre">{{ JSON.stringify(corpus) }}</pre>
 
-			<h4>paragraphs</h4>
 			<Paragraph v-for="(p, index) in visibleParagraphs"
 				:key="index"
 				:p="p"
@@ -353,10 +352,10 @@
 	.corpus_wrapper {
 		display: flex;
 		flex-direction: column;
-		max-height: 100vh;
+		max-height: 99vh;
 	}
 	.full-screen {
-		height: 100vh;
+		height: 99vh;
 	}
 	.corpus {
 		flex: 1;

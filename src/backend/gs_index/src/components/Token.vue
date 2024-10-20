@@ -1,4 +1,6 @@
 <script>
+	import { sharedState } from '../sharedState.js';
+
 	export default {
 		props: {
 			t: {
@@ -76,8 +78,11 @@
 		padding-left: 0.25em;
 		padding-right: 0.25em;
 	}
+	.gloss {
+		color: var(--gloss-color);
+	}
 	@media (prefers-color-scheme: dark) {
-		.token_txt, .gloss {
+		.token_txt {
 			color: white;
 		}
 	}

@@ -102,6 +102,10 @@
 			shouldShowManipulatorButtons() {
 				return (this.remote && sharedState.toRemote) || (!this.remote && !sharedState.toRemote && sharedState.openaiApiKey);
 			},
+
+			glossColor() {
+				return sharedState.glossColor;
+			},
 		},
 		methods: {
 			toggleCorpusVisibility() {
@@ -313,7 +317,7 @@
 </script>
 
 <template>
-	<div :class="['corpus_wrapper', { 'full-screen': isCorpusVisible}]">
+	<div :class="['corpus_wrapper', { 'full-screen': isCorpusVisible}]" :style="{ '--gloss-color': glossColor }">
 		<hr>
 		<h4 @click="toggleCorpusVisibility()"
 			ref="header">{{ header + ": " + corpus_id }}

@@ -10,10 +10,14 @@
 			psPerScreen() {
 				this.emitChange();
 			},
+			glossColor() {
+				this.emitChange();
+			}
 		},
 		methods: {
 			emitChange() {
 				sharedState.psPerScreen = this.psPerScreen;
+				sharedState.glossColor = this.glossColor;
 			},
 			exportData() {
 				console.log("Exporting");
@@ -61,6 +65,16 @@
 					class="form-control"
 					id="psPerScreen"
 					v-model="psPerScreen"
+					min="0"
+				/>
+			</div>
+			<div class="col-md-2">
+				<label for="psPerScreen">Gloss color</label>
+				<input
+					type="color"
+					class="form-control"
+					id="glossColor"
+					v-model="glossColor"
 					min="0"
 				/>
 			</div>

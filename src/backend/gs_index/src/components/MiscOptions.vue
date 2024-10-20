@@ -75,7 +75,6 @@
 					class="form-control"
 					id="glossColor"
 					v-model="glossColor"
-					min="0"
 				/>
 			</div>
 			<div class="col-md-2 d-flex align-items-center">

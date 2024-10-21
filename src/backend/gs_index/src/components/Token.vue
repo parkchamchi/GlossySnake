@@ -1,6 +1,4 @@
 <script>
-	import { sharedState } from '../sharedState.js';
-
 	export default {
 		props: {
 			t: {
@@ -61,12 +59,12 @@
 
 <style scoped>
 	.token_txt {
-		font-size: 150%;
+		font-size: var(--txt-size);
 		font-family: serif;
 	}
 
 	.gloss {
-		font-size: 90%;
+		font-size: var(--gloss-size);
 		/*font-style: italic;*/
 		font-family: monospace;
 		text-align: center;

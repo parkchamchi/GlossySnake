@@ -106,6 +106,12 @@
 			glossColor() {
 				return sharedState.glossColor;
 			},
+			glossSize() {
+				return sharedState.glossSize + "%";
+			},
+			txtSize() {
+				return sharedState.txtSize + "%";
+			},
 		},
 		methods: {
 			toggleCorpusVisibility() {
@@ -317,7 +323,8 @@
 </script>
 
 <template>
-	<div :class="['corpus_wrapper', { 'full-screen': isCorpusVisible}]" :style="{ '--gloss-color': glossColor }">
+	<div :class="['corpus_wrapper', { 'full-screen': isCorpusVisible}]" 
+		:style="{ '--gloss-color': glossColor, '--gloss-size': glossSize, '--txt-size': txtSize }">
 		<hr>
 		<h4 @click="toggleCorpusVisibility()"
 			ref="header">{{ header + ": " + corpus_id }}

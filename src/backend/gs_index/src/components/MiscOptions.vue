@@ -12,12 +12,20 @@
 			},
 			glossColor() {
 				this.emitChange();
-			}
+			},
+			txtSize() {
+				this.emitChange();
+			},
+			glossSize() {
+				this.emitChange();
+			},
 		},
 		methods: {
 			emitChange() {
 				sharedState.psPerScreen = this.psPerScreen;
 				sharedState.glossColor = this.glossColor;
+				sharedState.txtSize = this.txtSize;
+				sharedState.glossSize = this.glossSize;
 			},
 			exportData() {
 				console.log("Exporting");
@@ -69,12 +77,34 @@
 				/>
 			</div>
 			<div class="col-md-2">
-				<label for="psPerScreen">Gloss color</label>
+				<label for="glossColor">Gloss color</label>
 				<input
 					type="color"
 					class="form-control"
 					id="glossColor"
 					v-model="glossColor"
+				/>
+			</div>
+			<div class="col-md-2">
+				<label for="txtSize">Text Size</label>
+				<input
+					type="range"
+					class="form-control"
+					id="txtSize"
+					v-model="txtSize"
+					min="50"
+					max="150"
+				/>
+			</div>
+			<div class="col-md-2">
+				<label for="glossSize">Gloss Size</label>
+				<input
+					type="range"
+					class="form-control"
+					id="glossSize"
+					v-model="glossSize"
+					min="50"
+					max="150"
 				/>
 			</div>
 			<div class="col-md-2 d-flex align-items-center">

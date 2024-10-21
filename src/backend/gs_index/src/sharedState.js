@@ -20,6 +20,8 @@ export const sharedState = reactive({
 	currentOpenCorpus: "",
 	psPerScreen: 16,
 	glossColor: "gray",
+	txtSize: 150,
+	glossSize: 90,
 
 	...savedState, //Load
 });

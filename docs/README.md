@@ -37,3 +37,10 @@ Using XML.
 	</glosses>
 </glossysnake-text>
 ```
+
+- `unique-identifier` is UUID.
+
+## Frontend data structure
+- On `indexDB`, open DB `"corpusDBv5"`.
+- Using the `unique-identifier` as they key, store the XMLs.
+- Instead of locking the scroll, only load the mattering component.

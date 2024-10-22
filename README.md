@@ -317,3 +317,13 @@ The Python annotator code and the translated Javascript was not much changed fro
 I have to disclose, albeit it may be obvious, that I'm not versed with the NLP. *Parsing* of the ChatGPT output (badly) works for now but I plan to go forward too. I'm (re-)learning NLP again and hope to test a fitting approach. There appears to be many papers regarding the application of NLP to the interlinear gloss, espeically for philological interests, so I'd suggest to myself to get in touch with 'em.
 
 *24.10.16*
+
+# Form here #2
+After modifying the frontend code it now *fits* my use, but to advance:
+## Replace the current Corpus model
+The current naive JSON model proved to be computer-heavy. I'm thinking of changing it into XML.
+## More structured Frontend structure
+The current monolothic indexDB approach too is too heavy.
+
+& much more.
+*24.10.22*

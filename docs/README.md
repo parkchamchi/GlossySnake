@@ -15,32 +15,27 @@ Using XML.
 		<item type="note">Information about the text</item>
 	</metadata>
 
-	<paragraphs>
-		<paragraph id="p0">The innocent, if weak, are oppressed under false pretences.</paragraph>
-		<paragraph id="p1"><token id="t0">Lupus</token> <token id="t1">et</token> <token id="t2">Agnus</token> <token id="t3">venerant</token> <token id="t4">ad</token> <token id="t5">endum</token> <token id="t6">rivum</token>, <token id="t7">compulsi</token> <token id="t8">siti</token>:<paragraph>
-		<paragraph id="p1"><token id="t0">lupus</token> <token id="t1">stabat</token> <token id="t2">superior</token>, <token id="t3">que</token> <token id="t4">agnus</token> <token id="t5">longè</token> <token id="t6">inferior</token>:<paragraph>
-	</paragraphs>
+	<html>
+		The innocent, if weak, are oppressed under false pretences.
+		<br />
+		<span class="token-span" id="t0">Lupus</span> <span class="token-span" id="t1">et</span> <span class="token-span" id="t2">Agnus</span> <span class="token-span" id="t3">venerant</span> <span class="token-span" id="t4">ad</span> <span class="token-span" id="t5">endum</span> <span class="token-span" id="t6">rivum</span>, <span class="token-span" id="t7">compulsi</span> <span class="token-span" id="t8">siti</span>:
+		<br />
+		<span class="token-span" id="t9">lupus</span> <span class="token-span" id="t10">stabat</span> <span class="token-span" id="t11">superior</span>, <span class="token-span" id="t12">que</span> <span class="token-span" id="t13">agnus</span> <span class="token-span" id="t14">longè</span> <span class="token-span" id="t15">inferior</span>:
+	</html>
 
 	<glosses>
-		<glosses-for-paragraph for="p1">
-			<gloss-for-token for="t0">A-wolf</gloss-for-token>
-			<gloss-for-token for="t1">and</gloss-for-token>
-			<gloss-for-token for="t0">a-lamb</gloss-for-token>
-		</glosses-for-paragraph>
-		<glosses-for-paragraph for="p2">
-			<gloss-for-token for="t0">The-wolf</gloss-for-token>
-			<gloss-for-token for="t1">was-standing</gloss-for-token>
-			<gloss-for-token for="t2">higher</gloss-for-token>
-			<gloss-for-token for="t3" special="unknown" />
-			<gloss-for-token for="t4" special="to-reannotate" />
-		</glosses-for-paragraph>
+		<gloss for="t0">A-wolf</gloss>
+		<gloss for="t1">and</gloss>
+		<gloss for="t2">a-lamb</gloss>
+		<gloss for="t9">The-wolf</gloss>
+		<gloss for="t10">was-standing</gloss>
+		<gloss for="t11">higher</gloss>
+		<gloss for="t12" special="unknown" />
+		<gloss for="t13" special="to-reannotate" />
 	</glosses>
 </glossysnake-text>
 ```
 
-- `unique-identifier` is UUID.
-
 ## Frontend data structure
 - On `indexDB`, open DB `"corpusDBv5"`.
-- Using the `unique-identifier` as they key, store the XMLs.
 - Instead of locking the scroll, only load the mattering component.

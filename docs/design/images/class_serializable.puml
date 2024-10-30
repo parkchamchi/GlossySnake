@@ -3,49 +3,21 @@
 class Token <<serializable>> {
 	string txt
 	string gloss
+
 	bool is_delimiter
 }
 
 class Paragraph <<serializable>> {
-	string pstate
-
 	Token[] tokens
-	bool is_delimiter
-	char[] token_delimiters
-
-	<strike>string annotator_info</strike>
-	string original_text
-
-	AnnotatorInfo annotator_info_obj
 }
 Paragraph o-left- Token
 
 class Corpus <<serializable>> {
-	Paragraph[] paragraphs
-	string[] paragraph_delimiters
+	int version = 5
+	Object metadata
 
-	string orignal_text
-	int[] p_div_locs
-	<strike>string[] task_ids</strike>
+	Paragraph[] paragraphs
 }
 Corpus o-left- Paragraph
-
-enum pstate <<quasi>> ##[dashed] {
-	"PLAIN"
-	"DIVIDED"
-	"PARSED"
-	"ANNOTATED"
-}
-Paragraph *-- pstate
-note right of pstate::"ANNOTATED"
-	default fallback
-end note
-
-class AnnotatorInfo <<serializable>> {
-	string annotator_name
-	string lang_from
-	string lang_to
-}
-Paragraph *-- AnnotatorInfo
 
 @enduml

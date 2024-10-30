@@ -7,9 +7,6 @@
 			return sharedState;
 		},
 		watch: {
-			psPerScreen() {
-				this.emitChange();
-			},
 			glossColor() {
 				this.emitChange();
 			},
@@ -22,7 +19,6 @@
 		},
 		methods: {
 			emitChange() {
-				sharedState.psPerScreen = this.psPerScreen;
 				sharedState.glossColor = this.glossColor;
 				sharedState.txtSize = this.txtSize;
 				sharedState.glossSize = this.glossSize;
@@ -66,16 +62,6 @@
 	<h4>Misc. Options</h4>
 	<div class="container mt-3">
 		<div class="row">
-			<div class="col-md-2">
-				<label for="psPerScreen">Paragraphs per screen <br><em>(0 for inf)</em></label>
-				<input
-					type="number"
-					class="form-control"
-					id="psPerScreen"
-					v-model="psPerScreen"
-					min="0"
-				/>
-			</div>
 			<div class="col-md-2">
 				<label for="glossColor">Gloss color</label>
 				<input

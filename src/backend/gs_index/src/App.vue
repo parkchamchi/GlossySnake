@@ -1,51 +1,67 @@
 <script>
-	import Header from "./components/Header.vue"
-	import RestAuth from "./components/RestAuth.vue"
-	import AnnotatorSelect from "./components/AnnotatorSelect.vue"
-	import LocalAnnotatorOptions from "./components/LocalAnnotatorOptions.vue"
-	import MiscOptions from "./components/MiscOptions.vue"
-	import CorpusesView from "./components/CorpusesView.vue"
-	import UploadView from "./components/UploadView.vue"
-	import AlertsView from "./components/AlertsView.vue"
-	import TasksView from "./components/TasksView.vue"
+	import Header from "./components/Header.vue";
+	import AnnotatorSelect from "./components/AnnotatorSelect.vue";
+	import LocalAnnotatorOptions from "./components/LocalAnnotatorOptions.vue";
+	import MiscOptions from "./components/MiscOptions.vue";
+
+	import CorpusesView from "./components/CorpusesView.vue";
+	import UploadView from "./components/UploadView.vue";
+	import Corpus from "./components/Corpus.vue";
+
+	import { EventBus } from "./EventBus.js";
+	import { sharedState } from "./sharedState.js";
 
 	export default {
 		components: {
-			Header, RestAuth, AnnotatorSelect,
-			LocalAnnotatorOptions, MiscOptions,
-			CorpusesView, UploadView, AlertsView,
-			TasksView,
+			Header,	CorpusesView, AnnotatorSelect, LocalAnnotatorOptions, MiscOptions,
+			UploadView,
+			Corpus,
 		},
 		data() {
 			return {
 
 			}
 		},
+		computed: {
+			currentOpenCorpus() {
+				return sharedState.currentOpenCorpus;
+			}
+		},
+		methods: {
+			
+		},
+		mounted() {
+			//EventBus.on("openCorpus", this.openCorpus);
+			//EventBus.on("closeCorpus", this.closeCorpus);
+		},
+		beforeDestroy() {
+			//EventBus.off("openCorpus", this.openCorpus);
+			//EventBus.off("closeCorpus", this.closeCorpus);
+		},
 	}
 </script>
 
 <template>
-	<header>
-		<Header />
-	</header>
+	<div v-if="currentOpenCorpus">
+		<Corpus :corpusId="currentOpenCorpus" />
+	</div>
+	<div v-else>
+		<header>
+			<Header />
+		</header>
 
-	<main>
-		<RestAuth />
-		<hr>
-		<AnnotatorSelect />
-		<hr>
-		<LocalAnnotatorOptions />
-		<hr>
-		<MiscOptions />
-		<hr>
-		<CorpusesView />
-		<hr>
-		<UploadView />
-		<hr>
-		<AlertsView />
-		<hr>
-		<TasksView />
-	</main>
+		<main>
+			<AnnotatorSelect />
+			<LocalAnnotatorOptions />
+			<MiscOptions />
+			<hr>
+
+			<CorpusesView />
+			<hr>
+			
+			<UploadView />
+		</main>
+	</div>
 </template>
 
 <style scoped>

@@ -1,5 +1,5 @@
 <script>
-	import { GsApi } from "../GsApi.js"
+	import { corpusStorage } from "../corpusStorage.js";
 	import { sharedState } from "../sharedState.js";
 	import { EventBus } from "../EventBus.js";
 	import { Parser } from "../parser.js";
@@ -8,16 +8,8 @@
 
 	export default {
 		props: {
-			corpus_id: {
+			corpusId: {
 				required: true,
-			},
-			corpus: {
-				type: Object,
-				required: true,
-			},
-			remote: {
-				type: Boolean,
-				default: false,
 			},
 		},
 		components: {
@@ -25,44 +17,16 @@
 		},
 		data() {
 			return {
-				api: new GsApi(),
 				sharedState,
+				corpusStorage,
+
+				corpus: null,
+				cursor: null,
 
 				showPre: false,
-				mounted: false,
 			}
 		},
 		computed: {
-			isCorpusVisible() {
-				return this.mounted && sharedState.currentOpenCorpus == this.corpus_id;
-			},
-			currentP: {
-				get() {
-					if (!this.corpus.cursor)
-						this.corpus.cursor = 0;
-					return this.corpus.cursor;
-				},
-				set(value) {
-					let actualValue = value;
-					if (value < 0)
-						actualValue = 0;
-					if (value >= this.corpus.paragraphs.length)
-						actualValue = this.corpus.paragraphs.length - 1;
-
-					this.corpus.cursor = actualValue;
-				}
-			},
-			visibleParagraphs() {
-				const targets = Array.from({ length: this.psPerScreen }, (_, i) => this.currentP + i);
-				
-				return this.corpus.paragraphs.filter((_, i) => 
-					targets.includes(i)
-				);
-			},
-			psPerScreen() {
-				return (sharedState.psPerScreen > 0) ? sharedState.psPerScreen : this.corpus.paragraphs.length;
-			},
-
 			pseudoState() {
 				const psEmpty = !this.corpus.paragraphs || this.corpus.paragraphs.length <= 0;
 				if (psEmpty)
@@ -96,13 +60,6 @@
 				};
 			},
 
-			header() {
-				return (this.remote) ? "REMOTE" : "LOCAL";
-			},
-			shouldShowManipulatorButtons() {
-				return (this.remote && sharedState.toRemote) || (!this.remote && !sharedState.toRemote && sharedState.openaiApiKey);
-			},
-
 			glossColor() {
 				return sharedState.glossColor;
 			},
@@ -114,11 +71,8 @@
 			},
 		},
 		methods: {
-			toggleCorpusVisibility() {
-				if (sharedState.currentOpenCorpus == this.corpus_id)
-					sharedState.currentOpenCorpus = "";
-				else
-					sharedState.currentOpenCorpus = this.corpus_id;
+			closeCorpus() {
+				sharedState.currentOpenCorpus = "";
 			},
 			download() {
 				const json = JSON.stringify(this.corpus);
@@ -131,92 +85,17 @@
 				a.click();
 			},
 			async divide(p_delim='\n') {
-				if (sharedState.toRemote)
-					return this.divideRemote(p_delim);
-				else
-					return this.divideLocal(p_delim);
+				Parser.divide_into_paragraphs(this.corpus, [p_delim]);
+
+				this.corpusStorage.update(this.corpus);
 			},
 			async parse() {
-				if (sharedState.toRemote)
-					return this.parseRemote();
-				else
-					return this.parseLocal();
-			},
-			async annotate(target_paragraphs=null) {
-				if (sharedState.toRemote)
-					return this.annotateRemote(target_paragraphs);
-				else
-					return this.annotateLocal(target_paragraphs);
-			},
-			async reannotate(target_paragraphs, target_tokens) {
-				if (!target_tokens) {
-					console.error("target_tokens is not given");
-					return;
-				}
-				if (target_tokens.length == 0) {
-					const errmsg = "No token selected.";
-					EventBus.emit("addAlert", { message: errmsg, alertClass: "alert-warning" });
-					return;
-				}
-
-				if (sharedState.toRemote)
-					return this.reannotateRemote(target_paragraphs, target_tokens);
-				else
-					return this.reannotateLocal(target_paragraphs, target_tokens);
-			},
-
-			async divideRemote(p_delim) {
-				this.api.submit("/parser/divide", "POST", {
-					corpus_id: this.corpus_id,
-					divide_options: {
-						p_delims: [p_delim],
-					},
-				});
-			},
-			async parseRemote() {
-				this.api.submit("/parser/parse", "POST", {
-					corpus_id: this.corpus_id,
-					parse_options: {
-						t_delims: null,
-					},
-				});
-			},
-			async annotateRemote(target_paragraphs) {
-				this.api.submit("/annotator/annotate", "POST", {
-					corpus_id: this.corpus_id,
-					annotate_options: {
-						annotator_name: this.sharedState.annotator_name,
-						lang_from: this.sharedState.lang_from,
-						lang_to: this.sharedState.lang_to,
-
-						target_paragraphs: target_paragraphs,
-					},
-				});
-			},
-			async reannotateRemote(target_paragraphs, target_tokens) {
-				this.api.submit("/annotator/reannotate", "POST", {
-					corpus_id: this.corpus_id,
-					annotate_options: {
-						annotator_name: this.sharedState.annotator_name,
-						lang_from: this.sharedState.lang_from,
-						lang_to: this.sharedState.lang_to,
-						
-						target_paragraphs: target_paragraphs,
-					},
-					reannotate_options: {
-						target_tokens: target_tokens,
-					},
-				});
-			},
-		
-			async divideLocal(p_delim) {
-				Parser.divide_into_paragraphs(this.corpus, [p_delim]);
-			},
-			async parseLocal() {
 				for (const p of this.corpus.paragraphs)
 					Parser.parse_paragraph(p);
+
+				this.corpusStorage.update(this.corpus);
 			},
-			async annotateLocal(target_paragraphs) {
+			async annotate(target_paragraphs=null) {
 				const annotator = get_annotator(sharedState.annotator_name); //TODO
 				const lang_from = sharedState.lang_from;
 				const lang_to = sharedState.lang_to;
@@ -240,9 +119,10 @@
 							continue;
 
 					await annotator.annotate(p, lang_from, lang_to);
+					this.corpusStorage.update(this.corpus);
 				}
 			},
-			async reannotateLocal(target_paragraphs, target_tokens) {
+			async reannotate(target_paragraphs, target_tokens) {
 				const annotator = get_annotator(sharedState.annotator_name); //TODO
 				const lang_from = sharedState.lang_from;
 				const lang_to = sharedState.lang_to;
@@ -257,32 +137,26 @@
 				if (!lang_to) lang_to = target_p.annotator_info_obj.lang_to;
 
 				await annotator.reannotate(target_p, lang_from, lang_to, target_tokens);
+
+				this.corpusStorage.update(this.corpus);
 			},
 
-			scrollToOriginalHeader() {
-				const headerElement = this.$refs.header;
-				headerElement.scrollIntoView({
-					behavior: 'smooth'
-				});
-			},
-			handleResizeOrScroll() {
-				if (this.isCorpusVisible)
-					this.scrollToOriginalHeader();
-			},
 			psPrev() {
-				let cp = this.currentP - this.psPerScreen;
+				let cp = this.cursor - 1;
 
 				if (cp >= 0) {
-					this.currentP = cp;
+					this.cursor = cp;
 					this.scrollToTop();
+					corpusStorage.setCursor(this.corpusId, this.cursor);
 				}
 			},
 			psNext() {
-				let cp = this.currentP + this.psPerScreen;
+				let cp = this.cursor + 1;
 
 				if (cp < this.corpus.paragraphs.length) {
-					this.currentP = cp;
+					this.cursor = cp;
 					this.scrollToTop();
+					corpusStorage.setCursor(this.corpusId, this.cursor);
 				}
 			},
 			scrollToTop() {
@@ -301,45 +175,37 @@
 		},
 
 		watch: {
-			isCorpusVisible(newval) {
-				document.body.style.overflow = (newval) ? 'hidden' : '';
-				this.scrollToOriginalHeader();
-			}
+		
 		},
 
-		mounted() {
-			this.mounted = true;
-
-			// Add event listeners for resize and scroll events
-			window.addEventListener('resize', this.handleResizeOrScroll);
-			window.addEventListener('scroll', this.handleResizeOrScroll);
+		async created() {
+			this.corpus = await this.corpusStorage.read(this.corpusId);
+			this.cursor = this.corpusStorage.getCursor(this.corpusId) || 0;
 		},
 		beforeDestroy() {
-			// Remove event listeners for resize and scroll events
-			window.removeEventListener('resize', this.handleResizeOrScroll);
-			window.removeEventListener('scroll', this.handleResizeOrScroll);
+
 		},
 	}
 </script>
 
 <template>
-	<div :class="['corpus_wrapper', { 'full-screen': isCorpusVisible}]" 
+	<h4 @click="closeCorpus()"
+		ref="header">{{ corpusId }}
+	</h4>
+	<hr>
+	<div v-if="this.corpus"
 		:style="{ '--gloss-color': glossColor, '--gloss-size': glossSize, '--txt-size': txtSize }">
-		<hr>
-		<h4 @click="toggleCorpusVisibility()"
-			ref="header">{{ header + ": " + corpus_id }}
-		</h4>
-		<div v-if="isCorpusVisible" class="pButtonsDiv">
+		<div class="pButtonsDiv">
 			<button class="btn" @click="psPrev"> << </button>
-			<input v-model.number="currentP" type="number" class="form-control w-auto d-inline" :min="0" :max="corpus.paragraphs.length-1" />
+			<input v-model.number="cursor" type="number" class="form-control w-auto d-inline" :min="0" :max="corpus.paragraphs.length-1" />
 			<span>/{{ this.corpus.paragraphs.length - 1 }}</span>
 			<button class="btn" @click="psNext"> >> </button>
 		</div>
-		<div v-if="isCorpusVisible" class="corpus" ref="corpus">
+		<div class="corpus" ref="corpus">
 			<span class="corpus_buttons_span">
 				<button class="corpus_button btn btn-light" @click="download()">Download</button>
 
-				<span v-if="shouldShowManipulatorButtons">
+				<span>
 					<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide()">Divide</button>
 					<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide('\\n\\n')">Divide (for poems)</button>
 
@@ -357,11 +223,10 @@
 			<pre v-if="showPre"
 				class="corpus-pre">{{ JSON.stringify(corpus) }}</pre>
 
-			<Paragraph v-for="(p, index) in visibleParagraphs"
-				:key="index"
-				:p="p"
-				:index="index"
-				:remote=remote
+			<Paragraph v-if="corpus.paragraphs[cursor]"
+				:key="cursor"
+				:p="corpus.paragraphs[cursor]"
+				:index="cursor"
 				@annotateP="onAnnotateP"
 				@reannotateP="onReannotateP" />
 		</div>
@@ -373,9 +238,6 @@
 		display: flex;
 		flex-direction: column;
 		max-height: 99vh;
-	}
-	.full-screen {
-		height: 99vh;
 	}
 	.corpus {
 		flex: 1;

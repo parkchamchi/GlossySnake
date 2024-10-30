@@ -26,9 +26,7 @@
 			},
 		},
 		computed: {
-			visibility() {
-				return !sharedState.toRemote;
-			},
+
 		},
 		methods: {
 			emitChange() {
@@ -45,7 +43,7 @@
 
 <template>
 	<h4>Local Annotator Options</h4>
-	<div v-if="visibility" 
+	<div
 		class="container mt-3">
 		<div class="row">
 			<div class="col-md-2">

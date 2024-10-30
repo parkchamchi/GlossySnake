@@ -15,18 +15,12 @@
 			lang_to() {
 				this.emitChange();
 			},
-
-			toRemote() {
-				this.emitChange();
-			},
 		},
 		methods: {
 			emitChange() {
 				sharedState.annotator_name = this.annotator_name;
 				sharedState.lang_from = this.lang_from;
 				sharedState.lang_to = this.lang_to;
-
-				sharedState.toRemote = this.toRemote;
 			},
 		}
 	}
@@ -64,11 +58,4 @@
 	</div>
 
 	<br>
-
-	<div>
-		<input v-model="toRemote" 
-			type="checkbox" name="toRemote" id="toRemote_input" class="form-check-input"
-			checked>
-		<label for="toRemote_input" class="form-check-label">To the remote server</label>
-	</div>
 </template>

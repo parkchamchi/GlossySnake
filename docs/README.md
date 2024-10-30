@@ -36,6 +36,10 @@ Using XML.
 </glossysnake-text>
 ```
 
+Which can be transformed into JSON.
+- ![/docs/design/images/class_serializable.png](/docs/design/images/class_serializable.png)
+- `Paragraph` is an arbitary division that fits roughly a paper.
+
 ## Frontend data structure
 - On `indexDB`, open DB `"corpusDBv5"`.
 - Instead of locking the scroll, only load the mattering component.

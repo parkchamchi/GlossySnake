@@ -69,7 +69,7 @@ e.g. `http://localhost/api/v2/annotator/annotate`
 ## Classes
 
 ### Serializable
-![images/class_serializable.png](images/class_serializable.png)
+![images/v4_class_serializable.png](images/v4_class_serializable.png)
 
 - Reserved `Token.gloss`: `"!UNKNOWN"`
 

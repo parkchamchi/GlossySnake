@@ -8,8 +8,6 @@ export const sharedState = reactive({
 	lang_from: 'German',
 	lang_to: 'English',
 
-	toRemote: true,
-
 	openaiApiKey: null,
 	openaiModel: "gpt-4o-mini",
 	outerRetry: 2,

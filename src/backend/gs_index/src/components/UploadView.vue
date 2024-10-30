@@ -1,61 +1,27 @@
 <script>
-	import { GsApi } from "../GsApi.js"
 	import { EventBus } from "../EventBus.js";
 	import { Corpus } from "../serializables.js";
-	import { sharedState } from '../sharedState.js';
+	//import { sharedState } from '../sharedState.js';
 
 	export default {
 		data() {
 			return {
-				api: new GsApi(),
 				originalText: "",
 			}
 		},
 		methods: {
 			async onUploadButtonClicked() {
-				if (sharedState.toRemote)
-					return this.uploadOriginalTextRemote();
-				else
-					return this.uploadOriginalTextLocal();
+				const corpus_id = this.makeTitle(this.originalText);
+				const corpus = Corpus.init_with_txt(this.originalText);
+				EventBus.emit("addLocalCorpus", corpus);
 			},
 			async onJsonFileInput(event) {
 				const file = event.target.files[0];
 				const content = await file.text();
 				const corpus = JSON.parse(content);
 
-				if (sharedState.toRemote)
-					return this.uploadJsonFileRemote(corpus);
-				else
-					return this.uploadJsonFileLocal(corpus);
-			},
-
-			async uploadOriginalTextRemote() {
-				this.api.submit("/upload", "POST", {
-					"original_text": this.originalText,
-				})
-					.then((res) => res.json())
-					.then((json) => {
-						EventBus.emit("addAlert", { message: "Uploaded corpus " + json.corpus_id });
-					});
-			},
-			async uploadJsonFileRemote(corpus) {
-				this.api.submit("/upload", "POST", {
-					"corpus": corpus,
-				})
-					.then((res) => res.json())
-					.then((json) => {
-						EventBus.emit("addAlert", { message: "Uploaded corpus " + json.corpus_id });
-					});
-			},
-
-			async uploadOriginalTextLocal() {
-				const corpus_id = this.makeTitle(this.originalText);
-				const corpus = Corpus.init_with_txt(this.originalText);
-				EventBus.emit("addLocalCorpus", {corpus_id, corpus});
-			},
-			async uploadJsonFileLocal(corpus) {
 				const corpus_id = this.makeTitle(corpus.original_text);
-				EventBus.emit("addLocalCorpus", {corpus_id, corpus});
+				EventBus.emit("addLocalCorpus", corpus);
 			},
 			makeTitle(str, maxlen=16) {
 				return str.substring(0, maxlen);

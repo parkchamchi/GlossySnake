@@ -10,7 +10,7 @@
 		data() {
 			return {
 				//TODO: to v5
-				sampleHost: "https://parkchamchi.github.io/GlossySnake/samples/v5/",
+				sampleHost: "https://glossysnake.com/samples/v5/",
 				remoteSampleFilenames: [],
 
 				corpusStorage,

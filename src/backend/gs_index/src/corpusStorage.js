@@ -29,9 +29,8 @@ class CorpusStorageInner {
 					} else {
 						// If id does not exist, add the content
 						const addRequest = store.add(content);
-						addRequest.onsuccess = () => resolve(addRequest.result);
+						addRequest.onsuccess = () => this.setCache().then(() => resolve(addRequest.result));
 						addRequest.onerror = (event) => reject(event.target.error);
-						this.setCache();
 					}
 				};
 	
@@ -51,7 +50,7 @@ class CorpusStorageInner {
 
 			request.onsuccess = () => resolve(request.result);
 			request.onerror = (event) => reject(event.target.error);
-			this.setCache();
+			//this.setCache();
 		});
 	}
 
@@ -64,7 +63,7 @@ class CorpusStorageInner {
 
 			const request = store.put(content);
 
-			request.onsuccess = () => resolve(request.result);
+			request.onsuccess = () => this.setCache().then(() => resolve(request.result));
 			request.onerror = (event) => reject(event.target.error);
 			this.setCache();
 		});
@@ -77,7 +76,7 @@ class CorpusStorageInner {
 
 			const request = store.delete(id);
 
-			request.onsuccess = () => resolve();
+			request.onsuccess = () => this.setCache().then(() => resolve());
 			request.onerror = (event) => reject(event.target.error);
 			this.setCache();
 		});
@@ -92,7 +91,7 @@ class CorpusStorageInner {
 			const clearRequest = store.clear();
 			this.setCache();
 	
-			clearRequest.onsuccess = () => resolve();
+			clearRequest.onsuccess = () => this.setCache().then(() => resolve());
 			clearRequest.onerror = (event) => reject(event.target.error);
 		});
 	}

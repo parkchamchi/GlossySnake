@@ -1,6 +1,6 @@
 export { Parser };
 
-import { Paragraph, Token, AnnotatorInfo } from "./serializables.js";
+import { Paragraph, Token } from "./serializables.js";
 
 const STRING_WHITESPACE = ' \t\n\r\x0b\x0c';
 
@@ -68,14 +68,9 @@ class Parser {
 		fragments = reducedFragments;
 		
 		// Create Paragraph objects
-		corpus.paragraphs = fragments.map(f => new Paragraph(
-			"DIVIDED",
-			[],
-			paragraph_delimiters.includes(f),
-			"",
-			f,
-			new AnnotatorInfo()
-		));
+		corpus.paragraphs = fragments.map((f) => 
+			Paragraph.init_with_txt(f)
+		);
 
 		// Store the paragraph delimiters
 		corpus.paragraph_delimiters = paragraph_delimiters;
@@ -93,7 +88,6 @@ class Parser {
             paragraph.tokens = tokensWithDelimiters.map(({ token, is_delimiter }) => new Token(token, null, is_delimiter));
         }
 
-        paragraph.pstate = "PARSED";
         paragraph.token_delimiters = token_delimiters;
     }
 }

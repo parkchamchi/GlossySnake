@@ -32,8 +32,19 @@
 				if (psEmpty)
 					return "PLAIN";
 
-				const toTest = this.corpus.paragraphs[0];
-				return toTest.pstate;
+				const pToTest = this.corpus.paragraphs[0];
+				if (!pToTest.tokens || pToTest.tokens.length <= 0)
+					return "DIVIDED";
+
+				for (const t of pToTest.tokens) {
+					if (t.is_delimiter)
+						continue;
+					
+					if (t.gloss)
+						return "ANNOTATED";
+				}
+
+				return "PARSED";
 			},
 
 			//TODO: gen.

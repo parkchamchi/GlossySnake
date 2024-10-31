@@ -1,43 +1,48 @@
-export { Corpus, Paragraph, Token, AnnotatorInfo };
+export { Corpus, Paragraph, Token, Metadata };
 
 class Token {
 	constructor(txt, gloss, is_delimiter) {
 		this.txt = txt;
 		this.gloss = gloss;
+
 		this.is_delimiter = is_delimiter;
 	}
 }
 
-class AnnotatorInfo {
-	constructor(annotator_name, lang_from, lang_to) {
-		this.annotator_name = annotator_name;
-		this.lang_from = lang_from;
-		this.lang_to = lang_to;
+class Metadata {
+	constructor(title, author, annotation_info, original_language, gloss_language, note) {
+		this.title = title;
+		this.author = author;
+		this.annotation_info = annotation_info;
+		this.original_language = original_language;
+		this.gloss_language = gloss_language;
+		this.note = note;
 	}
 }
 
 class Paragraph {
-	constructor(pstate, tokens, is_delimiter, token_delimiters, original_text, annotator_info_obj) {
-		this.pstate = pstate;
+	constructor(tokens) {
 		this.tokens = tokens;
-		this.is_delimiter = is_delimiter;
-		this.token_delimiters = token_delimiters;
-		this.original_text = original_text;
-		this.annotator_info_obj = annotator_info_obj;
+	}
+
+	static init_with_txt(original_text) {
+		const p = new Paragraph([]);
+		p.original_text = original_text;
+		return p;
 	}
 }
 
 class Corpus {
-	constructor(paragraphs, paragraph_delimiters, original_text, p_div_locs) {
+	constructor(paragraphs, metadata) {
+		this.version = 5;
+		
 		this.paragraphs = paragraphs;
-		this.paragraph_delimiters = paragraph_delimiters;
-		this.original_text = original_text;
-		this.p_div_locs = p_div_locs;
+		this.metadata = metadata;
 	}
 
 	static init_with_txt(original_text) {
-		return new Corpus(
-			[], null, original_text, []
-		);
+		const corpus = new Corpus([], new Metadata());
+		corpus.original_text = original_text;
+		return corpus;
 	}
 }

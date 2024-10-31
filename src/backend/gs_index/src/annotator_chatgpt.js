@@ -3,7 +3,6 @@
 export { ChatgptAnnotator };
 
 import { Annotator, TOKEN_UNKNOWN } from "./annotator.js";
-import { AnnotatorInfo } from "./serializables.js";
 import { sharedState } from "./sharedState.js";
 
 const GLOSS_DELIMITER = "||"
@@ -71,9 +70,6 @@ class ChatgptAnnotator extends Annotator {
 		for (let i = 0; i < tokensWithoutDelimiters.length; i++) {
 			tokensWithoutDelimiters[i].gloss = glosses[i];
 		}
-
-		//paragraph.annotatorInfo = `ChatGptAnnotator_` + this.langFrom + `_` + this.langTo;
-		p.annotator_info_obj = new AnnotatorInfo(this.annotator_name, this.lang_from, this.lang_to);
 	}
 
 	async reput_gloss(p, target_tokens) {

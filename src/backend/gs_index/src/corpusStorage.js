@@ -141,7 +141,6 @@ class CorpusStorageInner {
 		this.cursors = JSON.parse(localStorage.getItem('corpusCursors')) || {};
 	}
 	setCursor(corpusId, val) {
-		console.log(val);
 		this.cursors[corpusId] = val;
 		localStorage.setItem('corpusCursors', JSON.stringify(this.cursors));
 	}

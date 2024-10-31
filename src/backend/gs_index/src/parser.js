@@ -26,6 +26,7 @@ function tokenize(txt, delimiters) {
 }
 
 class Parser {
+	//TODO: AD HOC CODES
 	static divide_into_paragraphs(corpus, paragraph_delimiters=['\n']) {
 		const originalText = corpus.original_text;
 		let delims = paragraph_delimiters.map(delim => delim.replace("\\n", "\n"));
@@ -47,12 +48,25 @@ class Parser {
 			fragments = [].concat(...fragments);
 		});
 
-		// Calculate the locations of paragraph divisions
-		corpus.p_div_locs = fragments.reduce((acc, f) => {
-			acc.push((acc.length ? acc[acc.length - 1] : 0) + f.length);
-			return acc;
-		}, []);
+		//fragments: concat them so each of them exceed `minLen`
+		const minLen = 1024;
+		let reducedFragments = [];
+		let currentFragment = "";
+		fragments.forEach((fragment) => {
+			if (currentFragment.length + fragment.length < minLen || paragraph_delimiters.includes(fragment)) {
+				currentFragment += fragment;
+			}
+			else {
+				if (currentFragment.length > 0)
+					reducedFragments.push(currentFragment);
 
+				currentFragment = fragment;
+			}
+		});
+		if (currentFragment.length > 0)
+			reducedFragments.push(currentFragment);
+		fragments = reducedFragments;
+		
 		// Create Paragraph objects
 		corpus.paragraphs = fragments.map(f => new Paragraph(
 			"DIVIDED",

@@ -279,8 +279,4 @@
 		justify-content: space-between;
 		align-items: center;
 	}
-
-	.corpus_buttons_span {
-		width: 100%;
-	}
 </style>

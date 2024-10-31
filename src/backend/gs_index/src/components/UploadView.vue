@@ -11,8 +11,9 @@
 		},
 		methods: {
 			async onUploadButtonClicked() {
-				const corpus_id = this.makeTitle(this.originalText);
 				const corpus = Corpus.init_with_txt(this.originalText);
+				const corpus_id = this.makeTitle(this.originalText);
+				corpus.id = corpus_id;
 				EventBus.emit("addLocalCorpus", corpus);
 			},
 			async onJsonFileInput(event) {

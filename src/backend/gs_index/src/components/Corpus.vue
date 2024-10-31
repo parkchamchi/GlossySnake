@@ -252,6 +252,7 @@
 				:key="cursor"
 				:p="corpus.paragraphs[cursor]"
 				:index="cursor"
+				:showMetadata="showMetadata"
 				@annotateP="onAnnotateP"
 				@reannotateP="onReannotateP" />
 		</div>

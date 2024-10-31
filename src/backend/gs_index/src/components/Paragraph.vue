@@ -12,16 +12,19 @@
 				type: Number,
 				required: true,
 			},
+
+			showMetadata: {
+				type: Boolean,
+				required: false,
+				default: false,
+			}
 		},
 		components: {
 			Token,
 		},
 		computed: {
-			isAnnotateButtonVisible() {
-				return !this.p.is_delimiter && this.p.tokens && this.p.tokens.length
-			},
 			shouldShowManipulatorButtons() { //See Corpus.vue
-				return sharedState.openaiApiKey; //TODO: dup. w/ Corpus.vue
+				return this.showMetadata && this.p.tokens && this.p.tokens.length;
 			}
 		},
 		data() {
@@ -49,7 +52,7 @@
 
 <template>
 	<div class='paragraph_wrapper'>
-		<span v-if="isAnnotateButtonVisible && shouldShowManipulatorButtons" class="paragraph_annotate_buttons_span">
+		<span v-if="shouldShowManipulatorButtons" class="paragraph_annotate_buttons_span">
 			<button class="corpus_button btn btn-light" @click="annotateP(index)">
 				Annotate
 			</button>
@@ -57,10 +60,8 @@
 				Reannotate
 			</button>
 			<br>
+			<hr>
 		</span>
-
-		<pre v-if="showPre"
-			>{{ JSON.stringify(p) }}</pre>
 
 		<Token v-for="(t, index) in p.tokens"
 			:key="index"

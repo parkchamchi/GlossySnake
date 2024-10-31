@@ -23,7 +23,7 @@
 				corpus: null,
 				cursor: null,
 
-				showPre: false,
+				showMetadata: false,
 			}
 		},
 		computed: {
@@ -166,6 +166,10 @@
 				});
 			},
 
+			toggleShowMetadata() {
+				this.showMetadata =!this.showMetadata;
+			},
+
 			onAnnotateP(p_index) {
 				this.annotate([p_index]);
 			},
@@ -200,12 +204,17 @@
 			<input v-model.number="cursor" type="number" class="form-control w-auto d-inline" :min="0" :max="corpus.paragraphs.length-1" />
 			<span>/{{ this.corpus.paragraphs.length - 1 }}</span>
 			<button class="btn" @click="psNext"> >> </button>
+
+			<button class="btn" 
+				@click="toggleShowMetadata"
+				style="margin-left: auto; margin-right: 0;">[i]</button>
 		</div>
 		<div class="corpus" ref="corpus">
-			<span class="corpus_buttons_span">
-				<button class="corpus_button btn btn-light" @click="download()">Download</button>
-
-				<span>
+			<div v-if="showMetadata">
+				<hr>
+				<div class="corpus_buttons_span" >
+					<button class="corpus_button btn btn-light" @click="download()">Download</button>
+				
 					<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide()">Divide</button>
 					<button :class="['corpus_button', 'btn', divideButtonClass]" @click="divide('\\n\\n')">Divide (for poems)</button>
 
@@ -216,12 +225,17 @@
 					<button :class="['corpus_button', 'btn', annotateButtonClass]" @click="annotate(null)">
 						Annotate (Reset)
 					</button>
-				</span>
-			</span>
-			<br>
+				</div>
 
-			<pre v-if="showPre"
-				class="corpus-pre">{{ JSON.stringify(corpus) }}</pre>
+				<ul>
+					<li v-for="(v, k) in corpus.metadata">
+						<strong>{{ k }}:</strong> {{ v }}
+					</li>
+				</ul>
+
+				<hr>
+			</div>
+			<br>
 
 			<Paragraph v-if="corpus.paragraphs[cursor]"
 				:key="cursor"
@@ -257,5 +271,16 @@
 	.corpus-pre {
 		max-width: 100%;
 		overflow: auto;
+	}
+
+	.pButtonsDiv {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.corpus_buttons_span {
+		width: 100%;
 	}
 </style>

@@ -38,6 +38,7 @@
 
 			/* Local */
 			async addLocalCorpus(corpus) {
+				console.log("addLocalCorpus", corpus.id);
 				this.corpusStorage.create(corpus);
 			},
 			updateCorpusIds() {
@@ -52,7 +53,7 @@
 			},
 		},
 		async created() {
-			EventBus.on("updateCorpusIds", this.updateCorpusIds); // Listen for the error event
+			EventBus.on("updateCorpusIds", this.updateCorpusIds);
 			EventBus.on("addLocalCorpus", this.addLocalCorpus); // From UploadView
 
 			this.getRemoteSamples();
@@ -62,7 +63,7 @@
 			this.updateCorpusIds();
 		},
 		beforeDestroy() {
-			EventBus.off("updateCorpuses", this.updateCorpuses); // Clean up the event listener
+			EventBus.off("updateCorpusIds", this.updateCorpusIds);
 			EventBus.off("addLocalCorpus", this.addLocalCorpus); // From UploadView
 		},
 	}

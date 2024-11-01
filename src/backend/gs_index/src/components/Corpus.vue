@@ -91,7 +91,7 @@
 
 				let a = document.createElement("a"); //dummy a
 				let file = new Blob([json], {type: "text/plain"});
-				a.download = this.corpus_id + ".corpus.json";
+				a.download = this.corpus.id + ".corpus.json";
 				a.href = URL.createObjectURL(file);
 				a.click();
 			},

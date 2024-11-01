@@ -12,8 +12,7 @@
 		methods: {
 			async onUploadButtonClicked() {
 				const corpus = Corpus.init_with_txt(this.originalText);
-				const corpus_id = this.makeTitle(this.originalText);
-				corpus.id = corpus_id;
+				corpus.id = this.makeTitle(this.originalText);
 				EventBus.emit("addLocalCorpus", corpus);
 			},
 			async onJsonFileInput(event) {
@@ -21,10 +20,13 @@
 				const content = await file.text();
 				const corpus = JSON.parse(content);
 
-				const corpus_id = this.makeTitle(corpus.original_text);
+				corpus.id = "JSON Corpus";
 				EventBus.emit("addLocalCorpus", corpus);
 			},
 			makeTitle(str, maxlen=16) {
+				if (!str)
+					return "Corpus";
+
 				return str.substring(0, maxlen);
 			}
 		}

@@ -37,6 +37,8 @@ class CorpusStorageInner {
 				getRequest.onerror = (event) => reject(event.target.error);
 			};
 	
+			if (!content.id)
+				content.id = "id";
 			checkAndAdd(content, content.id);
 		});
 	}

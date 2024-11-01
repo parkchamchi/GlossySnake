@@ -27,7 +27,7 @@
 				if (!str)
 					return "Corpus";
 
-				return str.substring(0, maxlen);
+				return str.substring(0, maxlen).replace(/\s+/, ' ').trim();
 			}
 		}
 	}

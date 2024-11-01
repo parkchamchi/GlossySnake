@@ -3,6 +3,15 @@
 	import { Corpus } from "../serializables.js";
 	//import { sharedState } from '../sharedState.js';
 
+	function debounce(func, wait) {
+		let timeout;
+		return function(...args) {
+			const context = this;
+			clearTimeout(timeout);
+			timeout = setTimeout(() => func.apply(context, args), wait);
+		};
+	}
+
 	export default {
 		data() {
 			return {
@@ -29,7 +38,11 @@
 
 				return str.substring(0, maxlen).replace(/\s+/, ' ').trim();
 			}
-		}
+		},
+		created() {
+			this.onUploadButtonClicked = debounce(this.onUploadButtonClicked, 300);
+			this.onJsonFileInput = debounce(this.onJsonFileInput, 300);
+		},
 	}
 </script>
 

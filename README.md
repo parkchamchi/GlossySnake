@@ -8,6 +8,8 @@ It's much worse than I remember -- but I edited bunch of 'em & relocate the read
 
 The program as janky as it is still works
 
+See Physica [1](/docs/pdf_outs/Physica-bk1.pdf) [2](/docs/pdf_outs/Physica-bk2.pdf) [3](/docs/pdf_outs/Physica-bk3.pdf) [4](/docs/pdf_outs/Physica-bk4.pdf) [5](/docs/pdf_outs/Physica-bk5.pdf) [6](/docs/pdf_outs/Physica-bk6.pdf) [7](/docs/pdf_outs/Physica-bk7.pdf)
+
 *2026.07.20*
 
 ---

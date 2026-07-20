@@ -108,8 +108,8 @@
 			},
 			async annotate(target_paragraphs=null) {
 				const annotator = get_annotator(sharedState.annotator_name); //TODO
-				const lang_from = sharedState.lang_from;
-				const lang_to = sharedState.lang_to;
+				let lang_from = sharedState.lang_from;
+				let lang_to = sharedState.lang_to;
 				
 				if (target_paragraphs) {
 					//skip assert
@@ -118,7 +118,18 @@
 						//annotate the non-`"ANNOTATED"`s
 						target_paragraphs = this.corpus.paragraphs
 							.map((p, i) => ({ p, i }))
-							.filter(({ p }) => !p.is_delimiter && p.pstate != "ANNOTATED")
+							//.filter(({ p }) => !p.is_delimiter && p.pstate != "ANNOTATED")
+							.filter(({ p }) => function (p) {
+								for (const t of p.tokens) {
+									if (t.is_delimiter)
+										continue;
+									
+									if (t.gloss)
+										return "ANNOTATED";
+								}
+
+								return "PARSED";
+							}(p) != "ANNOTATED")
 							.map(({ i }) => i);
 					}
 					console.log(target_paragraphs);
@@ -135,8 +146,8 @@
 			},
 			async reannotate(target_paragraphs, target_tokens) {
 				const annotator = get_annotator(sharedState.annotator_name); //TODO
-				const lang_from = sharedState.lang_from;
-				const lang_to = sharedState.lang_to;
+				let lang_from = sharedState.lang_from;
+				let lang_to = sharedState.lang_to;
 
 				//Below is a translation from python...
 				//Should be against a paragraph, not a corpus

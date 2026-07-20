@@ -409,10 +409,14 @@ class ChatgptGlossFetcher extends GlossFetcher {
 
 		console.log("token_strs:", tokenStrs);
 		console.log("res:", res);
+		const entries = Object.entries(res);
+
+		if (entries.length < tokenStrs.length)
+			throw new Error(`Requested ${tokenStrs.length} tokens, but only got ${entries.length}.`)
+
 		for (let i = 0; i < tokenStrs.length; i++) {
 			const origTxt = tokenStrs[i];
 			
-			const entries = Object.entries(res);
 			if (reannotation && i >= entries.length)
 				break;
 			const [retI, resValue] = entries[i];
